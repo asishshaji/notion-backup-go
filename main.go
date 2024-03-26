@@ -25,6 +25,6 @@ func main() {
 
 	err = notionApp.ExportFromNotion(app.MardownExportType)
 	if err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 }
