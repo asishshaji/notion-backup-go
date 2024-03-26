@@ -1,0 +1,14 @@
+{
+  "task": {
+    "eventName": "exportSpace",
+    "request": {
+      "spaceId": "75f1fb2b-b4d6-4f32-84be-dafd2c99dcc4",
+      "exportOptions": {
+        "exportType": "markdown",
+        "timeZone": "America/New_York",
+        "locale": "en"
+      },
+      "shouldExportComments": false
+    }
+  }
+}
