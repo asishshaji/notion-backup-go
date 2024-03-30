@@ -159,7 +159,7 @@ func (a *App) queryTaskStatus(taskId string, exportType ExportType) {
 
 func (a *App) downloadExport(url string, exportType ExportType) {
 	log.Printf("url %s -> type %s", url, string(exportType))
-	response, err := http.Get(url)
+	response, err := a.Client.Get(url)
 	if err != nil {
 		log.Println("Error while downloading ZIP file:", err)
 		return
