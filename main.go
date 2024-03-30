@@ -22,9 +22,13 @@ func main() {
 	}}
 
 	notionApp := app.NewApp(os.Getenv("NOTION_TOKEN"), os.Getenv("NOTION_FILE_TOKEN"), os.Getenv("NOTION_SPACE_ID"), client)
+	exportTypes := []app.ExportType{app.HtmlExportType, app.MardownExportType}
 
-	err = notionApp.ExportFromNotion(app.MardownExportType)
-	if err != nil {
-		log.Fatalln(err)
+	for _, t := range exportTypes {
+		go notionApp.ExportFromNotion(t)
+	}
+
+	for range exportTypes {
+		<-notionApp.Quit
 	}
 }

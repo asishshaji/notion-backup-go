@@ -7,6 +7,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"time"
 )
 
 type App struct {
@@ -14,19 +16,23 @@ type App struct {
 	NOTION_FILE_TOKEN string
 	NOTION_SPACE_ID   string
 	Client            *http.Client
-	TaskIds           []string
-	GetTaskResultCh   chan GetTaskResult
+	Quit              chan struct{}
+	ExportUrls        chan string
 }
 
 func NewApp(token, fileToken, spaceId string, httpClient *http.Client) *App {
-	return &App{
+	a := &App{
 		NOTION_TOKEN:      token,
 		NOTION_FILE_TOKEN: fileToken,
 		NOTION_SPACE_ID:   spaceId,
 		Client:            httpClient,
-		GetTaskResultCh:   make(chan GetTaskResult, 10),
+		Quit:              make(chan struct{}, 2),
+		ExportUrls:        make(chan string, 2),
 	}
+
+	return a
 }
+
 func (a *App) post(url string, body []byte) ([]byte, error) {
 	req, err := http.NewRequest("POST", url, bytes.NewReader(body))
 	if err != nil {
@@ -47,6 +53,7 @@ func (a *App) post(url string, body []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 
 	respBody, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -56,32 +63,29 @@ func (a *App) post(url string, body []byte) ([]byte, error) {
 	return respBody, nil
 }
 
-func (a *App) getTasks(tasksIds []string) error {
+func (a *App) getTasksStatus(taskId string) (GetTasksJSONResp, error) {
 	var tasksResponse GetTasksJSONResp
 
-	var NOTION_API_GET_TASKS_URL string = fmt.Sprintf("%s/getTasks", NOTION_API_URL)
+	var NOTION_API_GET_TASKS_URL = fmt.Sprintf("%s/getTasks", NOTION_API_URL)
 	taskIdsReq := struct {
 		TaskIds []string `json:"taskIds"`
 	}{
-		TaskIds: tasksIds,
+		TaskIds: []string{taskId},
 	}
 	r, err := MarshalRequest(taskIdsReq)
 	if err != nil {
-		return fmt.Errorf("error marshalling getTasks request: %s", err)
+		return tasksResponse, fmt.Errorf("error marshalling getTasks request: %s", err)
 	}
 	resp, err := a.post(NOTION_API_GET_TASKS_URL, r)
 	if err != nil {
-		return err
+		return tasksResponse, err
 	}
 
 	if err = json.Unmarshal(resp, &tasksResponse); err != nil {
-		return err
+		return tasksResponse, err
 	}
 
-	for _, r := range tasksResponse.Results {
-		a.GetTaskResultCh <- r
-	}
-	return nil
+	return tasksResponse, nil
 }
 
 func (a *App) enqueueTask(exportType ExportType) (TaskJSONResp, error) {
@@ -105,7 +109,7 @@ func (a *App) enqueueTask(exportType ExportType) (TaskJSONResp, error) {
 		return TaskJSONResp{}, err
 	}
 
-	var NOTION_API_ENQUEUE_URL string = fmt.Sprintf("%s/enqueueTask", NOTION_API_URL)
+	var NOTION_API_ENQUEUE_URL = fmt.Sprintf("%s/enqueueTask", NOTION_API_URL)
 
 	resp, err := a.post(NOTION_API_ENQUEUE_URL, marshalledTaskRequest)
 	if err != nil {
@@ -126,21 +130,55 @@ func (a *App) ExportFromNotion(exportType ExportType) error {
 		return err
 	}
 
-	taskId := taskResp.TaskId
-	log.Printf("enqueued task with id %s\n", taskId)
-	a.TaskIds = append(a.TaskIds, taskId)
-
-	// the tasks won't be ready yet, need to wait.
-	// or keep polling if the task is ready
-	a.getTasks(a.TaskIds)
-	go a.processGetTaskResults()
+	go a.queryTaskStatus(taskResp.TaskId, exportType)
 
 	return nil
 }
 
-func (a *App) processGetTaskResults() {
-
-	for range a.GetTaskResultCh {
-
+func (a *App) queryTaskStatus(taskId string, exportType ExportType) {
+	ticker := time.NewTicker(time.Second * 1)
+	for {
+		select {
+		case <-ticker.C:
+			res, _ := a.getTasksStatus(taskId)
+			state := res.Results[0].State
+			if state == "success" {
+				log.Println(res.Results[0].Status.ExportURL)
+				go a.downloadExport(res.Results[0].Status.ExportURL, exportType)
+				return
+			} else if state == "in_progress" {
+				log.Printf("%s polled, status %s\n", taskId, state)
+			}
+		case <-time.After(time.Second * 60):
+			log.Println("shutting down")
+			a.Quit <- struct{}{}
+			return
+		}
 	}
+}
+
+func (a *App) downloadExport(url string, exportType ExportType) {
+	log.Printf("url %s -> type %s", url, string(exportType))
+	response, err := http.Get(url)
+	if err != nil {
+		log.Println("Error while downloading ZIP file:", err)
+		return
+	}
+	defer response.Body.Close()
+
+	outputFile, err := os.Create(fmt.Sprintf("%s.zip", string(exportType)))
+	if err != nil {
+		log.Println("Error creating output file:", err)
+		return
+	}
+	defer outputFile.Close()
+
+	_, err = io.Copy(outputFile, response.Body)
+	if err != nil {
+		log.Println("Error copying content to file:", err)
+		return
+	}
+
+	log.Println("ZIP file downloaded successfully")
+	a.Quit <- struct{}{}
 }
