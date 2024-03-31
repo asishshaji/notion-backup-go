@@ -29,4 +29,11 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_FILE_TOKEN: ${{ secrets.NOTION_FILE_TOKEN }}
           NOTION_SPACE_ID: ${{ secrets.NOTION_SPACE_ID }}
-          NODE_OPTIONS: "--max-http-header-size 15000"
+          
+    - name: Commit changes
+      run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Automated snapshot"
+          git push
