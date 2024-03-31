@@ -262,7 +262,6 @@ func UnzipFile(fileName string) {
 	os.MkdirAll(extracted_dir, 0755)
 
 	for _, file := range innerZip.File {
-		fmt.Println("Helo")
 		innerFile, _ := file.Open()
 		defer innerFile.Close()
 
