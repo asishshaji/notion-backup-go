@@ -1,3 +1,6 @@
 # github.com/joho/godotenv v1.5.1
 ## explicit; go 1.12
 github.com/joho/godotenv
+# github.com/xyproto/unzip v0.0.0-20150601123358-823950573952
+## explicit
+github.com/xyproto/unzip
