@@ -1,0 +1,676 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Consistent Hashing</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="c411af55-5a75-46aa-a747-72d58a4149bd" class="page mono"><header><h1 class="page-title">Consistent Hashing</h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-url"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesUrl"><path d="M7.69922 10.8945L8.73828 9.84863C7.91797 9.77344 7.34375 9.51367 6.91992 9.08984C5.76465 7.93457 5.76465 6.29395 6.91309 5.14551L9.18262 2.87598C10.3379 1.7207 11.9717 1.7207 13.127 2.87598C14.2891 4.04492 14.2822 5.67188 13.1338 6.82031L11.958 7.99609C12.1768 8.49512 12.2451 9.10352 12.1289 9.62988L14.0908 7.6748C15.7725 6 15.7793 3.62109 14.084 1.92578C12.3887 0.223633 10.0098 0.237305 8.33496 1.91211L5.95605 4.29785C4.28125 5.97266 4.26758 8.35156 5.96289 10.0469C6.36621 10.4434 6.90625 10.7441 7.69922 10.8945ZM8.30078 5.13184L7.26855 6.17773C8.08203 6.25293 8.66309 6.51953 9.08008 6.93652C10.2422 8.09863 10.2422 9.73242 9.08691 10.8809L6.81738 13.1504C5.66211 14.3057 4.03516 14.3057 2.87305 13.1504C1.71094 11.9883 1.71777 10.3545 2.87305 9.20605L4.04199 8.03027C3.83008 7.53125 3.75488 6.92969 3.87109 6.39648L1.91602 8.35156C0.234375 10.0264 0.227539 12.4121 1.92285 14.1074C3.61816 15.8027 5.99707 15.7891 7.67188 14.1143L10.0439 11.7354C11.7256 10.0537 11.7324 7.6748 10.0371 5.98633C9.64062 5.58301 9.10059 5.28223 8.30078 5.13184Z"></path></svg></span>URL</th><td><a href="https://vishalrana9915.medium.com/consistent-hashing-36fa25892b4f" class="url-value">https://vishalrana9915.medium.com/consistent-hashing-36fa25892b4f</a></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesMultipleSelect"><path d="M1.91602 4.83789C2.44238 4.83789 2.87305 4.40723 2.87305 3.87402C2.87305 3.34766 2.44238 2.91699 1.91602 2.91699C1.38281 2.91699 0.952148 3.34766 0.952148 3.87402C0.952148 4.40723 1.38281 4.83789 1.91602 4.83789ZM5.1084 4.52344H14.3984C14.7607 4.52344 15.0479 4.23633 15.0479 3.87402C15.0479 3.51172 14.7607 3.22461 14.3984 3.22461H5.1084C4.74609 3.22461 4.45898 3.51172 4.45898 3.87402C4.45898 4.23633 4.74609 4.52344 5.1084 4.52344ZM1.91602 9.03516C2.44238 9.03516 2.87305 8.60449 2.87305 8.07129C2.87305 7.54492 2.44238 7.11426 1.91602 7.11426C1.38281 7.11426 0.952148 7.54492 0.952148 8.07129C0.952148 8.60449 1.38281 9.03516 1.91602 9.03516ZM5.1084 8.7207H14.3984C14.7607 8.7207 15.0479 8.43359 15.0479 8.07129C15.0479 7.70898 14.7607 7.42188 14.3984 7.42188H5.1084C4.74609 7.42188 4.45898 7.70898 4.45898 8.07129C4.45898 8.43359 4.74609 8.7207 5.1084 8.7207ZM1.91602 13.2324C2.44238 13.2324 2.87305 12.8018 2.87305 12.2686C2.87305 11.7422 2.44238 11.3115 1.91602 11.3115C1.38281 11.3115 0.952148 11.7422 0.952148 12.2686C0.952148 12.8018 1.38281 13.2324 1.91602 13.2324ZM5.1084 12.918H14.3984C14.7607 12.918 15.0479 12.6309 15.0479 12.2686C15.0479 11.9062 14.7607 11.6191 14.3984 11.6191H5.1084C4.74609 11.6191 4.45898 11.9062 4.45898 12.2686C4.45898 12.6309 4.74609 12.918 5.1084 12.918Z"></path></svg></span>Category</th><td><span class="selected-value select-value-color-green">Database</span><span class="selected-value select-value-color-brown">General</span><span class="selected-value select-value-color-orange">Optimisation</span></td></tr></tbody></table></header><div class="page-body"><figure id="be37ea2b-f08b-4b0f-8694-cafdbaab5581" class="image"><a href="https://miro.medium.com/v2/resize:fit:785/1*MveDD6ih1rYhWrS3VQPEaQ.png"><img style="width:554px" src="https://miro.medium.com/v2/resize:fit:785/1*MveDD6ih1rYhWrS3VQPEaQ.png"/></a></figure><hr id="27393fc4-375f-4e27-8f03-1bdee860d91e"/><figure id="31758d7c-3bf7-4bc4-963b-3f4833262019" class="image"><a href="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/5c50caa54067fd622d2f0fac18392213bf92f6e2fae89b691e62bceb40885e74"><img style="width:700px" src="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/5c50caa54067fd622d2f0fac18392213bf92f6e2fae89b691e62bceb40885e74"/></a></figure><p id="321157d8-02f1-4c3e-b8e9-28924d2fee6a" class="">In this blog, we’ll talk about what is consistent hashing and why we need to use it and how it can be used. Let’s first understand why we need to use consistent hashing.</p><h1 id="6fedcb03-7d8f-4f99-861f-47970d24fcad" class="">Why Consistent Hashing?</h1><p id="870b9dc0-d84b-4acc-95ad-d19b5fcf83ea" class="">In our previous blog about system design. We define a problem where one server is not able to server our heavy load of traffic and we need something reliable, so we thought of scaling our server horizontally and adding a load balancer on top of it to redirect traffic to each server equally.</p><p id="1cfeb600-df76-46bc-a10c-47cd7fcb455f" class="">When a client sends a request to a <strong>load balancer</strong>, the load balancer routes the request to one of the servers in its pool of servers using a load balancing algorithm.</p><p id="18cf41c9-8a5d-4bef-8708-750cd8ad9920" class="">There are several different load balancing algorithms that can be used to determine which server to send the request to. Some common algorithms include:</p><ul id="79922930-6b2b-421b-bb14-16adddd5be9d" class="bulleted-list"><li style="list-style-type:disc"><strong>Round-robin</strong>: The load balancer sends requests to servers in a rotation, sending the next request to the next server in the list.</li></ul><ul id="f563710a-c11e-4ddd-8405-b7fbf6940c97" class="bulleted-list"><li style="list-style-type:disc"><strong>Least connections</strong>: The load balancer sends requests to the server with the least number of active connections.</li></ul><ul id="fd83efb9-20df-4eaf-91f4-a275cbf254c0" class="bulleted-list"><li style="list-style-type:disc"><strong>Least response time</strong>: The load balancer sends requests to the server that has the lowest response time for previous requests.</li></ul><ul id="af96b44c-51fc-4bc6-b8f6-b65a1f525338" class="bulleted-list"><li style="list-style-type:disc"><strong>Weighted round-robin</strong>: The load balancer sends requests to servers in a rotation, but the rotation is based on the weight assigned to each server. Servers with a higher weight receive a higher proportion of the requests.</li></ul><p id="42761a73-98ab-4f34-8848-f754c7b5df68" class="">The load balancer can also use health checks to monitor the status of each server and route requests only to healthy servers. This helps to ensure that requests are not sent to servers that are down or experiencing issues.</p><h2 id="b69844a9-d562-47ba-8d22-ab213ed8d557" class="">HASH FUNCTION</h2><p id="80f6bca6-102a-4401-817b-68c912d19bf1" class="">Load balancers also use a <strong>hash function</strong> to redirect the user to server which they were connected before. A hash function is a mathematical function that takes an input value (also called a key) and returns a fixed-size output value (also called a hash or a digest).</p><p id="646dbc89-9a06-450c-af8d-8ea049f53fff" class="">Hash function are good, in case where we want to connect a user to same server throughout its course of actions so that we can server them better based on the session state or cache we have stored for that user on that same server.</p><p id="fef8fa9c-c475-468d-afad-948d52d3fae0" class="">Based on this, User A will always connect to server 3.</p><figure id="85356d6c-2a1e-44a5-a085-c182f907e79e" class="image"><a href="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1xFTywBMHPXpgVzERXA8GKw.png"><img style="width:700px" src="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1xFTywBMHPXpgVzERXA8GKw.png"/></a></figure><p id="4c2ea459-4e25-45e7-9a54-9966f6daa1fe" class="">If another user connects, load balancer will calculate the hash value and decide which server to assign that request. It is important to assign the same user to same server as we have cache and other things related to that user saved on the server that can help us to server they better.</p><p id="8e363329-f57f-4a8a-a71b-776454edfe27" class="">This looks good, but the problem is when servers are added and removed from the server pool.</p><p id="25ec6743-43f3-4981-9eaf-eeac25da4b39" class="">Let’s understand how it is a problem.</p><p id="412631be-4b0e-4402-b983-667a2dcbf954" class="">with change in servers, hash computation will be different and server will be assigned accordingly</p><figure id="151729d2-43f1-412d-aaba-4d26a25ec1a3" class="image"><a href="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1x7S_8rxOoxEPjLO2MVOZVQ.png"><img style="width:700px" src="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1x7S_8rxOoxEPjLO2MVOZVQ.png"/></a></figure><p id="e8b0a8e2-751d-41d9-a028-1dee199fd361" class="">Let’s suppose , due to increase in load, we added a new server and now we have 5 servers to serve the traffic. Now, the issue is when user A will make a request, it will be handled by completely different server because our servers increased and so does our hash function output, because before it was calculating the value considering 4 servers but now we have 5. so This is where the whole issue lies.</p><p id="aff15425-d585-4415-9fb3-10162afd9d0f" class="">Adding or Removing a server will result in shuffling the users on different servers and this can be a big problem for us. So what is the solution?</p><p id="7910c543-35fe-43da-90bf-e93a886aa6fc" class="">This is where <strong>Consistent Hashing comes in.</strong></p><h1 id="ab2a34ad-c21d-445b-b659-08bb614543a1" class="">WHAT IS CONSISTENT HASHING?</h1><p id="2bb4dfc1-4c06-43df-b51d-6f62e8516506" class="">Consistent hashing is a hashing technique that allows nodes to be added or removed from a hash table (also called a distributed hash table or <strong>DHT</strong>) without significantly altering the mapping of keys to nodes.</p><p id="a4137ec5-887b-4887-b007-c9b71c68dbc7" class="">It means , we can add and remove servers without doing much of the shuffling of connected users.</p><blockquote id="b13ade87-9efd-47eb-8d22-7007ed54e1ac" class="">In consistent hashing, the set of all possible keys is called the “hash space.” The hash space is typically represented as a circle, with the keys distributed evenly around the circle. This representation is called a “hash ring.”</blockquote><p id="68479c5a-689a-4d05-aa0b-f7d14ec44484" class="">Hash space that range from 0 to n (if we are using SHA-1 hash function to create our hash then the range goes to 2¹⁶⁰ -1)</p><figure id="92954d0a-a982-4779-8158-1fbecfb90969" class="image"><a href="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1zQzc3RHb6QfnY1mo-m_UUA.png"><img style="width:700px" src="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1zQzc3RHb6QfnY1mo-m_UUA.png"/></a></figure><p id="dc216d89-7884-421e-8a8a-fc161772771c" class="">Once we connect our hash space and repesents it like a ring that will be called hash ring.</p><p id="1d531bd0-7877-4020-a5ee-9cdb8ad3fa64" class="">hash ring with range from 0 to n</p><figure id="6b5b3645-31cc-41b8-81bb-0237ec6afdaa" class="image"><a href="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1ztjT3sM_O7mLDGL9l6g21w.png"><img style="width:380px" src="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1ztjT3sM_O7mLDGL9l6g21w.png"/></a></figure><p id="eb4a7ee0-0e18-424b-ab2e-df239d1cfbfc" class="">Hash ring with representation of hash space</p><figure id="ffb2b1f6-188c-4ffa-a129-71d176522adb" class="image"><a href="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1oQuFxjp15YvwrISVx1sEOA.png"><img style="width:437px" src="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1oQuFxjp15YvwrISVx1sEOA.png"/></a></figure><p id="14d8e4ff-6e0f-4548-b74d-0bc128693cae" class="">Each node in the distributed system is also assigned a position on the hash ring, and is responsible for storing the keys that fall within a certain range of the hash ring. The range of keys that a node is responsible for is called its “zone.”</p><h2 id="bd2e9d32-aacf-45c7-9555-20636c9f3bcb" class="">Using a hash function, we can map servers onto the ring.</h2><p id="5968c996-aad4-49b3-9653-cc7d214ad835" class="">Four server mapped on the ring using the hash function.</p><figure id="577bf6f6-e868-4257-9954-b8aa39a1fdd9" class="image"><a href="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1N0Wu97jOKBjDD4wRz0GnWg.png"><img style="width:512px" src="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1N0Wu97jOKBjDD4wRz0GnWg.png"/></a></figure><p id="c7d83221-c7ef-4bce-a4e8-d3fc19ca2635" class="">Now, we have our server mapped on to the ring, let’s understand how the requests will be handled by these servers.</p><p id="6380899b-eaaf-467f-a279-4a89071fc6c8" class="">we have three requests that mapped on to the hash space using the hash function</p><figure id="a1affb8c-6341-4084-80b9-b9bef6e9f677" class="image"><a href="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/13M40XvSkMfsmghjNmxI_Ww.png"><img style="width:605px" src="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/13M40XvSkMfsmghjNmxI_Ww.png"/></a></figure><p id="96fdcb98-362c-4cff-8eab-b28c511e1067" class="">Each request will be handled by the first server it encounter by moving to the clockwise direction. Based on the hash function, <code>r1</code> is places on the ring between <strong>s4</strong> and <strong>s1</strong>, so <code>r1</code> will be handled by the server <strong>s1</strong>. <code>r2</code> is places on the ring between <strong>s2</strong> and<strong> s1</strong>, so <code>r2</code> will be handled by the server <strong>s2</strong>. <code>r3</code> is places on the ring between <strong>s4 </strong>and <strong>s3</strong>, so <code>r3</code> will be handled by the server <strong>s4</strong>.</p><p id="77a11bca-1cf5-4db3-a109-84fc29fc569a" class="">When a new request is inserted into the system, it is hashed and placed on the hash ring at a specific position.</p><p id="2cec34cb-80c2-4664-854c-5e31bb33cd61" class="">This looks good. Now what will happen when we add and remove servers.</p><h2 id="17537911-0d42-4196-85dd-cfa15301f202" class="">Adding A New Server</h2><p id="59f66e66-8c66-4ab4-874a-6d51bb4110e4" class="">Adding a new server to the ring will require only redistribution of few keys as we discussed before.</p><p id="b775dacd-07aa-47f0-9f08-eb01a9b643f4" class="">Let’s suppose we added a new server and based on the hash function , it is placed on the ring between s3 and s4.</p><p id="23244650-6c12-459e-8dcc-048826fbaa98" class="">Adding a new server on ring using hash function</p><figure id="55d63d96-9fae-4cf2-bea3-0e08d74a1346" class="image"><a href="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1g51BUVVtRy6a3HvjDZBSyg.png"><img style="width:687px" src="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1g51BUVVtRy6a3HvjDZBSyg.png"/></a></figure><p id="a1b85553-b73f-42fd-8d4f-5855ad921d36" class="">When we add a new server <strong>s5, </strong>it is mapped on the ring between s3 and s4. So the only requests that needs to be shuffled is r3. So from now on, <code>r3</code> is handled by the server s5.</p><h2 id="ae0ce5ce-d60e-4657-997d-baa66b0c5d87" class="">Removing A Server</h2><p id="c11afb12-5f00-4e69-a979-725ee281a72b" class="">Removing a server from the ring will require only redistribution of few keys as well.</p><p id="25814c55-8854-4388-8cb5-8be772be6c12" class="">S1 goes down</p><figure id="b24ab1de-9f9b-4d94-b216-f476afc492a1" class="image"><a href="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1RJadtpbNvraAwpaYndml5A.png"><img style="width:659px" src="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1RJadtpbNvraAwpaYndml5A.png"/></a></figure><p id="78600cd8-15f6-421d-806d-a0f6e72ba3f8" class="">Let’s suppose <strong>s1</strong> goes down, then the only request that need to redistributed is <code>r1</code> . Based on the clockwise approach, <code>r1</code> will be handled by the server <strong>s2.</strong></p><p id="4978d0a5-3c9d-4012-b747-f9bfab34bab0" class="">This looks good as we have solved large redistribution of requests if any server is added or removed. But there are few issues with this approach as well.</p><h2 id="3b76873f-ed9a-4d96-8d68-509f2fbbcc99" class="">Issues With Consistent Hashing</h2><ul id="4a9312b7-0937-4e34-9cae-54b94b3c60d4" class="bulleted-list"><li style="list-style-type:disc">Uneven hash space.</li></ul><ul id="6dcae991-0c6a-4b29-8705-88d2cfdcdc3b" class="bulleted-list"><li style="list-style-type:disc">Non uniform request distribution</li></ul><h2 id="cfb11561-f564-4c8a-ae12-fa455c87af60" class=""><strong>Uneven hash space</strong></h2><p id="8f7e8862-8a15-44f2-a82f-2c5c46278f7f" class="">It is impossible to keep the size of each hash space on the ring same for all servers considering that new servers can be added and existing one can be removed.</p><p id="b8e81c71-94ad-4cb7-8165-0c4b2b4703ef" class="">It is possible that the size of the hash space on the ring assigned to each server is very small or fairly large.</p><h2 id="577a4e32-7414-432c-bd14-a4ff23f605b8" class=""><strong>Non uniform request distribution</strong></h2><p id="dead61f5-2388-4ae0-ba94-05f9a9f75236" class="">Non uniform request distribution means distribution of most of the requests to one server and little or no request to other servers. It might happen that our hash function will create results that will make most of the requests to be handled by one server only.</p><p id="ab4bdca4-19c3-4cd1-8710-30b8e65aae10" class="">So, how do we fix these two issues?</p><p id="25475fa3-31ed-4c21-b644-68d1f51782c7" class="">A technique called virtual nodes is used to solve these two issues.</p><h2 id="3b4eb834-a3d6-45e0-855c-2bb46c018f6d" class="">Virtual nodes</h2><p id="3de0a255-d705-4a4b-9a79-82b9e9e994f9" class="">Virtual nodes refers to real nodes. Each server we have on the ring has multiple virtual nodes. Let’s try to understand it with an example</p><p id="7b63f837-4948-4fe3-b242-3d320b6b16ff" class="">Server 1 with 3 virtual nodes vn 1_1, vn 1_2, vn 1_3</p><figure id="6c99fae9-5098-46e5-b029-6fb9fbf9b4a3" class="image"><a href="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1MveDD6ih1rYhWrS3VQPEaQ.png"><img style="width:700px" src="Consistent%20Hashing%20c411af555a7546aaa74772d58a4149bd/1MveDD6ih1rYhWrS3VQPEaQ.png"/></a></figure><p id="b8d4e547-3874-47b0-bfa9-263bcfc7f2dc" class="">In above diagram, we have 3 virtual nodes for server 1 that points to server 1, it means any request handled by the virtual nodes will be redirected to s1.</p><blockquote id="9d1fa50b-ed5b-4c26-9db3-63930e7aba6b" class="">A server can have more virtual nodes as well 3 is just an arbitrary number.</blockquote><p id="f2e6ab4b-5042-439e-a13c-5e69caebdd91" class="">Now according to our virtual nodes, request <code>r3</code> will be handed by <strong>VN 1_2</strong> as it was handled by s5.</p><p id="43e524d8-9715-4930-8638-e023a8504484" class="">As the number of virtual nodes increases, the distribution of requests become more balanced. We can use different hash functions for our virtual nodes to distribute them across hash ring.</p><p id="93ef69f0-e917-4d20-80f4-17f0f510d180" class="">I hope this gives you an understanding of how consistent hashing works and why we use it.</p><p id="5ddd74b2-3f50-4638-b4e8-fec434323c5f" class="">Overall, consistent hashing is a useful tool for distributing keys evenly across a group of nodes in a distributed system, and for minimizing the impact of changes to the system on the distribution of keys. It can be an effective way to scale and manage distributed systems, and is worth considering for organizations that need to maintain high levels of performance and availability.</p><p id="931faa5b-69f9-48a2-84df-eff8660f9e21" class="">Checkout my system design blog:</p><ul id="1562f92b-d40b-456e-929d-ffe5bea3376d" class="bulleted-list"><li style="list-style-type:disc"><a href="https://medium.com/@vishalrana9915/deep-dive-into-system-design-d6b27525f208">Deep dive Into System Design</a></li></ul><p id="448a9f87-82f3-4b02-adf2-6f4ae5b7210b" class=""><em>Checkout these Algorithm blogs</em>:</p><ul id="5692f359-5a27-49e4-9acd-693328b27517" class="bulleted-list"><li style="list-style-type:disc"><a href="https://vishalrana9915.medium.com/algorithms-with-javascript-971dca22bfa4">Most commonly used algorithms.</a></li></ul><ul id="aeed7d47-eced-4e90-a55b-21fcbf1f06d2" class="bulleted-list"><li style="list-style-type:disc"><a href="https://vishalrana9915.medium.com/understanding-kruskals-algorithm-5c6f60c78376">Kruskal’s algorithm</a></li></ul><ul id="0731d83f-ac86-449c-b567-d8420495152f" class="bulleted-list"><li style="list-style-type:disc"><a href="https://vishalrana9915.medium.com/understanding-prims-algorithm-e6514a6e483c">Prim’s algorithms</a></li></ul><ul id="aaf7b4dd-cd63-45fc-92ca-f138d0f1ca10" class="bulleted-list"><li style="list-style-type:disc"><a href="https://vishalrana9915.medium.com/huffman-coding-544d82705b54">Huffman coding</a></li></ul><p id="1c5e7f8a-3590-47a9-91d5-31cb05b891ac" class=""><em>Other Life changing blogs for productivity and Focus:</em></p><ul id="de4a3e0e-9ac1-416e-ba2c-ecf0033507c4" class="bulleted-list"><li style="list-style-type:disc"><a href="https://vishalrana9915.medium.com/5-essential-habits-for-busy-professionals-3d61500745d7">5 Essential Habits for Busy Professionals</a></li></ul><ul id="dd2aaacc-2fb2-4252-b292-bfdf1d208092" class="bulleted-list"><li style="list-style-type:disc"><a href="https://vishalrana9915.medium.com/changing-the-life-over-a-year-39432f31112">Changing The Life Over A Year</a></li></ul><ul id="047c8bae-c27b-49c8-95a9-71411faf1c99" class="bulleted-list"><li style="list-style-type:disc"><a href="https://vishalrana9915.medium.com/mindset-of-an-entrepreneur-d1e42ce70405">Mindset of an entrepreneur</a></li></ul><ul id="872764da-fd98-41a1-919c-64f6e0077509" class="bulleted-list"><li style="list-style-type:disc"><a href="https://vishalrana9915.medium.com/control-your-mind-b8a203c46861">How To Control Your Mind</a></li></ul></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

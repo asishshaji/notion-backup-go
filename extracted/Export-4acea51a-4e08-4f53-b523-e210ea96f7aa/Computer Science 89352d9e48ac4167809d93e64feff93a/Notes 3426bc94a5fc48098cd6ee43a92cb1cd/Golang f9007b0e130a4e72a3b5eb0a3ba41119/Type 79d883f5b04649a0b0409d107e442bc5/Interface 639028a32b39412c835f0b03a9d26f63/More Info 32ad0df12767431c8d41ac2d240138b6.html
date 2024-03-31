@@ -1,0 +1,840 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>More Info</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="32ad0df1-2767-431c-8d41-ac2d240138b6" class="page mono"><header><h1 class="page-title">More Info</h1><p class="page-description"></p></header><div class="page-body"><h2 id="fdef8a4e-8879-4479-aa13-7a41dbc2f751" class="">Pair of Pointers</h2><figure id="11a09daa-cfa6-4f9f-9e56-4042dc7b2ffd"><a href="https://github.com/akutz/go-interface-values/tree/main" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">GitHub - akutz/go-interface-values: When storing a value in a Go interface allocates memory on the heap.</div><div class="bookmark-description">When storing a value in a Go interface allocates memory on the heap. - GitHub - akutz/go-interface-values: When storing a value in a Go interface allocates memory on the heap.</div></div><div class="bookmark-href"><img src="https://github.com/fluidicon.png" class="icon bookmark-icon"/>https://github.com/akutz/go-interface-values/tree/main</div></div><img src="https://opengraph.githubassets.com/a48c1cffd691fdfd1b0f56912ee21b7b884389e0cfaa4179a92d724e8938958e/akutz/go-interface-values" class="bookmark-image"/></a></figure><p id="ea953297-e0a4-4e1b-8f08-d7ae7c92afd5" class="">Storing a value in an interface preserves it’s type.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="ad78f647-4959-4a94-b881-d309e71cddfd" class="code"><code class="language-Go">var x int64
+var y interface{}
+x = 2
+y = x
+
+var s string
+s = y.(string) // panic: interface conversion: interface {} is int64, not string
+var h int64
+h = y.(int64) // works</code></pre><p id="c96a054b-89f4-47d5-a706-dc5da7a75212" class="">We can say that storing a value in an interface preserves the value’s type in some way.</p><p id="079d583a-2473-4e7f-9605-609b8fef1794" class="">An interface stores </p><ul id="da0d00c6-5f04-4be8-88c4-75550dabe097" class="bulleted-list"><li style="list-style-type:disc">an address to the type stored in the interface.</li></ul><ul id="ea7f5659-d111-4892-b52c-8368a5670a09" class="bulleted-list"><li style="list-style-type:disc">an address to the value stored in the interface.</li></ul><p id="fa743d41-aa7d-4b3c-9461-06f8c79714a0" class="">There used to be an optimization where a value stored in an interface was stored directly in the last/second word as long as the size of that value&#x27;s type was smaller than a <code>uintptr</code>. However, this optimization was removed in <a href="https://golang.org/issue/8405">github.com/golang/go#8405</a> due to the introduction of concurrent garbage collection.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="6d1043a9-59ea-4d19-94c1-dd1db8669773" class="code"><code class="language-Go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;unsafe&quot;
+)
+
+func main() {
+	// Store an int64 as an interface value.
+	iface := interface{}(int64(2))
+	// Get an unsafe pointer for &quot;iface&quot;.
+	ptrIface := unsafe.Pointer(&amp;iface)
+	// Cast the pointer to a *[2]uintptr.
+	ptrList := (*[2]uintptr)(ptrIface)
+	// Cast the pointer to a *struct{uintptr, uintptr}
+	ptrData := (*struct{ ptyp, pval uintptr })(ptrIface)
+	// Print the addresses using:
+	//   * the builtin println function
+	//   * the array of two uintptrs
+	//   * the struct with the uintptrs
+	println(iface)
+	fmt.Printf(&quot;(0x%x,0x%x)\n&quot;, ptrList[0], ptrList[1])
+	fmt.Printf(&quot;(0x%x,0x%x)\n&quot;, ptrData.ptyp, ptrData.pval)
+}
+
+(0x489f00,0x4b8598)
+(0x489f00,0x4b8598)
+(0x489f00,0x4b8598)</code></pre><p id="94ce0dbb-670c-49eb-8d04-bb62f5f73d24" class=""><code>0x489f00</code>is the address to the type stored in the interface, and <code>0x4b8598</code> is the address to the value stored in the interface.</p><hr id="127ac71c-72da-442b-a06c-179585b0a36a"/><p id="bad1871e-c4ff-43ba-b8fb-1e8e764ee151" class="">
+</p><h2 id="9a1569e3-7663-475f-9838-fef33fb217f7" class="">Underlying type</h2><p id="a8e31005-97ae-4b9e-a4d9-9b5d7075ecac" class="">Every type in golang runtime is represented by </p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="177ed79a-c111-40cc-84ce-c6e0519f5fd0" class="code"><code class="language-Go">type Type struct {
+	Size_       uintptr
+	PtrBytes    uintptr // number of (prefix) bytes in the type that can contain pointers
+	Hash        uint32  // hash of type; avoids computation in hash tables
+	TFlag       TFlag   // extra type information flags
+	Align_      uint8   // alignment of variable with this type
+	FieldAlign_ uint8   // alignment of struct field with this type
+	Kind_       uint8   // enumeration for C
+	// function for comparing objects of this type
+	// (ptr to object A, ptr to object B) -&gt; ==?
+	Equal func(unsafe.Pointer, unsafe.Pointer) bool
+	// GCData stores the GC type data for the garbage collector.
+	// If the KindGCProg bit is set in kind, GCData is a GC program.
+	// Otherwise it is a ptrmask bitmap. See mbitmap.go for details.
+	GCData    *byte
+	Str       NameOff // string form
+	PtrToThis TypeOff // type for pointer to this type, may be zero
+}</code></pre><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="e71af197-ea9a-4659-9665-2939b2b9ea20" class="code"><code class="language-Go">type _type struct {
+	size       uintptr // 8 bytes on a 64-bit platform
+	ptrdata    uintptr // 8 bytes on a 64-bit platform
+	hash       uint32  // 4 bytes
+	tflag      uint8   // 1 byte
+	align      uint8   // 1 byte
+	fieldAlign uint8   // 1 byte
+	kind       uint8   // offset by 23 bytes on 64-bit platforms
+}
+
+func main() {
+	// Store an int64 as an interface value.
+	iface := interface{}(int64(2))
+
+	// Get an unsafe pointer for &quot;iface&quot;.
+	ptrIface := unsafe.Pointer(&amp;iface)
+
+	// Cast the pointer to a *[2]uintptr.
+	ptrList := (*[2]uintptr)(ptrIface)
+
+	t := (*_type)(unsafe.Pointer(ptrList[0]))
+	fmt.Println(reflect.Kind(t.kind))
+}
+
+int64</code></pre><p id="236ba159-2f9f-4790-b387-9a82b1b47480" class="">There is something else interesting about the underlying types, <em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong>they are shared across all interfaces.</strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em> </p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="a769090e-167d-410f-b86f-4abed875e77d" class="code"><code class="language-Go">func main() {
+	println(interface{}(int32(3)))
+	println(interface{}(int32(5)))
+	println(interface{}(int64(3)))
+	println(interface{}(int64(5)))
+}
+(0x459d80,0x476598)
+(0x459d80,0x4765a0)
+(0x459dc0,0x476598)
+(0x459dc0,0x4765a0)
+
+
+
+func main() {
+	a, b := int32(3), int32(5)
+	x, y := int64(3), int64(5)
+	println(interface{}(a))
+	println(interface{}(b))
+	println(interface{}(x))
+	println(interface{}(y))
+}
+
+(0x459d80,0xc00003475c)
+(0x459d80,0xc000034758)
+(0x459dc0,0xc000034760)
+(0x459dc0,0xc000034768)</code></pre><ul id="88c4b372-3328-4ba0-bdc2-1667c52101dd" class="bulleted-list"><li style="list-style-type:disc"><code><strong>0x459d80</strong></code>: type address for <code>int32(3)</code> and <code>int32(5)</code></li></ul><ul id="fcfa46e5-bab4-4f43-a4f0-fac246462086" class="bulleted-list"><li style="list-style-type:disc"><code><strong>0x459dc0</strong></code>: type address for <code>int64(3)</code> and <code>int64(5)</code></li></ul><p id="c3a8ac24-0ec4-4186-935e-a670fc2cd1a6" class="">Type information is global and shared by all values stored in interfaces, that’s why we see the same memory address for int32(3), and int32(5). int64(3), int64(5)</p><p id="1fdb1a5c-0fe7-4703-b29f-71350765ee23" class="">
+</p><ul id="a9175dad-1228-4e96-a9fe-4eb6861c1d55" class="bulleted-list"><li style="list-style-type:disc">Type addresses are shared</li></ul><ul id="03ab8dfc-a07f-43f4-ac63-54c73e8bf1e8" class="bulleted-list"><li style="list-style-type:disc">Value addresses are shared for constants and distinct for variables</li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="31b10d04-2cde-4b91-a160-904f1480e1ca" class="code"><code class="language-Go">package main
+
+func main() {
+	a, b := byte(3), byte(5)
+	x, y := uint8(3), uint8(5)
+	println(interface{}(a))
+	println(interface{}(b))
+	println(interface{}(x))
+	println(interface{}(y))
+}
+(0x45a240,0x4b89b8)
+(0x45a240,0x4b89c8)
+(0x45a240,0x4b89b8)
+(0x45a240,0x4b89c8)</code></pre><p id="005b73bf-7f77-4165-afca-0cfd866d4e40" class="">Here we expected the type addresses of a and b  to be the same, and x and y to be the same. The value addresses for a, b, x and y should all be distinct. </p><p id="7aff9d80-928f-4021-b437-174472bebc54" class="">Not only is the address to the type the same for byte and uint8, but the addresses for the values are the same across the types as well.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="a0b9ce12-237f-4e95-bd77-fc9d36c74cd8" class="code"><code class="language-Go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;unsafe&quot;
+)
+
+func main() {
+	x := byte(3)
+
+	// Store x as an interface value.
+	iface := interface{}(x)
+
+	// Get an unsafe pointer for &quot;iface&quot;.
+	ptrIface := unsafe.Pointer(&amp;iface)
+
+	// Cast the pointer to a *[2]uintptr.
+	ptrList := (*[2]uintptr)(ptrIface)
+
+	// Get an unsafe.Pointer for the value address offset
+	// by the value 197*8.
+	ptrY := unsafe.Pointer(ptrList[1] + (197 * 8))
+
+	// Cast ptrY to a uint8.
+	y := (*uint8)(ptrY)
+
+	// What is going to be printed?
+	fmt.Println(*y)
+}
+
+200</code></pre><p id="95a4d14c-ac86-4605-850e-e9be3b2f44bf" class="">It turns out that Go defines a special, internal array with exactly 256 elements called <a href="https://github.com/golang/go/blob/38b2c06e144c6ea7087c575c76c66e41265ae0b7/src/runtime/iface.go#L494">staticuint64s</a>. The array holds every possible value (0-255) for an integer that is only one byte wide, such as</p><ul id="00eddee2-4093-4062-aa98-1bf9eee5e186" class="bulleted-list"><li style="list-style-type:disc">bool</li></ul><ul id="c038f7b6-bbef-490c-a4b2-3df5bc38a5b6" class="bulleted-list"><li style="list-style-type:disc">byte</li></ul><ul id="84367b94-40f7-41eb-b3f4-3621296dc4da" class="bulleted-list"><li style="list-style-type:disc">int8</li></ul><ul id="5fbfc600-f5fa-486a-a3d5-aaf5db072b1e" class="bulleted-list"><li style="list-style-type:disc">uint8</li></ul><p id="1e302df3-ab09-4a51-a8a8-56ddc402d9a7" class="">Thus when it is necessary to create a pointer to one of those values, the Go compiler just addresses an element from the aforementioned array.</p><p id="9e4be76a-c620-4c28-a669-e97def538a65" class="">What was the point of all this, if x had a value already then what was the need to reference that array?? </p><h2 id="4458bbdf-ea48-4c0e-97d5-c212e4fce351" class="">Copy on store</h2><p id="744f39cb-9226-45cd-96f6-e61413a2308d" class="">What is really happening here?</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="dca9f9a6-edd1-462a-8f74-c00a135cb649" class="code"><code class="language-Go">var x int64
+var y interface{}
+x = 2048
+y = x</code></pre><p id="a8ec9983-5379-4a18-9b72-6eb192af0b12" class="">We might be tempted to say that variable x is assigned to variable y. But that’s not accurate.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="97c61706-d09b-4138-9711-00974e67900f" class="code"><code class="language-Go">var x int64
+var y int64
+x = 2048
+y = x</code></pre><p id="48f06028-08e9-40a9-b84f-e3689acbcd7f" class="">Here y is assigned to x. Modifying x later would not affect y.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="cf4dd4d1-fde0-425f-898d-f4b74b8c32f4" class="code"><code class="language-Go">	var x int64
+	var y interface{}
+	x = 2048
+	y = x
+	fmt.Printf(&quot;x=%d, y=%d\n&quot;, x, y)
+
+	x = 4096
+	fmt.Printf(&quot;x=%d, y=%d\n&quot;, x, y)
+
+x=2048, y=2048
+x=4096, y=2048</code></pre><p id="84978323-8e4c-4b38-8afc-356edbfe57fc" class="">This is because storing a value in an interface results in a copy of that value, just like when assigning a value to another variable of the same type. Even if the value is a pointer, you are creating a copy of that pointer. <em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong>Where do you make this copy??? </strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></p><ul id="f86008f7-7258-453a-86c0-d83b539128b7" class="bulleted-list"><li style="list-style-type:disc">Not in the interface itself</li></ul><ul id="78324df0-51a4-4d63-9b5e-2287a76b698f" class="bulleted-list"><li style="list-style-type:disc">Not in the staticuint64 as the value is greater than 255.</li></ul><p id="10f3d913-7b6f-4d62-ab1b-03f2678f72c5" class="">So where is it??? It is in one of two locations, stack or heap.</p><h2 id="9f771f5d-bf15-49c7-8ebf-d3712a822381" class="">Storing a value in an interface results in a copy of that value being created</h2><h2 id="239aec24-d553-4b84-884b-77c569675707" class="">On the stack</h2><p id="6800953a-ec52-4e55-ae4e-cf4b3f201c02" class="">One of the possible locations for creating a copy is on the stack.</p><p id="3c10b851-5f2d-44f7-9955-e6e55b6ca14a" class=""><strong><strong><strong><strong><strong><strong>MOVQ</strong></strong></strong></strong></strong></strong>: used when wanting to copy 8 bytes.</p><figure id="0b615461-aee5-40d0-b6b0-26592bf555e5" class="link-to-page"><a href="More%20Info%2032ad0df12767431c8d41ac2d240138b6/Explanation%20using%20code%200b615461aee540d0b6b026592bf555e5.html"><span class="icon">‼️</span>Explanation using code</a></figure><h1 id="aa27557c-5586-4bae-8dc6-3fed15278876" class="">Escape Analysis</h1><figure id="de7b611b-bfd4-4e29-9571-ac4e7106f666" class="link-to-page"><a href="More%20Info%2032ad0df12767431c8d41ac2d240138b6/Escape%20Analysis%20de7b611bbfd44e299571ac4e7106f666.html">Escape Analysis</a></figure><p id="0053dd74-776a-4219-b479-008b988359d1" class="">
+</p><figure id="04f597fb-73ea-4812-a831-d4b002305655"><a href="https://www.sobyte.net/post/2022-03/go-interface/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Golang interface Principle - Type Conversion</div><div class="bookmark-description">In this article, I’ll take a look at the interface from the internal degree assignment + assembly perspective, to understand how the interface works. This article will focus on type conversions and related error-prone areas. eface 1 2 3 4 5 6 func main() { var ti interface{} var a int = 100 ti = a fmt.Println(ti) } This most common code now raises some questions. How to see if ti is eface or iface ?</div></div><div class="bookmark-href"><img src="https://www.sobyte.net/favicon.ico" class="icon bookmark-icon"/>https://www.sobyte.net/post/2022-03/go-interface/</div></div><img src="https://www.sobyte.net/android-chrome-192x192.png" class="bookmark-image"/></a></figure><h2 id="c96f4779-1d6e-43e1-bce5-904450a8b08e" class="">Missing Mallocs</h2><figure id="d8933812-836b-4299-82bb-17af944fc16f"><a href="https://github.com/akutz/go-interface-values/blob/main/docs/04-missing-mallocs/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title"></div></div><div class="bookmark-href">https://github.com/akutz/go-interface-values/blob/main/docs/04-missing-mallocs/</div></div></a></figure><p id="3e662b0c-3a5a-4a1c-bf7b-fb596949a2e3" class="">Values escaping to the heap don&#x27;t always result in a heap allocation.</p><p id="5479f0b0-5bb5-438c-a071-74d3bea67b6e" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

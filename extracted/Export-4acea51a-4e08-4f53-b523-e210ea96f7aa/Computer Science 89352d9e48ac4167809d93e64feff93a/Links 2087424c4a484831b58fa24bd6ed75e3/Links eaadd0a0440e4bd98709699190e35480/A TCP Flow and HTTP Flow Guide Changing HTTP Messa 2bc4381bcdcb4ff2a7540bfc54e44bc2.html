@@ -1,0 +1,719 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>A TCP Flow and HTTP Flow Guide: Changing HTTP Messages | HackerNoon</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2bc4381b-cdcb-4ff2-a754-0bfc54e44bc2" class="page sans"><header><h1 class="page-title">A TCP Flow and HTTP Flow Guide: Changing HTTP Messages | HackerNoon</h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-url"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesUrl"><path d="M7.69922 10.8945L8.73828 9.84863C7.91797 9.77344 7.34375 9.51367 6.91992 9.08984C5.76465 7.93457 5.76465 6.29395 6.91309 5.14551L9.18262 2.87598C10.3379 1.7207 11.9717 1.7207 13.127 2.87598C14.2891 4.04492 14.2822 5.67188 13.1338 6.82031L11.958 7.99609C12.1768 8.49512 12.2451 9.10352 12.1289 9.62988L14.0908 7.6748C15.7725 6 15.7793 3.62109 14.084 1.92578C12.3887 0.223633 10.0098 0.237305 8.33496 1.91211L5.95605 4.29785C4.28125 5.97266 4.26758 8.35156 5.96289 10.0469C6.36621 10.4434 6.90625 10.7441 7.69922 10.8945ZM8.30078 5.13184L7.26855 6.17773C8.08203 6.25293 8.66309 6.51953 9.08008 6.93652C10.2422 8.09863 10.2422 9.73242 9.08691 10.8809L6.81738 13.1504C5.66211 14.3057 4.03516 14.3057 2.87305 13.1504C1.71094 11.9883 1.71777 10.3545 2.87305 9.20605L4.04199 8.03027C3.83008 7.53125 3.75488 6.92969 3.87109 6.39648L1.91602 8.35156C0.234375 10.0264 0.227539 12.4121 1.92285 14.1074C3.61816 15.8027 5.99707 15.7891 7.67188 14.1143L10.0439 11.7354C11.7256 10.0537 11.7324 7.6748 10.0371 5.98633C9.64062 5.58301 9.10059 5.28223 8.30078 5.13184Z"></path></svg></span>URL</th><td><a href="https://hackernoon.com/a-tcp-flow-and-http-flow-guide-changing-http-messages" class="url-value">https://hackernoon.com/a-tcp-flow-and-http-flow-guide-changing-http-messages</a></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesMultipleSelect"><path d="M1.91602 4.83789C2.44238 4.83789 2.87305 4.40723 2.87305 3.87402C2.87305 3.34766 2.44238 2.91699 1.91602 2.91699C1.38281 2.91699 0.952148 3.34766 0.952148 3.87402C0.952148 4.40723 1.38281 4.83789 1.91602 4.83789ZM5.1084 4.52344H14.3984C14.7607 4.52344 15.0479 4.23633 15.0479 3.87402C15.0479 3.51172 14.7607 3.22461 14.3984 3.22461H5.1084C4.74609 3.22461 4.45898 3.51172 4.45898 3.87402C4.45898 4.23633 4.74609 4.52344 5.1084 4.52344ZM1.91602 9.03516C2.44238 9.03516 2.87305 8.60449 2.87305 8.07129C2.87305 7.54492 2.44238 7.11426 1.91602 7.11426C1.38281 7.11426 0.952148 7.54492 0.952148 8.07129C0.952148 8.60449 1.38281 9.03516 1.91602 9.03516ZM5.1084 8.7207H14.3984C14.7607 8.7207 15.0479 8.43359 15.0479 8.07129C15.0479 7.70898 14.7607 7.42188 14.3984 7.42188H5.1084C4.74609 7.42188 4.45898 7.70898 4.45898 8.07129C4.45898 8.43359 4.74609 8.7207 5.1084 8.7207ZM1.91602 13.2324C2.44238 13.2324 2.87305 12.8018 2.87305 12.2686C2.87305 11.7422 2.44238 11.3115 1.91602 11.3115C1.38281 11.3115 0.952148 11.7422 0.952148 12.2686C0.952148 12.8018 1.38281 13.2324 1.91602 13.2324ZM5.1084 12.918H14.3984C14.7607 12.918 15.0479 12.6309 15.0479 12.2686C15.0479 11.9062 14.7607 11.6191 14.3984 11.6191H5.1084C4.74609 11.6191 4.45898 11.9062 4.45898 12.2686C4.45898 12.6309 4.74609 12.918 5.1084 12.918Z"></path></svg></span>Category</th><td><span class="selected-value select-value-color-brown">General</span><span class="selected-value select-value-color-default">Network</span></td></tr></tbody></table></header><div class="page-body"><figure id="7516dc78-b781-417d-8bbd-88d6c6d9fd21" class="image"><a href="https://hackernoon.imgix.net/images/SnVhdDNm3fMGfftKZO7mnXldvQm2-2f03bnp.jpeg?mark-pad=0&amp;mark=http://hackernoon.imgix.net/HackerNoon%20Rounded%20Horizontal.png?w=400"><img style="width:444px" src="https://hackernoon.imgix.net/images/SnVhdDNm3fMGfftKZO7mnXldvQm2-2f03bnp.jpeg?mark-pad=0&amp;mark=http://hackernoon.imgix.net/HackerNoon%20Rounded%20Horizontal.png?w=400"/></a></figure><hr id="9a2db910-90bc-423a-bbc3-97e7a528dade"/><h2 id="ecad0765-9a33-4969-8d10-d50e59a8d9c6" class="">Too Long; Didn&#x27;t Read</h2><p id="55e867ed-e0dd-4f6a-850e-2691c85037bb" class="">The net library has a special instance Server. Let’s use that to create a server instance and tell it to listen to the port 3000 on the host. To do this, the client and server need to establish a TCP connection first. The thing is, HTTP messaging sessions work over TCP sockets. Once a connection is established, the server and client can communicate with the help of the sockets. In the old version of the protocol, there was a separate request for each request for a new connection to be established.</p><h3 id="8eaa8b04-4af6-429b-bdba-348bbe722003" class="">Companies Mentioned</h3><figure id="1b3d894c-9dfb-4bee-93be-2e7f9496b3e6" class="image"><a href="A%20TCP%20Flow%20and%20HTTP%20Flow%20Guide%20Changing%20HTTP%20Messa%202bc4381bcdcb4ff2a7540bfc54e44bc2/SnVhdDNm3fMGfftKZO7mnXldvQm2-2f03bnp.jpeg"><img style="width:700px" src="A%20TCP%20Flow%20and%20HTTP%20Flow%20Guide%20Changing%20HTTP%20Messa%202bc4381bcdcb4ff2a7540bfc54e44bc2/SnVhdDNm3fMGfftKZO7mnXldvQm2-2f03bnp.jpeg"/></a></figure><p id="6459649a-f634-42cf-80c5-4147dc4df8bf" class=""><strong>Georgii Kliukovkin</strong></p><p id="ebd2e287-c3b7-415b-b936-ca9745189c03" class="">Imagine this situation: we have an HTTP server and a client working with it. Let’s take a closer look under the hood at what the process of changing HTTP messages is.</p><h2 id="e7932d82-6fc1-42f2-997f-b10b41139a95" class="">TCP Flow</h2><p id="785d3761-ff7c-4dd8-923d-650bd5d1e2e4" class="">When we speak about HTTP servers and clients, we mean communications between server and client by sending HTTP messages between them. But, to do this, the client and server need to establish a TCP connection first. Let’s create an instance of a server and establish a TCP connection. We will use only utils from libuv, to understand the process under the loupe.</p><p id="383a7888-5493-495f-a26f-10d703988c9c" class="">The net library has a special instance Server. Let’s use that to create a server instance and tell it to listen to the port 3000 on the host 0.0.0.0 which is literally called localhost.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="e8b42382-270e-4cfb-812d-74350510928a" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">const net = require(&#x27;net&#x27;);
+const HOST = &#x27;0.0.0.0&#x27;;
+const PORT = 3000;
+
+const server = new net.Server();
+
+server.listen(PORT, HOST);
+</code></pre><p id="25cdc299-6630-4a33-92a1-dcc515235cf3" class="">To check that everything works we can add handlers on “connection” and “listening” events or life cycles of the server. Because the Server inherits Emmiter class, we can do this:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="95256ba5-e3d2-4914-85d8-6d01a1d34aa3" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">server.on(&quot;listening&quot;, () =&gt; {
+  console.log(&quot;server is listening&quot;);
+})
+server.on(&quot;connection&quot;, () =&gt; {
+  console.log(&quot;connection established&quot;);
+});
+</code></pre><p id="7f172be5-fa1e-4fbb-a16c-be04d1283ac6" class="">Now you can establish a TCP connection over port 3000. To do this let’s use telnet.</p><p id="12575790-5b9f-4a56-8ec8-827075dd0eca" class="">❯ telnet localhost 3000</p><p id="dc462620-af49-4476-b29c-d54bbc657644" class="">Trying ::1...</p><p id="89334abb-f7b9-4c3c-a820-91c9e4e8b285" class="">Connected to localhost.</p><p id="bb9b5b18-99ef-4664-899d-f9432ac9db8f" class="">Escape character is &#x27;^]&#x27;.</p><p id="4cc5eec0-11a6-4642-bcc4-59106c9ff4c1" class="">Great. Connection is established. Now we need a way to read the data. The thing is, HTTP messaging sessions work over TCP sockets. From Node.JS documentation:</p><p id="ac9df002-7d21-4dc1-86c9-02a1f5b0ec1c" class=""><a href="https://nodejs.org/api/net.html?ref=hackernoon.com#class-netsocket">&lt;net.Socket&gt;</a> The connection object</p><p id="a2f97cb5-134a-4289-b80a-35adf1e80f9b" class="">We can get access to it while creating a server.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="815d3a05-d99d-402a-9c71-d3b0d1dfb964" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">const net = require(&#x27;net&#x27;);
+
+const HOST = &#x27;0.0.0.0&#x27;;
+const PORT = 3000;
+
+const server = new net.Server((socket) =&gt; {
+
+});
+</code></pre><p id="7bd8472f-15cb-419e-96c4-70b762bef6de" class="">So, once again. We create a server and ask it to listen to the port 3000 of the localhost. Also, we asked the socket, which handles this port to log received data. Now we can add some event handlers to the socket:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="58a03466-164c-43f5-ac89-68664d656d5d" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">socket.on(&quot;data&quot;, (data) =&gt; {
+  console.log(`receive data: ${data}`);
+});
+</code></pre><p id="279f4732-7ef7-47ee-99f7-c780a67e6b6f" class="">Now we can, once again, connect to the server and send a message.</p><p id="4ef1542c-7e5e-4809-9235-692caeed9cac" class="">❯ telnet localhost 3000</p><p id="fd121929-bfec-4b61-a969-bf74adb14d3e" class="">Trying ::1...</p><p id="a43d66c0-825d-42a1-a766-1072002f754d" class="">Connected to localhost.</p><p id="aaf13374-ae43-4f65-9ba1-77ecde59bdf2" class="">Escape character is &#x27;^]&#x27;.</p><p id="8174597b-50e1-4bdd-a520-6ded160d45d9" class=""><strong>hello</strong></p><p id="d527a833-080c-4e4a-8247-49c4f688d3cb" class="">In the console, we will see this message <code>receive data: hello</code>.</p><p id="e9acf65f-0f96-471c-945f-e409ecc101d8" class="">One important thing to understand, at this juncture, is that once a TCP connection is established, the client and server can communicate with the help of the sockets. That’s right, sockets appear on both sides.</p><p id="fc31e6f3-b500-4d3d-a4ce-b2c56a137cf6" class="">To understand this better, instead of using telnet let’s write a client using the net library.</p><p id="8c9b4de0-1da7-473d-92cc-7796712fc8b1" class="">Here is the code of our server and client.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="a081097b-828c-4955-aba6-92bf6751942e" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">const net = require(&quot;net&quot;);
+const HOST = &quot;0.0.0.0&quot;;
+const PORT = 3000;
+
+const server = new net.Server((socket) =&gt; {
+  socket.once(&quot;data&quot;, (data) =&gt; {
+    console.log(`receive from client: &quot;${data}&quot;`);
+    socket.write(&quot;hello&quot;);
+  });
+});
+
+server.listen(PORT, HOST);
+
+const client = new net.Socket();
+client.connect(PORT, HOST);
+client.write(&quot;hello&quot;);
+client.on(&quot;data&quot;, (data) =&gt; {
+  console.log(`receive from server: &quot;${data}&quot;`);
+});
+</code></pre><p id="845a5f8a-75ba-480c-99cf-1ef3c4f0ec67" class="">Web browsers, such as Google Chrome are basically the same client, which makes for all this magic under the hood. If you run <code>lsof -n -i TCP | grep Google</code> you will see how many TCP connections are established by your Chrome browser.</p><p id="85646742-ad71-48e5-9ece-46c25be8d61e" class="">Another important thing here is there can be multiple clients connected to this server&#x27;s TCP socket.</p><p id="326906fc-3cd3-43af-ac3a-3d2a9270ff21" class="">If clients make multiple TCP connections to the server then the client OS must generate different random source ports, so that server can see them as unique connections.</p><h2 id="a5a35313-b9f0-4e1d-b474-6ef5e9235d67" class="">Difference between HTTP versions</h2><p id="722109a3-b460-4bd2-98cd-dd189b80c649" class="">The difference worth noting regards the <code>Connection</code> header. In the old version of the protocol, for each message exchange, there was a separate connection established. Client request smth from the server, TCP connection established client got response and connection got closed. Next time, the client would need to send another request for a new TCP connection to be established. Not very optimal, right? So that’s why <code>Connection</code> the header was created. If we pass <code>keep-alive</code> using <code>Connection</code> , the header will tell the server not to quit this connection.</p><h2 id="44eb99ff-78af-4e0d-a634-9c1d2b651e2f" class="">HTTP flow</h2><p id="6737c89e-8392-48bc-a574-6af49ac26ddd" class="">HTTP is an application layer protocol. The flow is quite simple:</p><ol type="1" id="19378aec-8d8f-4b64-ba82-5da14a5c8f90" class="numbered-list" start="1"><li>You type a URL in your browser and press Enter</li></ol><ol type="1" id="146dfd42-dd60-4c57-aedd-0d121909c323" class="numbered-list" start="2"><li>The browser looks up the IP address for the domain</li></ol><ol type="1" id="6af5b3b2-4f9d-4a94-a6cd-f0d406ab4857" class="numbered-list" start="3"><li>The browser initiates a TCP connection with the server</li></ol><ol type="1" id="50bb14ce-d64e-47e1-9152-798397adf71a" class="numbered-list" start="4"><li>The browser sends the HTTP request to the server</li></ol><ol type="1" id="9a5d5a1b-29cf-4b85-b558-5370cf5b2a21" class="numbered-list" start="5"><li>Server processes request and sends back a response</li></ol><ol type="1" id="3ee32932-0a85-4a60-9cc7-53f4cb6b827a" class="numbered-list" start="6"><li>The browser renders the content</li></ol><h2 id="0a981365-e4ef-473b-8faf-e308cc86bd3d" class="">What is an HTTP message?</h2><blockquote id="8183f197-e8c2-4623-bc8c-273348d0bc3d" class=""><p id="dc9ab62d-5c2e-43b9-b05d-70b02f8af335" class="">HTTP messages are simple, line-oriented sequences of characters. Because they are plain text, not binary, they are easy for humans to read and write.</p></blockquote><p id="42cc20b9-ad48-4704-b5a4-e075ac1462a5" class=""><strong>HTTP messages consist of three parts:</strong></p><p id="97fa34fd-bccc-42f1-a1ea-95001358b69b" class=""><em><strong>Start line</strong></em></p><p id="052f88ac-9bee-4e69-a2f8-6f38b73545be" class="">The first line of the message is the start line, indicating what a request requires to be done or what happened to warrant a response.</p><p id="275606fa-c252-4d99-8442-edcdb1231d1a" class="">Request messages ask servers to do something to a resource. The start line for a request message, or <em>request line</em>, contains a method describing what operation the server should perform and a request URL describing the resource on which to perform the operation. The request line also includes an HTTP <em>version</em> which tells the server what dialect of HTTP the client is speaking.</p><p id="2a717cda-d63e-4de3-882d-bcb08dc6b25f" class=""><em><strong>Header fields</strong></em></p><p id="2c14204b-4b12-4b2a-90a5-96f9934037a7" class="">Zero or more header fields follow the start line. Each header field consists of a name and a value, separated by a colon (:) for easy parsing. The headers end with a blank line. Adding a header field is as easy as adding another line.</p><p id="50b81f7e-0b61-4075-83be-e742210f2a68" class=""><em><strong>Body</strong></em></p><p id="98fe95ff-9179-4254-a474-b71300a250b3" class="">After the blank line, an optional message body follows, containing any kind of data. Request bodies carry data to the web server; response bodies carry data back to the client. Unlike the start lines and headers, which are textual and structured, the body can contain arbitrary binary data (e.g., images, videos, audio tracks, software applications). Of course, the body can also contain text.</p><h2 id="c2739542-6037-4339-9498-e7974e3add11" class="">Status codes</h2><p id="e25f5de0-1fd3-4c66-ae25-0d74599bae7d" class="">There is no need to know all status codes, but you need to, at least, know what category each code belongs to.</p><table id="7bcfb220-30e9-4fa5-a8a2-542a9250eb6a" class="simple-table"><tbody><tr id="c583fa88-b49c-44a0-81dc-c57b85a1863d"><td id="Z[]^" class="">Category</td><td id="~N;L" class="">Examples</td><td id="\MT=" class="">Details</td></tr><tr id="f688eebc-247a-4fee-8e22-4d13c42e91ec"><td id="Z[]^" class=""><strong>1xx</strong> (informational)</td><td id="~N;L" class="">N/A</td><td id="\MT=" class="">HTTP/1.0 doesn’t define any 1xx status codes but does define the category.</td></tr><tr id="8bb46221-01dc-49fd-9a72-619ce0f2d960"><td id="Z[]^" class=""><strong>2xx</strong> (successful)</td><td id="~N;L" class="">200 OK</td><td id="\MT=" class="">This code is the standard response code for a successful request.</td></tr><tr id="ef62e43a-ad0f-4101-bb1f-6a6addd8c67d"><td id="Z[]^" class=""> <br/><br/></td><td id="~N;L" class="">201 Created</td><td id="\MT=" class="">This code should be returned for a POST request.</td></tr><tr id="1ea62569-0615-49c9-aa14-3bda88544028"><td id="Z[]^" class=""> <br/><br/></td><td id="~N;L" class="">204 No content</td><td id="\MT=" class="">The request has been accepted and processed, butthere’’s no BODY response to send back.</td></tr><tr id="c2f39da1-a9f9-41df-b411-226b0fbd9c9e"><td id="Z[]^" class=""><strong>3xx</strong>(redirection)</td><td id="~N;L" class="">300 Multiple choices</td><td id="\MT=" class="">This code isn’t used directly. It explains that the 3xx category implies that the resource is available at one (or more) locations, and the exact response provides more details on where it is.</td></tr><tr id="8b0eac99-1364-4304-9e4e-f01aa71790a1"><td id="Z[]^" class=""> <br/><br/></td><td id="~N;L" class="">301 Moved permanently</td><td id="\MT=" class="">The Location HTTP response header should provide the new URL of the resource.</td></tr><tr id="9240091d-1181-4c60-ae07-7aac3e80b78e"><td id="Z[]^" class=""> <br/><br/></td><td id="~N;L" class="">302 Moved temporarily</td><td id="\MT=" class="">The Location HTTP response header should provide the new URL of the resource.</td></tr><tr id="d7664857-1dff-4aa2-80d2-ce17964f637c"><td id="Z[]^" class=""><strong>4xx</strong>(client error)</td><td id="~N;L" class="">400 Bad request</td><td id="\MT=" class="">The request couldn’t be understood and should be changed before resending.</td></tr><tr id="8e315e7e-122c-466f-94bd-3a5f0ff0e2ee"><td id="Z[]^" class=""> <br/><br/></td><td id="~N;L" class="">401 Unauthorized</td><td id="\MT=" class="">This code usually means that you’re not authenticated.</td></tr><tr id="e330e666-d276-48eb-b852-c8ae1fe7f0ff"><td id="Z[]^" class=""> <br/><br/></td><td id="~N;L" class="">403 Forbidden</td><td id="\MT=" class="">This code usually means that you’re authenticated, but your credentials don’t have access.</td></tr><tr id="76c588f2-1135-410a-94f9-565049e9dbb0"><td id="Z[]^" class=""><strong>5xx</strong>(server error)</td><td id="~N;L" class="">500 Internal server error</td><td id="\MT=" class="">The request couldn’t be completed due to a server-side error.</td></tr><tr id="cc563088-4274-4bb9-846e-e2545624656b"><td id="Z[]^" class=""> <br/><br/></td><td id="~N;L" class="">503 Service unavailable</td><td id="\MT=" class="">The server is unable to fulfill the request, perhaps because the server is overloaded or down for maintenance.</td></tr></tbody></table><h2 id="b710d49b-e50a-42de-a6eb-a4254ee1f9da" class="">Important headers</h2><p id="b0c3383c-571d-4821-a38b-016e8f1f2084" class="">Connection: keep-alive</p><p id="2cddc9b8-2909-4eaa-8db9-b3b188dcb866" class="">Host: www.example.com -→ <em><strong>this is for virtual hosting</strong></em></p><p id="42db11a1-2dff-4532-b47b-4f447b526d54" class="">User-Agent: MyAwesomeWebBrowser</p><h2 id="1d7c6f70-72f1-4c98-8c00-6c778b14e118" class="">Dictionary</h2><h3 id="4cb96217-7a5e-4706-a4b5-043598406726" class="">Cookie, or session cookie</h3><p id="81c77b27-1025-4eba-b315-5122a024ad3c" class="">A <strong>session cookie</strong> is a temporary cookie that keeps track of settings and preferences as a user navigates a site.</p><p id="5d477556-2c48-4336-8d48-9ffc411ec694" class="">A session cookie is deleted when the user exits the browser.</p><p id="933e10b9-a582-44d7-bbb9-ccabf73ebd8c" class="">The cookie contains an arbitrary list of <em>name=value</em> information, and it is attached to the user using the <strong>Set-Cookie</strong> or <strong>Set-Cookie2</strong> HTTP response headers. Cookies can be restricted by domain or path</p><h3 id="7224c47e-7b9b-498b-892e-fd079becfe99" class="">URL</h3><p id="7ca3aebb-627a-4fad-9b91-d43415efdaca" class="">URLs describe the specific location of a resource on a particular server. They tell you exactly how to fetch a resource from a precise, fixed location. URL consists of <em>protocol, server, and local resource</em></p><p id="3d76b91e-119a-4b41-aed5-d98893989c5c" class="">protocols: HTTPS, HTTP, FTP, and so on</p><p id="16b8a400-5e13-46cd-b204-7003259c9316" class="">server domain → DNS</p><p id="64021ff3-d6ca-4265-9ba1-b24f7c5f39d1" class="">local resource - e.g. /index.html</p><h3 id="b5538d17-4b52-4fdd-9199-50853e8e8b35" class="">What does HTTP port mean?</h3><p id="df4c6f8c-e613-476c-9694-419cff0e93cd" class="">Well, actually it is not an HTTP port. It is a socket. For details take a look wiki</p><p id="6ac69fc4-c902-4a43-90dd-b3f3b8e486b0" class=""><a href="https://en.wikipedia.org/wiki/Port_(computer_networking)?ref=hackernoon.com">https://en.wikipedia.org/wiki/Port_(computer_networking)</a></p><p id="3a04c19e-7440-4ad4-844e-0dba7b18c0c8" class="">Here are the default ones:</p><p id="3feade57-ec93-461b-b9a1-20879b1d5189" class="">22 - ssh</p><p id="1a736f5e-68d3-440b-85e1-a3a6c04c040b" class="">80 - http</p><p id="06f4b62e-bf20-45cc-aaff-b9e061c53d67" class="">443 - https</p><h3 id="6287c13c-4b45-4242-90ad-110dcc948506" class="">Session</h3><p id="86d36bfc-47c2-4f23-a97c-2b42d9154e40" class="">It is quite obvious why it is important to know what the user server is talking to (<em>e</em>.<em>g.</em> <em>targeted recommendations, session tracking, etc).</em></p><p id="baf970fd-dc8e-41da-9989-790aad62dfb0" class="">Ways to store session:</p><ul id="271c94bb-1d9b-4dfb-bd88-eeed1d3cf88d" class="bulleted-list"><li style="list-style-type:disc">inside <a href="https://app.hackernoon.com/mobile/2knVUMbc3a0gi05HHZ4P?ref=hackernoon.com#h-cookie-or-session-cookie">cookie</a></li></ul><ul id="b236e876-f806-46c8-96a4-89c105da0393" class="bulleted-list"><li style="list-style-type:disc">dedicated datastore(e.g. Redis)</li></ul><ul id="0207dce6-ab63-4e15-83c1-d19f9703fa6d" class="bulleted-list"><li style="list-style-type:disc">sticky sessions with mapping on load balancer</li></ul><h3 id="d5f38a84-ba39-4823-8ac9-7e9932f1c797" class="">Virtual hosting</h3><p id="d45b8ac9-c465-41dd-a13b-64f426aa07c0" class="">An IP address consists of 4 integers from 0 to 255. We can calculate how many sites can be placed separately with a dedicated IP address. But the reality is we have much more sites than unique IP addresses. This is why virtual hosting was invented. The key is to provide the ability to place several sites on one IP address. But how will the server based on this IP know which HTML page to provide? With host header that will contain required domain like google.com</p><h3 id="12eca482-1edf-42cc-95e9-62ff329cd1ba" class="">Idempotent HTTP methods</h3><p id="ba41b104-52ec-4e74-ace2-53c25b40c512" class="">An HTTP method is <strong>idempotent</strong> if an identical request can be made once or several times in a row with the same effect while leaving the server in the same state. In other words, an idempotent method should not have any side effects (except for keeping statistics). Implemented correctly, the <code>GET</code>, <code>HEAD</code>, <code>PUT</code>, and <code>DELETE</code> methods are <strong>idempotent</strong>, but not the <code>POST</code> method.</p><h2 id="92e28c36-0c69-4365-8ac8-4f5888ecf315" class="">Used materials:</h2><p id="22852654-76a2-4c84-9108-d7650d97c1a4" class="">[https://www.oreilly.com/library/view/http-the-definitive/1565925092/ -](https://www.oreilly.com/library/view/http-the-definitive/1565925092/ - bible :)) HTTP bible :)</p><p id="3faeef35-efae-45a8-9910-348ade22cf52" class=""><a href="https://developer.mozilla.org/en-US/docs/Glossary/Idempotent?ref=hackernoon.com">https://developer.mozilla.org/en-US/docs/Glossary/Idempotent</a></p><p id="657ed6bb-271f-4278-807e-1e7cfa22df37" class=""><a href="https://en.wikipedia.org/wiki/Port_(computer_networking)?ref=hackernoon.com">https://en.wikipedia.org/wiki/Port_(computer_networking)</a></p><p id="339f5ed7-f570-4a13-a3a9-295b5b0e28ed" class=""><a href="https://aws.amazon.com/blogs/mobile/what-happens-when-you-type-a-url-into-your-browser/?ref=hackernoon.com">https://aws.amazon.com/blogs/mobile/what-happens-when-you-type-a-url-into-your-browser/</a></p><p id="a97730bb-6dec-4973-9c05-ae7394307662" class=""><a href="https://www.contests.hackernoon.com/web-development-writing-contest?ref=hackernoon.com">The Web Development Writing Contest</a> is brought to you by IONOS in partnership with HackerNoon. Publish your stories on #web-development to win from $6000!!!</p><p id="15124f3d-f555-4b80-9c43-e2fc559c4d4f" class="">Experience coding the way it&#x27;s meant to be with IONOS Cloud Cubes - powerful KVM-based virtual servers designed for maximum flexibility and on-demand scalability. Start for free: .</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

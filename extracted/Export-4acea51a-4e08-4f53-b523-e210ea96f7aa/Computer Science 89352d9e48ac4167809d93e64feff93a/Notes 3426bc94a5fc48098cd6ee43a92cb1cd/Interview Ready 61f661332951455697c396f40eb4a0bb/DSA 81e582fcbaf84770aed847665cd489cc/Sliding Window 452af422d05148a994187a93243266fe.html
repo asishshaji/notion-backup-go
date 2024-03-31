@@ -1,0 +1,952 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Sliding Window</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="452af422-d051-48a9-9418-7a93243266fe" class="page mono"><header><h1 class="page-title">Sliding Window</h1><p class="page-description"></p></header><div class="page-body"><figure id="dad0556d-e6e6-4cb3-92b6-36a579a3c730"><a href="https://leetcode.com/discuss/general-discussion/1122776/summary-of-sliding-window-patterns-for-subarray-substring" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Loading...</div><div class="bookmark-description">Level up your coding skills and quickly land a job. This is the best place to expand your knowledge and get prepared for your next interview.</div></div><div class="bookmark-href"><img src="https://leetcode.com/favicon-192x192.png" class="icon bookmark-icon"/>https://leetcode.com/discuss/general-discussion/1122776/summary-of-sliding-window-patterns-for-subarray-substring</div></div><img src="https://leetcode.com/static/images/LeetCode_Sharing.png" class="bookmark-image"/></a></figure><p id="96d4e92c-f84b-4e8e-9a19-315e7e0f9f8b" class="">I&#x27;m a university student who recently studied a lot of sliding window for summer intern interviews. I really appreciate people who write posts like this - they helped me so much. So I would also like to share some ideas, about sliding window, and what is not sliding window.</p><p id="1f283de4-4f67-4276-b645-4bac09190679" class="">Sliding Window is very common in interviews and many questions that look like &quot;(<em>Longest/Shortest/Number of</em>) (<em>Substrings/Subarrays</em>) with (<em>At most/Exactly</em>) K elements that fit (<em>some condition</em>)&quot; have a common pattern. They are usually O(n).</p><p id="2be48584-2cd1-4139-adc9-def7978eac6e" class=""><strong>Sliding Window Questions</strong></p><ul id="2fd860b1-9a62-442d-8f19-73d9da2f0385" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/">3. Longest Substring Without Repeating Characters</a></li></ul><ul id="a4a305ee-f920-4261-b8e8-e3f7da6c6d9a" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/">340. Longest Substring with At Most K Distinct Characters</a></li></ul><ul id="fcf46608-67b9-422e-ac73-7be4fad38c64" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/minimum-window-substring/solution/">76. Minimum Window Substring</a></li></ul><ul id="6b39e76a-dfa3-4207-90fe-46e5bb254f26" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/max-consecutive-ones-iii/">1004. Max Consecutive Ones III</a></li></ul><ul id="3e8df210-a605-49e1-99ed-feb5d0fc4be6" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/fruit-into-baskets/">904. Fruit Into Baskets</a></li></ul><ul id="a009a339-412b-4970-859c-f82a5dc79bbd" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/longest-repeating-character-replacement/">424. Longest Repeating Character Replacement</a></li></ul><ul id="59840653-f6c4-4bee-b1c5-4ac395e42b07" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/binary-subarrays-with-sum/">930. Binary Subarrays with Sum</a></li></ul><ul id="b33b340a-259d-498a-8dbb-b56b2aad3458" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/subarrays-with-k-different-integers/">992. Subarrays with K Different Integers</a></li></ul><ul id="f71f7ac5-c0b9-454c-8d48-14c3a26603ff" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/count-number-of-nice-subarrays/">1248. Count Number of Nice Subarrays</a></li></ul><ul id="4ea1719f-4636-49c6-a0b6-394d00304bed" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/number-of-substrings-containing-all-three-characters">1358. Number of Substrings Containing All Three Characters</a></li></ul><p id="a9830b64-c054-4ad9-84ee-1ca3377034a0" class=""><strong>Not sliding window/not this pattern</strong></p><ul id="f1480562-3f80-45f5-8ca7-fd07a76ebc29" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/subarray-sum-equals-k/solution/">Subarray Sum Equals K</a></li></ul><ul id="96ac67b6-943d-45f7-9c5a-7669300fd887" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/">Longest Subarray with Absolute Difference &lt;= Limit</a></li></ul><ul id="6f5347f9-f29c-4b91-9f68-4473126a91d5" class="bulleted-list"><li style="list-style-type:disc"><a href="https://leetcode.com/problems/longest-palindromic-substring/">Longest Palindromic Substring</a></li></ul><p id="a2068a2e-d2c1-47e7-a12c-14859c647180" class=""><strong>Idea/Intuition</strong></p><p id="3de234a9-4c37-47a2-b79b-bc0ad49837cd" class="">We have a &quot;window&quot; of 2 pointers, <code>left</code> and <code>right</code>, and we keep increasing the right pointer.</p><ul id="ad29419c-8cb0-4832-8d96-7404ad1d7be4" class="bulleted-list"><li style="list-style-type:disc">If the element at the right pointer makes the window not valid, we keep moving the left pointer to shrink the window until it becomes valid again.</li></ul><ul id="1f2c62c6-bfa8-4c76-afd9-d4ea367a91d3" class="bulleted-list"><li style="list-style-type:disc">Then, we update the global min/max with the result from the valid window.</li></ul><ul id="89d213f7-a452-4044-a24f-8810550d2b0a" class="bulleted-list"><li style="list-style-type:disc">To check if it is valid, we need to store the &quot;state&quot; of the window (ex. frequency of letters, number of distinct integers).</li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="bbd9729d-8a49-4d8e-8839-9fb7b5736915" class="code"><code class="language-Java" style="white-space:pre-wrap;word-break:break-all">for(right = 0; right &lt; n; right++):
+    update window with element at right pointer
+    while (condition not valid):
+        remove element at left pointer from window, move left pointer to the right
+    update global max
+</code></pre><h2 id="b9be82b7-d837-4af5-b29b-d44fcca36390" class=""><strong>Length of Substring/Subarray questions:</strong></h2><p id="f60471dd-bad2-4cc0-ad82-5a76ea0260e5" class="">The first type of common question we will look at is, Max/Min <em>length</em> of subarray that fits some condition.</p><p id="021d92c3-b3d3-45e7-ace2-b583df42cf96" class=""><a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/">3. Longest substring without repeating characters</a></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="af8ae81b-3236-4167-8cfa-48eeebc0206c" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">        unordered_map&lt;char, int&gt; counts; // Frequencies of chars in the window
+        int res = 0;
+        int i = 0; // Left pointer
+        for(int j = 0; j &lt; s.length(); j++){
+            counts[s[j]] ++; // Add right pointer to window
+            while(counts[s[j]] &gt; 1){ // While the element at right pointer created a repeat
+                counts[s[i++]] --; // While condition not valid, remove element at left pointer from window by decreasing its count, and then increment left pointer. In this case, it is while s[j] is a duplicate (we will stop after removing the duplicate copy of s[j]).
+            } // Now the condition is valid
+            res = max(res, j-i+1); // Update global max with the length of current valid substring
+        }
+        return res;
+</code></pre><p id="ebf31f84-c142-4cd0-8617-a1b6deb987e0" class=""><a href="https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/">340. Longest Substring with At Most K Distinct Characters</a></p><p id="3b506d04-748b-4050-a2fa-f113f9eb1440" class="">This is a more generalized version of At Most 2 or 1 distinct characters. We keep a hashmap of the counts of characters in the current window, and also a numDistinct variable for how many distinct characters are in the current window.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1db0ef0e-4c08-4175-ba17-8142d3b910c3" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">   int lengthOfLongestSubstringKDistinct(string &amp;s, int k) {
+       unordered_map&lt;char, int&gt; counts; // Frequencies of chars in the window
+       int res = 0;
+       int numDistinct = 0;
+       int i = 0; // Left pointer
+       for(int j = 0; j &lt; s.length(); j++){
+           if(counts[s[j]] == 0) numDistinct++;
+           counts[s[j]] ++; // Add right pointer to window
+           while(numDistinct &gt; k){
+               counts[s[i]] --;
+               if(counts[s[i]] == 0) numDistinct --;
+               i++;
+           } // Now the condition is valid
+           res = max(res, j-i+1);
+	   }
+       return res;
+   }
+</code></pre><p id="f942a259-5501-4bc8-b6b1-6df6ff4e2102" class=""><a href="https://leetcode.com/problems/minimum-window-substring/solution/">76. Minimum Window Substring</a></p><p id="cde358c6-6759-49af-bb90-89883a563b69" class="">Common in interviews, and although it says Hard, it is very similar to Medium sliding window questions.</p><p id="5f5436b5-1b05-4e01-857a-6d12cb13c8b4" class="">Instead of counting <code>numDistinct</code> for number of distinct characters in the window, we count how many distinct characters of t are fully contained in the current window (how many are <code>remain</code>ing) so that if <code>remain = 0</code>, then all the characters of t are contained in the current window of s.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="eba8fb3f-004b-481b-ae0b-16a560c383c2" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">string minWindow(string s, string t) {
+    unordered_map&lt;char, int&gt; count;
+    int min_j = INT_MAX, min_i = 1, i = 0;
+    // Initialize with count of chars of t
+    for(int i = 0; i &lt; t.length(); i++){
+        count[t[i]] ++;
+    }
+    int remain = count.size(); // Number of distinct characters in t
+
+    for(int j = 0; j &lt; s.length(); j++){
+        count[s[j]] --;
+        if(count[s[j]] == 0) remain--; // The count of s[j] in the current window of s has equalled the count of s[j] in all of t, so we are done with this character
+        while(remain == 0){
+            if(j-i &lt; min_j - min_i){ // Update global variables since we need to return the string
+                min_j = j;
+                min_i = i;
+            }
+            // Remove i from the window and increment i
+            count[s[i]] ++;
+            if(count[s[i]] &gt; 0) remain++;
+            i++;
+        }
+    }
+    return min_j == INT_MAX ? &quot;&quot; : s.substr(min_i, min_j - min_i+1);
+}
+</code></pre><h3 id="2f717777-f5ef-4676-bc16-e4ed9680bab1" class=""><strong>Differently Worded Max/Min Length Sliding Window Questions</strong></h3><p id="4533fb2a-a9c7-4ded-a185-01d87a278b0b" class="">These questions may look very different from the previous ones, but are just worded differently; the main idea is the same.</p><p id="de8769b7-0428-4512-a1e0-0c1938238c8c" class=""><a href="https://leetcode.com/problems/max-consecutive-ones-iii/">1004. Max Consecutive Ones III</a></p><p id="e49ea6a5-e2c9-4cb3-a5f4-ea7c202039d6" class="">This means, longest subarray with at most K <code>0</code>s.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="b6d75e8c-e1c9-45e0-8b1a-6143f9ae4867" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">    int longestOnes(vector&lt;int&gt;&amp; A, int K) {
+        vector&lt;int&gt; freq(2);
+        int i = 0, r=0;
+        for(int j = 0; j &lt; A.size(); j++){
+            freq[A[j]] ++;
+            while(freq[0] &gt; K &amp;&amp; i &lt;= j){
+                freq[A[i]] --;
+                i++;
+            }
+            r = max(r, j-i+1);
+        }
+        return r;
+    }
+</code></pre><p id="53473437-ed5b-44e7-bb20-95a5db71d836" class=""><a href="https://leetcode.com/problems/fruit-into-baskets/">904. Fruit Into Baskets</a></p><p id="2e2920a3-1015-4235-a8c2-b3c4848f5640" class="">This is essentially the same as Longest substring with at most K distinct characters, but it is subarrays with at most 2 distinct numbers.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="f0d34ad9-73e5-4028-a44f-8c80de6a51e4" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">    int totalFruit(vector&lt;int&gt;&amp; a) {
+        vector&lt;int&gt; freq(a.size(), 0);
+        int res = 0, i=0, distinct=0;
+        for(int j = 0; j &lt; a.size(); j++){
+            freq[a[j]] ++;
+            if(freq[a[j]] == 1) distinct++;
+
+            if(distinct &lt;= 2)
+                res= max(res,  j-i+1);
+
+            while(distinct &gt; 2 &amp;&amp; i &lt; j){
+                freq[a[i]] --;
+                if(freq[a[i]] == 0) distinct--;
+                i++;
+            }
+        }
+        return res;
+    }
+</code></pre><p id="1156a309-aac7-4a09-acae-082b62833ddb" class=""><a href="https://leetcode.com/problems/longest-repeating-character-replacement/">424. Longest Repeating Character Replacement</a></p><p id="aca7af46-55ee-4206-927c-771608d02d79" class="">This can be thought of as, Longest substring where (count of most frequent character) + k &lt; length.</p><ul id="82f424f7-b88a-45fb-8765-bf8ab6942e4d" class="bulleted-list"><li style="list-style-type:disc">On top of the hashmap for character counts, we also maintain <code>maxCount</code> the count of the most frequent character so far.</li></ul><ul id="f14370db-7b83-4f5c-9532-d577bed0c66f" class="bulleted-list"><li style="list-style-type:disc">When moving the left pointer we don’t need to decrease maxCount, because if maxCount is too big, the “right - left + 1 - k &gt; maxCount” is less likely to be true and we don’t move the left pointer (as expected).</li></ul><ul id="c04b67b0-7c51-42da-a000-21ce69082e79" class="bulleted-list"><li style="list-style-type:disc">But we do need to maintain the frequencies map so we can increase maxCount if needed.</li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="07719212-6935-46bd-86ec-866e143a5cf8" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">    int characterReplacement(string s, int k) {
+        if(s.length() == 0) return 0;
+        if(s.length() &lt;= k) return s.length();
+        unordered_map&lt;char, int&gt; m;
+        int res = 0; int l = 0;
+        int maxCount = 0;
+
+        for(int i = 0; i &lt; s.length(); i++){
+            m[s[i]] ++;
+            maxCount = max(maxCount, m[s[i]]);
+            while(i - l + 1 - k &gt; maxCount){
+                m[s[l]] --;
+                l++;
+            }
+            res = max(res, i-l+1);
+
+        }
+        return res;
+    }
+</code></pre><h2 id="6e9f0bf8-089b-442c-9456-4cb65e70a700" class=""><strong>“Number of Subarrays” Questions</strong></h2><p id="930f3214-22a5-40de-800d-561836aa4316" class="">Before, we were finding the <strong>min/max length</strong> of subarray. Now we want the <strong>number of</strong> subarrays.</p><p id="b6ffa13a-6972-4d2a-ba20-a16871dbdce2" class=""><a href="https://leetcode.com/problems/binary-subarrays-with-sum/">930. Binary Subarrays with Sum</a></p><p id="4a80701a-4d36-4d4a-bd0e-c2704a06ae13" class="">Another difference this question has to the previous ones, is that it asks for subarrays with <strong>exactly</strong> <code>K</code> 1s. Previous ones were <strong>at most</strong> <code>K</code> distinct characters.</p><p id="376f9228-d875-4b10-99f8-9084ed4fec0a" class="">So, one way is we can do the <code>at most</code>, and then <code>atMost(k) - atMost(k-1)</code>.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="27bd99bb-3892-4c01-95a9-266a854997cc" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">   int numSubarraysWithSum(vector&lt;int&gt;&amp; A, int S) {
+        return atMost(A, S) - atMost(A, S - 1);
+    }
+
+    int atMost(vector&lt;int&gt;&amp; A, int S) {
+        if (S &lt; 0) return 0;
+        int res = 0, i = 0;
+        for (int j = 0; j &lt;A.size(); j++) {
+            S -= A[j];
+            while (S &lt; 0){
+                S += A[i]; i++;}
+
+            res += j - i + 1;
+        }
+        return res;
+    }
+
+</code></pre><p id="0887c3e9-f10e-4b4f-b9ce-1ff50c8cc43c" class="">You might have noticed, why are we doing <code>res += j-i+1</code> instead of <code>res = max/min (res, j-i+1)</code>.</p><p id="2bee90b1-25ab-4425-95e7-9319f59f63aa" class="">If [i … j] is a valid subarray, ex. [1,2,3,4]</p><ul id="ac07850d-54bb-43f5-816b-bcac1526336a" class="bulleted-list"><li style="list-style-type:disc">There are 4 subarrays with length 1, [1], [2], [3], [4]</li></ul><ul id="1f3dfbe5-2896-4501-b73a-cd204140f040" class="bulleted-list"><li style="list-style-type:disc">3 with length 2: [1,2], [2,3], [3,4]</li></ul><ul id="fa0bd5ad-3c52-4019-b7a6-7b355c407a83" class="bulleted-list"><li style="list-style-type:disc">2 with length 3</li></ul><ul id="c9b4ef5e-f6bc-433a-8fde-953033be99c2" class="bulleted-list"><li style="list-style-type:disc">1 with length 4</li></ul><p id="c6842dfc-c057-46fa-a15e-1ed055dfb55a" class="">So if at every step we added the length:</p><ul id="3552e3f8-aea2-4a9b-8f64-ea3cc99ddcab" class="bulleted-list"><li style="list-style-type:disc">[1] -&gt; add 1</li></ul><ul id="b1057f4f-13d6-44e4-9db1-8c6bc3a04a4a" class="bulleted-list"><li style="list-style-type:disc">[1,2] -&gt; add 2</li></ul><ul id="b18e36bf-e7d9-4486-9624-49cdcac4b871" class="bulleted-list"><li style="list-style-type:disc">[1,2,3] -&gt; add 3</li></ul><ul id="72bf0b6b-ec70-4474-b830-bcafd541252f" class="bulleted-list"><li style="list-style-type:disc">[1,2,3,4] -&gt; add 4</li></ul><p id="83d43309-a9d7-4784-89cb-7583f60b5ce1" class="">the sum 1+2+3+4 would be the same as the number of subarrays. So we can add the lengths of the valid subarrays.</p><p id="001ddf9b-dc96-4924-848c-99d9bf5d2f4a" class=""><strong>&quot;Prefixed&quot; Sliding Window</strong></p><p id="b9ca33f9-3c72-4a11-99a2-83420e0db4cf" class="">If the subarray <code>[i,j]</code> contains <code>K</code> 1s, and the first <code>p</code> numbers of the subarray are 0, then that means all the subarrays from <code>[i,j]</code> to <code>[i+p, j]</code> inclusive are valid, which is <code>p+1</code> subarrays.</p><ul id="86573b10-37de-49e6-8b2c-53142c358486" class="bulleted-list"><li style="list-style-type:disc">In the first loop, we move the left pointer to the right while the sum is too high, just like in a standard sliding window question.<ul id="f115914c-5bd7-4ad2-a705-d250b1527c62" class="bulleted-list"><li style="list-style-type:circle">We set p to 0 because i is changing.</li></ul></li></ul><ul id="17aecce8-6bd0-41f0-863a-2e30c08f1289" class="bulleted-list"><li style="list-style-type:disc">In the 2nd loop, after finding some [i,j], we find how many leading 0s are in this subarray.</li></ul><ul id="34328f6a-ef36-45a2-9875-76c9fd0f7d72" class="bulleted-list"><li style="list-style-type:disc">Finally, we need to check if the current sum equals the target again - because the first loop didn’t check if the sum is too low.</li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="5ee09a0b-bf56-4e80-88f2-d88672d0c241" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">    int numSubarraysWithSum(vector&lt;int&gt;&amp; A, int S) {
+        int p=0, i=0, r=0, c=0;
+        for(int j = 0; j &lt; A.size(); j++){
+            c+= A[j];
+            while(c &gt; S &amp;&amp; i &lt; j){
+                p=0;
+                c -= A[i];
+                i++;
+            }
+            while(A[i] == 0 &amp;&amp; i &lt; j){
+                p++;
+                c -= A[i];
+                i++;
+            }
+            if(c == S) r += p+1;
+        }
+        return r;
+</code></pre><p id="16afbefe-4fee-483c-8f7c-50901a216eab" class="">We can also do this question with the same method as “Subarray Sum Equals K” (mentioned at the end) and count prefix sums.</p><p id="4eb0cb4b-d663-453d-a2fc-57cdefbe3358" class=""><a href="https://leetcode.com/problems/subarrays-with-k-different-integers/">992. Subarrays with K different integers</a></p><p id="3c568787-dbbb-4549-afb7-4928f547791f" class=""><strong>Prefixed Sliding Window</strong></p><p id="1c08178a-2811-4efc-8238-b3e9d1ffa92b" class="">If the subarray <code>[i,j]</code> contains X distinct numbers, and the first <code>p</code> numbers are duplicates (are also in <code>[i + p, j]</code>, that means all the subarrays from <code>[i,j], [i+1, j], … [i+p, j]</code> have X distinct numbers as well. Then if <code>[i,j]</code> is valid, there will be <code>p+1</code> valid subarrays.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3121fcc6-6fb3-4dd6-9d9f-575ab37705c2" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">    int subarraysWithKDistinct(vector&lt;int&gt;&amp; A, int K) {
+        unordered_map&lt;int, int&gt; m;
+        int i = 0, p=0, d=0, r = 0;
+
+        for(int j = 0; j &lt; A.size(); j++){
+            m[A[j]] ++;
+
+            if(m[A[j]] == 1) d++; // num distinct
+
+            if(d &gt; K) {
+                m[A[i]] --;
+                d--;
+                i++;
+                p = 0;
+            }
+
+            // while A[i] has a duplicate in the current [i..j] subarray
+            while(m[A[i]] &gt; 1){
+                m[A[i]] --;
+                i++; p++;
+            }
+
+            if(d == K) r += p+1;
+
+        }
+        return r;
+
+    }
+</code></pre><p id="18927e39-c336-411f-984d-08a8f0a6558c" class="">We could also do the <code>atMost(k) - atMost(k-1)</code> strategy:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="1b97ba18-fba7-4909-9c18-882351e3d191" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">   int subarraysWithKDistinct(vector&lt;int&gt;&amp; A, int K) {
+        return atMost(A, K) - atMost(A, K - 1);
+    }
+    int atMost(vector&lt;int&gt;&amp; A, int K) {
+        int i = 0, res = 0;
+        unordered_map&lt;int, int&gt; count;
+
+        for (int j = 0; j &lt; A.size(); j++) {
+            count[A[j]]++;
+            if (count[A[j]] == 1) K--;
+            while (K &lt; 0) {
+                count[A[i]]--;
+                if (count[A[i]] == 0) K++;
+                i++;
+            }
+            res += j - i + 1;
+        }
+        return res;
+    }
+</code></pre><p id="6aa498de-925f-49a4-8054-103e5fc767e0" class=""><a href="https://leetcode.com/problems/count-number-of-nice-subarrays/">Count Number of Nice Subarrays</a></p><p id="349f721f-6ad6-4e15-95ea-6b78a44ba95b" class="">Number of subarrays with K odd numbers; this is very similar to the previous 2 questions, subarrays with K distinct integers, or with K 1s.</p><p id="c030421b-8127-492c-a2b7-8fd0f370ddd5" class=""><strong>Prefixed</strong>:</p><p id="3a3d6374-0621-490e-9588-14bacff09f6a" class="">If <code>[i...j]</code> has X odd numbers, and the first <code>p</code> numbers in this subarray (<code>nums[i], nums[i+1], …, nums[i+p-1]</code>) are even, then <code>[i..j]</code> contains <code>p+1</code> subarrays with X odd numbers. So, if <code>[i...j]</code> has K odd numbers, then it will contain <code>p+1</code> valid subarrays.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="178227ed-1386-42a1-a314-9262de39fcdc" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">    int numberOfSubarrays(vector&lt;int&gt;&amp; nums, int k) {
+        int r = 0, i=0, p=0;
+        vector&lt;int&gt; freq(2, 0);
+        for(int j = 0; j &lt; nums.size(); j++){
+            freq[nums[j] % 2] ++;
+            while(freq[1] &gt; k &amp;&amp; i &lt; j){
+                p = 0; freq[nums[i] % 2] --; i++;
+            }
+            while(nums[i]% 2 == 0 &amp;&amp; i &lt; j){
+                p++;
+                freq[nums[i]%2] --; i++;
+            }
+            if(freq[1] == k) r += p+1;
+
+        }
+        return r;
+    }
+</code></pre><p id="e0befa06-ce40-49bb-9a7e-9778a921e8f0" class=""><strong>atMost</strong>:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="99c92841-829b-4e04-af13-3fe8b20e2a78" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">    int numberOfSubarrays(vector&lt;int&gt;&amp; nums, int k) {
+        return atMost(nums, k) - atMost(nums, k - 1);
+    }
+
+    int atMost(vector&lt;int&gt;&amp; A, int k) {
+        int res = 0, i = 0, n = A.size();
+         vector&lt;int&gt; freq(2, 0);
+        for (int j = 0; j &lt; n; j++) {
+            freq[A[j] % 2] ++;
+            while(freq[1] &gt; k){
+                freq[A[i] % 2] --;
+                i++;
+            }
+            res += j - i + 1;
+        }
+        return res;
+    }
+</code></pre><p id="a9064c7b-9815-4143-a78d-96b65eaf8469" class=""><a href="https://leetcode.com/problems/number-of-substrings-containing-all-three-characters">Subarrays containing all three characters</a></p><p id="63dbbb55-f94a-49b8-b7d8-f92b3e89047d" class="">Similar to subarrays with K distinct integers, this one is Subarrays with 3 distinct characters.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="c129569b-a4d2-4a3c-a1b5-4dd38b07212a" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">    int numberOfSubstrings(string s) {
+        int  j=0, distinct = 0, res=0, prefix=0;
+        vector&lt;int&gt; freq(3);
+
+        for(int i = 0; i &lt; s.length(); i++){
+            if(freq[s[i] - &#x27;a&#x27;]== 0) distinct++;
+            freq[s[i] - &#x27;a&#x27;] ++;
+
+            while(j &lt; i &amp;&amp; freq[s[j]-&#x27;a&#x27;] &gt; 1){
+                freq[s[j]-&#x27;a&#x27;]--;
+                j++;
+                prefix++;
+            }
+            if(distinct == 3){
+                res += prefix+1;
+            }
+        }
+        return res;
+    }
+</code></pre><h2 id="42c67d4a-a000-41e2-9b90-cd1fb7758036" class=""><strong>When does this template not work?</strong></h2><p id="48223cf0-618c-47d6-9486-6e1c48e43b3b" class=""><strong>A common problem I faced when studying Leetcode is not knowing when to apply a pattern or not.</strong></p><p id="2aca294d-0fe4-47ae-b13c-3d39ca5021e7" class="">Here are some questions that look like this pattern, but are not:</p><p id="37b3dda1-6778-4d03-a27b-944c1199d4ba" class=""><strong>1:</strong> Sliding window doesn&#x27;t work if knowing one element at the edges of the window, does not tell you how to update the state of the window, or whether it becomes valid.</p><p id="9258234e-bded-43e2-bc20-34e8f7ec37ff" class="">For example, here is a very interesting Sliding Window I got asked on an interview:</p><p id="d9b79af9-74c7-43bb-aa60-09d1354e40d7" class=""><a href="https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/">Longest Subarray with Absolute Diff &lt;= Limit</a></p><p id="f3bceff4-b1cc-42c8-87a5-8f848f059e85" class="">The previous types of sliding window don’t work because we need the <strong>max and min of the window</strong>. How would we do that while loop, <code>while (condition is not valid) left++</code>, if we don&#x27;t know whether <code>left</code> is the max or min of the window?</p><ul id="c860fa1c-ea7a-4b76-8f7e-18d2e2fbfcfd" class="bulleted-list"><li style="list-style-type:disc">We need to keep <strong>monotonic queues</strong> of the index of max and min elements in the current window. Store indices not values, so we can know the length of sliding window.</li></ul><ul id="1ddcab5f-1cc4-44ec-aa30-86554bdc3650" class="bulleted-list"><li style="list-style-type:disc">The front of q1 is the max, and the front of q2 is the min.</li></ul><ul id="cfb4f5c2-fe98-4a16-9409-f56304fd73ef" class="bulleted-list"><li style="list-style-type:disc">Elements in q1 are decreasing and elements in q2 are increasing. Every time we add new right pointer element, we have to pop old elements from the deques to maintain the order.</li></ul><ul id="748d1ac7-463c-4673-8f58-c78899594015" class="bulleted-list"><li style="list-style-type:disc">Finally, if the limit is exceeded, we pop the old max/min from the left of the queues, and use the index of the popped element to check whether we need to pop the other queue or update res.</li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="8bf3b0e8-f4a3-419f-9b78-e21effdf4dd7" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">    int longestSubarray(vector&lt;int&gt;&amp; nums, int limit) {
+        if(nums.size() == 0) return 0;
+        int i = 0, res = 0;
+        deque&lt;int&gt; q1, q2; // for max and min
+        for(int j = 0; j &lt; nums.size(); j++){
+            while(!q1.empty() &amp;&amp; nums[q1.back()] &lt; nums[j] ) q1.pop_back();
+            while(!q2.empty() &amp;&amp; nums[q2.back()] &gt; nums[j] ) q2.pop_back();
+            q1.push_back(j);
+            q2.push_back(j);
+            while(!q1.empty() &amp;&amp; !q2.empty() &amp;&amp; (nums[q1.front()] - nums[j] &gt; limit || nums[j] - nums[q2.front()] &gt; limit )){
+                if(nums[q1.front()] - nums[j] &gt; limit) {  i = max(i, q1.front() +1); q1.pop_front();}
+                if(nums[j] - nums[q2.front()] &gt; limit) {i = max(i, q2.front() +1); q2.pop_front();}
+            }
+            res = max(res, j-i+1);
+
+        }
+        return res;
+    }
+
+</code></pre><p id="536380ec-4edc-46fc-a9a7-ae95d25f902f" class="">I recommend looking at <strong>Monotonic Stack/Queue</strong> problems as it is a very interesting category!</p><p id="5a998ccd-a9b4-4a77-a99d-c59c036dfdca" class=""><strong>2:</strong> Another type of question that doesn&#x27;t work, is if adding one new element could either increase or decrease the window&#x27;s state.</p><ul id="88b369e3-67c0-49a8-910f-9eb3650a11dd" class="bulleted-list"><li style="list-style-type:disc">For <code>Longest substring with at most K distinct characters</code>, we know that adding a new character to the window can only increase the numDistinct. Removing from the window can only decrease it.</li></ul><ul id="f187be1d-d1a4-45ab-bb32-b41ccaf385bf" class="bulleted-list"><li style="list-style-type:disc">But for <code>Subarray Sums Equals K</code>, with <em>negative numbers</em>, this is not the case.</li></ul><p id="0f4c2afc-2909-44f4-9e1c-262d9e7bec45" class="">So the usual sliding window template does not work, and we need to keep a <code>HashMap</code> of prefix sums, and at each new element check how many previous places had a prefix sum of [current prefix sum - k].</p><p id="e380f82c-c952-46e2-aee3-a9233b53d77b" class="">This is out of the scope of this post, but <a href="https://leetcode.com/problems/subarray-sum-equals-k/solution/">their solution is very detailed!</a></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="efb3423c-8c39-465d-8157-1cde35121573" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">    int subarraySum(vector&lt;int&gt;&amp; nums, int k) {
+        unordered_map&lt;int, int&gt; m;
+        m[0] = 1;
+        int total = 0;
+        int count = 0;
+        for(int i = 0; i &lt; size(nums); i++){
+            count += nums[i];
+
+            if(m.find(count - k) != m.end()) total += m[count-k];
+            m[count] += 1;
+
+        }
+        return total;
+
+    }
+</code></pre><p id="86eff5c1-1a2c-4c93-bbd7-be627ab27400" class="">Subarray Sum/Product is also a whole other category of problem! Very interesting. For example:</p><p id="96704be3-57ef-4ff8-9c39-7f7659295194" class=""><a href="https://leetcode.com/problems/subarray-product-less-than-k/">https://leetcode.com/problems/subarray-product-less-than-k/</a></p><p id="848d2f28-0a14-4301-942d-d8b635aeb6d5" class=""><a href="https://leetcode.com/problems/subarray-sums-divisible-by-k/">https://leetcode.com/problems/subarray-sums-divisible-by-k/</a></p><p id="30990616-029c-4cf2-b3ef-1b77d24d3182" class=""><strong>3:</strong> Similar to the 1st reason: If given an invalid subarray it is hard to check whether adding or removing from only one end at a time would ever make it valid.</p><p id="bc88cfc4-c46d-40c3-8045-e0295f1eb5de" class=""><a href="https://leetcode.com/problems/longest-palindromic-substring/">5. Longest Palindromic Substring</a></p><p id="8a2a75f1-58e2-4b0b-811c-751fd504fc8f" class="">Most &quot;palindrome&quot; questions are not sliding window, because the nature of palindrome means you either expand the 2 pointers from the center or move the pointers inwards, one starts at 0 and one starts at n-1.</p><p id="95fb8062-fd97-4653-9235-929448c4fdbb" class="">If we tried to apply the pattern on longest palindrome question,</p><ul id="f6a7c7fe-a8c0-4a11-a368-9b4a5f3bf8d0" class="bulleted-list"><li style="list-style-type:disc">it is hard to check if adding the element at right pointer makes the window valid</li></ul><ul id="0dbcc9f3-c093-4ef5-9a19-e6e463a8a287" class="bulleted-list"><li style="list-style-type:disc">and if the new element makes it invalid, hard to check how many times we need to move the left pointer to make it valid</li></ul><p id="e1d5f2a1-30c4-463d-a553-dfacd8970a28" class="">The <a href="https://leetcode.com/problems/longest-palindromic-substring/solution/">solution</a> is to consider every possible &quot;center&quot; of the palindrome and expand the 2 pointers outward.</p><p id="3cc6b508-a15c-48a3-aa47-955c30743e5e" class=""><strong>More Useful Links</strong></p><ul id="2ef212f8-4ff6-4d64-b825-15b130be6595" class="bulleted-list"><li style="list-style-type:disc">(Prefixed sliding window diagram) <a href="https://leetcode.com/problems/subarrays-with-k-different-integers/discuss/235235/C%2B%2BJava-with-picture-prefixed-sliding-window">https://leetcode.com/problems/subarrays-with-k-different-integers/discuss/235235/C%2B%2BJava-with-picture-prefixed-sliding-window</a></li></ul><ul id="c4696e9d-aea4-4ae6-a350-41552a2b2d7d" class="bulleted-list"><li style="list-style-type:disc">(List of similar questions) <a href="https://leetcode.com/problems/number-of-substrings-containing-all-three-characters/discuss/516977/JavaC++Python-Easy-and-Concise">https://leetcode.com/problems/number-of-substrings-containing-all-three-characters/discuss/516977/JavaC++Python-Easy-and-Concise</a></li></ul><ul id="24d66cb1-2eb0-48a4-8963-1c5ced2d00fd" class="bulleted-list"><li style="list-style-type:disc">(Minimum Window Substring template) <a href="https://leetcode.com/problems/minimum-window-substring/discuss/26808/here-is-a-10-line-template-that-can-solve-most-substring-problems">https://leetcode.com/problems/minimum-window-substring/discuss/26808/here-is-a-10-line-template-that-can-solve-most-substring-problems</a></li></ul><ul id="1a4943e2-6e62-418e-860c-10c9ec4f79cc" class="bulleted-list"><li style="list-style-type:disc">(What can or cannot be solved with Two Pointers) <a href="https://leetcode.com/problems/subarray-sum-equals-k/discuss/301242/General-summary-of-what-kind-of-problem-can-cannot-solved-by-Two-Pointers">https://leetcode.com/problems/subarray-sum-equals-k/discuss/301242/General-summary-of-what-kind-of-problem-can-cannot-solved-by-Two-Pointers</a></li></ul></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

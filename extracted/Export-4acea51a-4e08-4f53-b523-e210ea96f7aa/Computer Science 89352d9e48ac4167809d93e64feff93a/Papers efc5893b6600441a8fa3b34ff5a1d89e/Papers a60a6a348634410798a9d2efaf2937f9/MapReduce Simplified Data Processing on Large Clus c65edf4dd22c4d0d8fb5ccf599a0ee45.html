@@ -1,0 +1,694 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>MapReduce: Simplified Data Processing on Large Clusters</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="c65edf4d-d22c-4d0d-8fb5-ccf599a0ee45" class="page mono"><header><h1 class="page-title">MapReduce: Simplified Data Processing on Large Clusters</h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-url"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesUrl"><path d="M7.69922 10.8945L8.73828 9.84863C7.91797 9.77344 7.34375 9.51367 6.91992 9.08984C5.76465 7.93457 5.76465 6.29395 6.91309 5.14551L9.18262 2.87598C10.3379 1.7207 11.9717 1.7207 13.127 2.87598C14.2891 4.04492 14.2822 5.67188 13.1338 6.82031L11.958 7.99609C12.1768 8.49512 12.2451 9.10352 12.1289 9.62988L14.0908 7.6748C15.7725 6 15.7793 3.62109 14.084 1.92578C12.3887 0.223633 10.0098 0.237305 8.33496 1.91211L5.95605 4.29785C4.28125 5.97266 4.26758 8.35156 5.96289 10.0469C6.36621 10.4434 6.90625 10.7441 7.69922 10.8945ZM8.30078 5.13184L7.26855 6.17773C8.08203 6.25293 8.66309 6.51953 9.08008 6.93652C10.2422 8.09863 10.2422 9.73242 9.08691 10.8809L6.81738 13.1504C5.66211 14.3057 4.03516 14.3057 2.87305 13.1504C1.71094 11.9883 1.71777 10.3545 2.87305 9.20605L4.04199 8.03027C3.83008 7.53125 3.75488 6.92969 3.87109 6.39648L1.91602 8.35156C0.234375 10.0264 0.227539 12.4121 1.92285 14.1074C3.61816 15.8027 5.99707 15.7891 7.67188 14.1143L10.0439 11.7354C11.7256 10.0537 11.7324 7.6748 10.0371 5.98633C9.64062 5.58301 9.10059 5.28223 8.30078 5.13184Z"></path></svg></span>URL</th><td><a href="http://nil.lcs.mit.edu/6.824/2020/papers/mapreduce.pdf" class="url-value">http://nil.lcs.mit.edu/6.824/2020/papers/mapreduce.pdf</a></td></tr></tbody></table></header><div class="page-body"><ul id="a161b22e-4668-4e11-826a-8969a86291d1" class="bulleted-list"><li style="list-style-type:disc">Programming model for processing and generating large datasets.</li></ul><figure id="b7e77e0e-66b2-490f-9f41-20ebf38e5288" class="image"><a href="MapReduce%20Simplified%20Data%20Processing%20on%20Large%20Clus%20c65edf4dd22c4d0d8fb5ccf599a0ee45/Untitled.png"><img style="width:672px" src="MapReduce%20Simplified%20Data%20Processing%20on%20Large%20Clus%20c65edf4dd22c4d0d8fb5ccf599a0ee45/Untitled.png"/></a></figure><ul id="b214b209-d93a-448c-9930-22f9aba892de" class="bulleted-list"><li style="list-style-type:disc">Takes key value as input, the map creates an intermediate output, the reducer merges all intermediate values associated with the same intermediate key.</li></ul><ul id="b873319a-a269-4720-a690-2f3c0c0c22b5" class="bulleted-list"><li style="list-style-type:disc">A typical map-reduce can handle terabytes of data</li></ul><p id="995056a4-53bb-4217-af33-ad50e0ab9b0a" class="">
+</p><h2 id="e07ba36f-e266-4342-b125-b1f9796a0f1a" class="">why map-reduce</h2><ul id="c1996c92-84cc-420d-b407-2aaaefe0d3ea" class="bulleted-list"><li style="list-style-type:disc">Google engineers needed to process large amount of data, on various machines (distributed)</li></ul><ul id="bf573cee-bdab-4cc8-bb7b-37ddb6a4d150" class="bulleted-list"><li style="list-style-type:disc">They wanted to process the data to compute various kinds of derived data.</li></ul><ul id="9e27a2f2-fae4-4078-b893-b34905a7115d" class="bulleted-list"><li style="list-style-type:disc">eg: For indexing the whole internet</li></ul><ul id="e827d120-1609-4dbe-9465-59e0002fc975" class="bulleted-list"><li style="list-style-type:disc">the input data are usually very large, and computations have to be distributed across hundreds or thousands of machines.</li></ul><ul id="ca436c1d-4bce-4f00-b597-cbb52331313b" class="bulleted-list"><li style="list-style-type:disc">They thus created a map-reduce framework to address this problem, while hiding the messy details of parallelization, fault tolerance, and load balancing for the programmer.</li></ul><p id="077012c1-64a3-4684-afa0-73ae99e988b0" class="">
+</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="d3e4892c-c03b-4363-9a3d-26ff5510f5e7" class="code"><code class="language-JavaScript">map(String key, String value):
+// key: document name
+// value: document contents
+for each word w in value:
+  EmitIntermediate(w, &quot;1&quot;);
+  
+reduce(String key, Iterator values):
+// key: a word
+// values: a list of counts
+	int result = 0;
+	for each v in values:
+		result += ParseInt(v);
+	Emit(AsString(result));</code></pre><h2 id="71106b40-4238-40c4-9d91-6222aa75de19" class="">Examples</h2><ul id="1ef6f945-d121-4088-bb4c-63a37849bad8" class="bulleted-list"><li style="list-style-type:disc">Distributed Grep<ul id="79bbede9-b968-4fd9-bd61-4a38682d0fa0" class="bulleted-list"><li style="list-style-type:circle">The map function emits the line that matches the pattern from the input document</li></ul><ul id="14e93efe-8cce-4f32-aea9-b98ece025014" class="bulleted-list"><li style="list-style-type:circle">The reduce function groups together all the intermediary data to the output </li></ul></li></ul><ul id="7536f3e5-0797-456c-96be-7a9a00a70972" class="bulleted-list"><li style="list-style-type:disc">Count of URL Access Frequency<ul id="9511ea9d-ed65-4b34-873d-6f1d9e97ba82" class="bulleted-list"><li style="list-style-type:circle">map function takes the log file as input, looks up the &lt;url&gt; in the file, and emits &lt;url, 1&gt; as an event</li></ul><ul id="7197fc7b-e447-4958-bbaa-3f40f9a5c8d4" class="bulleted-list"><li style="list-style-type:circle">The reduce function adds together all the values for the same URL and emits a &lt;url, total_count&gt; event</li></ul></li></ul><h1 id="73ebf636-8fb0-48c4-84c0-5dcb03cb4eb5" class="">Execution Overview</h1><ul id="27198069-e96b-4098-871c-16e3af4e2129" class="bulleted-list"><li style="list-style-type:disc">Reverse Web-Link Graph<ul id="dc6774fa-c6f2-4818-8635-6ff9a23e52ad" class="bulleted-list"><li style="list-style-type:circle">map function outputs &lt;target, source&gt; pairs for each link to a target URL found in the page named source.</li></ul><ul id="2fb4b8e3-407c-4e29-8cda-746edb098a70" class="bulleted-list"><li style="list-style-type:circle">the reduce function concatenates the list of source URLS associated with a given target URL and emits &lt;target, list(sources)&gt;</li></ul><p id="f9e4389b-faa2-4ed8-ae9f-40fe9cf5d195" class="">
+</p><figure id="ebfb4b18-d6d4-46f5-83f7-07b616b5e127" class="image"><a href="MapReduce%20Simplified%20Data%20Processing%20on%20Large%20Clus%20c65edf4dd22c4d0d8fb5ccf599a0ee45/Untitled%201.png"><img style="width:624px" src="MapReduce%20Simplified%20Data%20Processing%20on%20Large%20Clus%20c65edf4dd22c4d0d8fb5ccf599a0ee45/Untitled%201.png"/></a></figure><p id="ec2c3df1-e725-420f-bdd0-d1389507d257" class="">Map invocations are distributed across multiple machines by automatically partitioning input data into a set of M splits. These input splits can be processed by multiple machines in parallel. </p><p id="9b3abcd9-0d11-4af0-b2cf-04b95f50bdc7" class="">Reduce invocations are distributed into workers by partitioning the intermediate keys into R pieces using a partitioning function ( eg hash(key) mod R) where R is the number of partitions.</p><p id="155ce339-5be9-43e3-8d91-cd736c99226d" class="">   </p><h1 id="b33369f7-5077-4b33-a21f-01fc1740bf21" class="">FLOW</h1><figure id="c0b864cf-fdec-4e63-9d6e-77d3361b9ad1" class="image" style="text-align:left"><a href="MapReduce%20Simplified%20Data%20Processing%20on%20Large%20Clus%20c65edf4dd22c4d0d8fb5ccf599a0ee45/Untitled%202.png"><img style="width:432px" src="MapReduce%20Simplified%20Data%20Processing%20on%20Large%20Clus%20c65edf4dd22c4d0d8fb5ccf599a0ee45/Untitled%202.png"/></a></figure><ul id="eda29482-5578-4a2f-bbf2-071ba02ee2fc" class="bulleted-list"><li style="list-style-type:circle">The mapreduce splits the input data into M segments varying from 16 Mb to 64 Mb(configurable by the user). It then starts up many copies of the program on a cluster of machines.</li></ul><ul id="3cff724f-3ab1-45ed-9350-6ddd86a5359e" class="bulleted-list"><li style="list-style-type:circle">One copy is the master, the rest are workers that are assigned work by the master. There are M map tasks and R reducer tasks to assign. The master picks idle workers and assigns each one a map task or a reduce task.</li></ul><ul id="1b0b74a7-c066-41ba-9367-f20191aa61b7" class="bulleted-list"><li style="list-style-type:circle">A worker who is assigned a map task reads the contents of the input split data. It parses the k/v of input data and passes it to the map function, which then generates the intermediate output, which is then buffered in the memory.</li></ul><ul id="1f97b2c7-7acb-4bcd-8fcd-46a67cb83a65" class="bulleted-list"><li style="list-style-type:circle">Periodically, the buffered pairs are written into the local disk, partitioned into R partition by a hashing function, and the locations are sent to the master, who is responsible for forwarding these locations to the reduce workers.</li></ul><ul id="64631cf9-8d32-4210-bac3-6e32f2a461fd" class="bulleted-list"><li style="list-style-type:circle">When the reduce workers are notified about the locations of the partition by the master, the reducer then uses RPC calls to access the data from the local disk of map workers. When a reducer worker has read in all the intermediate data, it then sorts the data so that all occurrences of a key are grouped. If the intermediate data is too large to fit in the memory, external sort is used.</li></ul><ul id="69df6bd2-fea1-4713-bdf7-080ff3f05189" class="bulleted-list"><li style="list-style-type:circle">The reducer worker then iterates over the sorted intermediate data and for each unique intermediate data encountered, it passes the key and the corresponding set of intermediate values to the user’s reduce function. The output of the reduce function is then appended to the final output of the reducer’s partition.</li></ul><p id="8d47f87d-7f5a-49f1-a466-b6be7f7927ef" class="">
+</p><hr id="dc1f8e1b-a8f6-4f4d-b8db-06a0c6a7ca64"/><p id="035ed508-493f-497a-837c-791599b2f32f" class="">
+</p><ul id="1f8f7e5d-8066-4752-a009-1d291940108a" class="bulleted-list"><li style="list-style-type:circle">Master tracks of various data structures.</li></ul><ul id="5c44026a-efa5-4e88-aede-48c64539078d" class="bulleted-list"><li style="list-style-type:circle">It tracks the status of each map and reduce work, and the identity of idle worker machines</li></ul><ul id="bf882976-63ed-4be0-ae44-37b67ddae535" class="bulleted-list"><li style="list-style-type:circle">The master is the conduit through which the intermediate output from the map reaches the reducer.</li></ul><ul id="057ef39f-d0a0-447b-a458-d2fa46afd62f" class="bulleted-list"><li style="list-style-type:circle">The master stores the locations and sizes of the R intermediate regions produced by a map task.</li></ul><ul id="96cf6703-c046-49c3-b79a-9bd9c3898881" class="bulleted-list"><li style="list-style-type:circle">Updates to these locations are received once the map task is complete.</li></ul><h3 id="81ff082b-a5c0-4d18-a8ab-c0c4b5487a6d" class="">Worker Failure</h3><ul id="396b67b2-d8f6-497b-8531-337bf9d00d4a" class="bulleted-list"><li style="list-style-type:circle">The master pings every worker periodically, if no response is received from the worker in a certain amount of time, the worker is marked as failed.</li></ul><ul id="0d22bfea-a246-4aef-b829-bf7a9d33ae8a" class="bulleted-list"><li style="list-style-type:circle">Any map tasks completed by the worker are reset back to their initial state(idle), which makes it possible for the master to reschedule again on other workers.<ul id="0cf352a5-1229-4ed0-ba78-69ab390c131a" class="bulleted-list"><li style="list-style-type:square">Why mark completed tasks to the initial state?<ul id="14bcc880-9973-40b8-80d3-abf1ba1b1b53" class="bulleted-list"><li style="list-style-type:disc">The completed tasks are in the failed machine memory and therefore are inaccessible.</li></ul><ul id="968b141b-471b-487f-86f7-359333cc5ae1" class="bulleted-list"><li style="list-style-type:disc">Completed reduces tasks need not be recalculated again, because they are stored in a global file system.</li></ul></li></ul></li></ul><ul id="2a0c4b6f-4f4d-4798-a1e4-ed3596b2ade4" class="bulleted-list"><li style="list-style-type:circle">Any map tasks or reduce tasks in progress on a failed worker are marked as idle and become eligible for rescheduling.</li></ul><ul id="a71e829e-cb4b-4d5a-ae6a-cbe8d18e37d9" class="bulleted-list"><li style="list-style-type:circle">Rescheduling and re-execution avoid most of the bottleneck in case of a worker failure.</li></ul><h3 id="4f17ad9d-e907-42a1-9c47-11a05750c3d5" class="">Master Failure</h3><ul id="3339aad2-1d82-41c1-9bbe-eb587b3700a6" class="bulleted-list"><li style="list-style-type:circle">Better make the master periodically commit its local data structures.</li></ul><ul id="2206e294-d01e-40af-9ca2-6ad26c5b341b" class="bulleted-list"><li style="list-style-type:circle">If the master dies, a new copy can be started from the last check-pointed state.</li></ul></li></ul><p id="671541fe-9eaa-4db8-ae4b-d8dab0328643" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

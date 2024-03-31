@@ -1,0 +1,751 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Parallel Request </title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="7bd9d477-ce64-4b86-973f-d832fd5bc6f0" class="page mono"><header><h1 class="page-title">Parallel Request </h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-person"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesPerson"><path d="M10.9536 7.90088C12.217 7.90088 13.2559 6.79468 13.2559 5.38525C13.2559 4.01514 12.2114 2.92017 10.9536 2.92017C9.70142 2.92017 8.65137 4.02637 8.65698 5.39087C8.6626 6.79468 9.69019 7.90088 10.9536 7.90088ZM4.4231 8.03003C5.52368 8.03003 6.42212 7.05859 6.42212 5.83447C6.42212 4.63843 5.51245 3.68945 4.4231 3.68945C3.33374 3.68945 2.41846 4.64966 2.41846 5.84009C2.42407 7.05859 3.32251 8.03003 4.4231 8.03003ZM1.37964 13.168H5.49561C4.87231 12.292 5.43384 10.6074 6.78711 9.51807C6.18628 9.14746 5.37769 8.87231 4.4231 8.87231C1.95239 8.87231 0.262207 10.6917 0.262207 12.1628C0.262207 12.7974 0.548584 13.168 1.37964 13.168ZM7.50024 13.168H14.407C15.4009 13.168 15.7322 12.8423 15.7322 12.2864C15.7322 10.8489 13.8679 8.88354 10.9536 8.88354C8.04492 8.88354 6.17505 10.8489 6.17505 12.2864C6.17505 12.8423 6.50635 13.168 7.50024 13.168Z"></path></svg></span>Owner</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a-/AOh14GiNFIvqEK9T2Ma-a9SoWywYHcnZYok9I79f7LDmGQ=s100" class="icon user-icon"/>Asish Shaji Thomas</span></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesMultipleSelect"><path d="M1.91602 4.83789C2.44238 4.83789 2.87305 4.40723 2.87305 3.87402C2.87305 3.34766 2.44238 2.91699 1.91602 2.91699C1.38281 2.91699 0.952148 3.34766 0.952148 3.87402C0.952148 4.40723 1.38281 4.83789 1.91602 4.83789ZM5.1084 4.52344H14.3984C14.7607 4.52344 15.0479 4.23633 15.0479 3.87402C15.0479 3.51172 14.7607 3.22461 14.3984 3.22461H5.1084C4.74609 3.22461 4.45898 3.51172 4.45898 3.87402C4.45898 4.23633 4.74609 4.52344 5.1084 4.52344ZM1.91602 9.03516C2.44238 9.03516 2.87305 8.60449 2.87305 8.07129C2.87305 7.54492 2.44238 7.11426 1.91602 7.11426C1.38281 7.11426 0.952148 7.54492 0.952148 8.07129C0.952148 8.60449 1.38281 9.03516 1.91602 9.03516ZM5.1084 8.7207H14.3984C14.7607 8.7207 15.0479 8.43359 15.0479 8.07129C15.0479 7.70898 14.7607 7.42188 14.3984 7.42188H5.1084C4.74609 7.42188 4.45898 7.70898 4.45898 8.07129C4.45898 8.43359 4.74609 8.7207 5.1084 8.7207ZM1.91602 13.2324C2.44238 13.2324 2.87305 12.8018 2.87305 12.2686C2.87305 11.7422 2.44238 11.3115 1.91602 11.3115C1.38281 11.3115 0.952148 11.7422 0.952148 12.2686C0.952148 12.8018 1.38281 13.2324 1.91602 13.2324ZM5.1084 12.918H14.3984C14.7607 12.918 15.0479 12.6309 15.0479 12.2686C15.0479 11.9062 14.7607 11.6191 14.3984 11.6191H5.1084C4.74609 11.6191 4.45898 11.9062 4.45898 12.2686C4.45898 12.6309 4.74609 12.918 5.1084 12.918Z"></path></svg></span>Tags</th><td></td></tr><tr class="property-row property-row-last_edited_time"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesCreatedAt"><path d="M8 15.126C11.8623 15.126 15.0615 11.9336 15.0615 8.06445C15.0615 4.20215 11.8623 1.00293 7.99316 1.00293C4.13086 1.00293 0.938477 4.20215 0.938477 8.06445C0.938477 11.9336 4.1377 15.126 8 15.126ZM8 13.7383C4.85547 13.7383 2.33301 11.209 2.33301 8.06445C2.33301 4.91992 4.84863 2.39746 7.99316 2.39746C11.1377 2.39746 13.6738 4.91992 13.6738 8.06445C13.6738 11.209 11.1445 13.7383 8 13.7383ZM4.54102 8.91211H7.99316C8.30078 8.91211 8.54004 8.67285 8.54004 8.37207V3.8877C8.54004 3.58691 8.30078 3.34766 7.99316 3.34766C7.69238 3.34766 7.45312 3.58691 7.45312 3.8877V7.83203H4.54102C4.2334 7.83203 4.00098 8.06445 4.00098 8.37207C4.00098 8.67285 4.2334 8.91211 4.54102 8.91211Z"></path></svg></span>Last edited time</th><td><time>@August 29, 2023 6:21 AM</time></td></tr></tbody></table></header><div class="page-body"><figure id="292c9799-6a65-4ed1-8e58-db5d212d3d2c"><a href="https://tangowhisky37.github.io/PracticalPerformanceAnalyst/spe_fundamentals/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">SPE Fundamentals · SPE BoK</div><div class="bookmark-description">Body of Knowledge on Systems Performance Engineering.</div></div><div class="bookmark-href"><img src="https://tangowhisky37.github.io/PracticalPerformanceAnalyst/apple-touch-icon.png" class="icon bookmark-icon"/>https://tangowhisky37.github.io/PracticalPerformanceAnalyst/spe_fundamentals/</div></div></a></figure><h2 id="ede10157-381c-44f1-a02a-4df92474be5e" class=""><a href="https://learn.saylor.org/mod/page/view.php?id=27029">Amdahl’s Law</a></h2><figure id="7c19c9ba-53a2-4d7c-868b-96f5c610c893" class="image"><a href="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled.png"><img style="width:768px" src="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled.png"/></a></figure><figure id="9aabd2bf-c648-4a22-94c8-665e587763eb" class="image"><a href="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%201.png"><img style="width:528px" src="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%201.png"/></a></figure><p id="e76f6e10-e7d9-4fa7-b151-88eadda07549" class="">In the second graph, speed/throughput vs no of processors, Each line represents a parallel portion, the line close to the y axis has 95% parallel execution and rest 5% serially. Even if the serial port is very low, the graph will at some point become a line.</p><p id="99778caf-57c7-4366-88b5-e40ce04dd55c" class="">
+</p><blockquote id="70dafdd5-210e-464b-84d6-72a1fbb48a8c" class="">Speedup measures the ratio of performance between two objects</blockquote><p id="7bdcf763-bd9c-4db0-91af-a243f447f46a" class="">
+</p><p id="ae2837e0-e339-4256-a1d4-cbac31da9ae5" class="">In general terms, <strong>Amdahl’s Law</strong> states that in parallelization, if <strong>P</strong> is the proportion of a system or program that can be made parallel, and <strong>1-P</strong> is the proportion that remains serial, then the maximum speedup <strong>S(N)</strong> that can be achieved using <strong>N</strong> processors is:</p><figure id="c6e25fc9-22b0-4155-8593-3f275ab90b95" class="equation"><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css')</style><div class="equation-container"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>S</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mi mathvariant="normal">/</mi><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>P</mi><mo stretchy="false">)</mo><mo>+</mo><mo stretchy="false">(</mo><mi>P</mi><mi mathvariant="normal">/</mi><mi>N</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">  S(N)=1/((1-P)+(P/N))</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.05764em;">S</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1/</span><span class="mopen">((</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">))</span></span></span></span></span></div></figure><h2 id="ac4d7c28-26bb-48cb-bedf-a5e2def8bc49" class="">Gunther’s universal scalability law</h2><figure id="aa980e77-1dac-42ee-85a0-f65c3b6a7da2"><a href="https://blog.acolyer.org/2015/04/29/applying-the-universal-scalability-law-to-organisations/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Applying the Universal Scalability Law to organisations | the morning paper</div></div><div class="bookmark-href"><img src="https://secure.gravatar.com/blavatar/09326a066a08237015d6b84f026d36ae?s=32" class="icon bookmark-icon"/>https://blog.acolyer.org/2015/04/29/applying-the-universal-scalability-law-to-organisations/</div></div></a></figure><p id="5084e635-7e51-4566-b78a-ae1ad178c019" class="">Whenever there are sequential requests, it will end up in a queue, for example: if we have a lock on a shared resource, the first request acquires the lock.</p><p id="0ee623df-5425-4e3e-8c6f-64902a8f4a85" class="">The subsequent requests are usually queued when they try to acquire the lock. Queuing is one of the causes of the throughput of a system.</p><p id="862afcc4-9f46-4157-9d8b-ebc74ed988a4" class="">There are two reasons which limit the concurrency of a system. </p><ul id="805c51c5-8556-4cb6-a604-5622e7a868d9" class="bulleted-list"><li style="list-style-type:disc">queuing</li></ul><ul id="9e9cdcbc-08e8-4994-839e-cbd1c3080350" class="bulleted-list"><li style="list-style-type:disc">coherence </li></ul><p id="0be24922-b577-4dc4-bf76-d9bd523dd6f6" class="">Amdhal’s law only deals with queueing. Universal law deals with queueing and coherence.</p><h3 id="c6e5780d-110f-4171-9222-76432463dc2a" class="">Coherence</h3><p id="cda2e615-c1b2-4033-86c8-d5b4c99d5c6d" class="">Let’s assume that we have a 3 core system. Threads are executed on these cores. And you have a volatile variable declared in your program. When you declare a variable as volatile, the changes that you make one thread must be reflected on other threads. This comes at a performance cost.</p><div id="4cadaf20-9bc9-48b4-b417-67c806f6e2b1" class="column-list"><div id="ca1f15bc-77e9-4b5c-9726-b50d9b59cec4" style="width:50%" class="column"><figure id="41702584-c97c-4b4c-bb49-38c37fad60de" class="image"><a href="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%202.png"><img style="width:148px" src="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%202.png"/></a></figure></div><div id="3b7057af-328b-4b1d-be14-de11b8908592" style="width:50%" class="column"><figure id="a3927929-3c99-4ac0-8c18-712279d94fae" class="image"><a href="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%203.png"><img style="width:493px" src="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%203.png"/></a></figure></div></div><p id="98b55ad0-8fdf-40e9-b073-26cc88e8c41f" class="">So in our application if we are using lot of such variables, then it comes at a cost.</p><p id="b11975b5-e8f8-4e89-9c2d-8d5858f97d83" class="">In queueing it never brings down your overall speedup. But in case of coherence, it has this annoying ability to bring down your speedup. </p><figure id="b7876617-69cf-4ca6-8995-b94d854c2380" class="image"><a href="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%204.png"><img style="width:372px" src="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%204.png"/></a></figure><p id="2c7f9742-bbd8-42e1-9184-0fd352619846" class="">So for a system to be highly concurrent, you need to bring down both queueing and coherence. </p><p id="534f1789-9060-4bfa-afa9-f947962c1fd6" class="">
+</p><h2 id="cb0ff05f-1812-460f-9c5b-d135c3fc478e" class="">Shared Resource Contention</h2><ul id="01a18b1d-b708-4bf7-8164-706a88d0b144" class="bulleted-list"><li style="list-style-type:disc">When requests are made to the server, if the server is busy, then the request is <strong>queued to the listen or accept queue. </strong></li></ul><figure id="01b23bcb-b64e-4334-8bed-5233ce85561a" class="link-to-page"><a href="../../Fundamentals%20of%20backend%20engineering%20626148e90d3840e88d5c8b434f9c983d/How%20backend%20accepts%20connections%2001b23bcbb64e43348bed5233ce85561a.html">How backend accepts connections</a></figure><ul id="f87e98eb-ff7e-4aad-a41a-441022d86245" class="bulleted-list"><li style="list-style-type:disc">After the request is accepted and it needs to be processed. So we need to create a thread for the request. Threads are limited for the server process. If the system is overloaded then there will be a <strong>contention for a thread from fixed-size thread pool.</strong></li></ul><p id="e593b9ba-5a25-4d1f-ad7f-7a24df1a1a05" class="">Now the request is being handled by the thread. </p><ul id="f672ca31-f548-4b73-94a0-5b9873959616" class="bulleted-list"><li style="list-style-type:disc">If the request is forwarded to the database or service then there will be <strong>contention at the connection pool</strong>.</li></ul><ul id="39440e4a-fd61-4366-91e2-10be29b75e05" class="bulleted-list"><li style="list-style-type:disc">If we have a lot of database writes there can be <strong>contention at the disk level.</strong></li></ul><ul id="8bb4e74c-72ca-4381-9c8a-4d2a0ee6c50f" class="bulleted-list"><li style="list-style-type:disc">The biggest cause of contention in any application is <strong>locks</strong>. Locks make the code synchronous. </li></ul><h3 id="08cce901-0a51-4542-99e0-ad25756570b0" class="">Minimizing shared resource contention</h3><ul id="a2da3281-bcf0-4957-88ab-75a5dd735fcc" class="bulleted-list"><li style="list-style-type:disc">For disks, you can use RAID disks. </li></ul><figure id="34d7c811-c38f-4f94-bb5f-d16a9b183abc"><a href="https://www.geeksforgeeks.org/raid-redundant-arrays-of-independent-disks/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">RAID (Redundant Arrays of Independent Disks) - GeeksforGeeks</div><div class="bookmark-description">A Computer Science portal for geeks. It contains well written, well thought and well explained computer science and programming articles, quizzes and practice/competitive programming/company interview Questions.</div></div><div class="bookmark-href"><img src="https://www.geeksforgeeks.org/wp-content/uploads/gfg_200X200.png" class="icon bookmark-icon"/>https://www.geeksforgeeks.org/raid-redundant-arrays-of-independent-disks/</div></div><img src="https://media.geeksforgeeks.org/wp-content/uploads/20230316131338/raid---0-DBMS.png" class="bookmark-image"/></a></figure><ul id="f75b3438-ffc2-4189-afcc-2fb20208824e" class="bulleted-list"><li style="list-style-type:disc">We generally need not do anything about the listen queue. You will need to go the operating system kernel to modify the queue size. It’s the last thing you do.</li></ul><ul id="85c0d7aa-3547-40f2-9dd3-5c0cf2320caf" class="bulleted-list"><li style="list-style-type:disc">If the rate at which the requests are consumed from the accept queue is very slow, then we can increase the size of the thread pool.</li></ul><ul id="12ed7638-1ef7-403c-bd57-bca1924b05c3" class="bulleted-list"><li style="list-style-type:disc">Smaller thread pool will increase contention</li></ul><ul id="ce1ec78c-5efe-463d-ae41-087b2b74fea7" class="bulleted-list"><li style="list-style-type:disc">Thread Pool Size can depend on<ul id="452e33f7-ebd5-4ac7-aa2c-2fb97718c9d2" class="bulleted-list"><li style="list-style-type:circle">Wait Time: If the IO to the services is taking significant time, then we can <strong>increase the size of the thread pool</strong>. Why??? Because these IO operations can cause context switches and threads will get time</li></ul><ul id="cee21d8b-2feb-4d83-8a2b-16d33b710aa4" class="bulleted-list"><li style="list-style-type:circle">CPU Time; If the application is doing a lot of calculations on the CPU, it doesn&#x27;t make sense to increase the thread pool size, <strong>it should be more or less close to the number of cores</strong>.</li></ul><ul id="1a940826-5590-445f-be86-121c542d03cb" class="bulleted-list"><li style="list-style-type:circle">Number Of CPU</li></ul></li></ul><ul id="b37aeba0-2be8-4346-9e79-f6402c2eceae" class="bulleted-list"><li style="list-style-type:disc">Connection Pool size<ul id="a84dc7c3-492d-43a2-8ee4-44c08ca7f444" class="bulleted-list"><li style="list-style-type:circle">If the Thread Pool size is 100, then the connection pool should have at least 100 connections in it.</li></ul><figure id="aab527eb-160f-4f62-a9a5-29bda9033ee8"><a href="https://stackoverflow.blog/2020/10/14/improve-database-performance-with-connection-pooling/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Improve database performance with connection pooling</div><div class="bookmark-description">We tend to rely on caching solutions to improve database performance. Caching frequently-accessed queries in memory or via a database can optimize write/read performance and reduce network latency, especially for heavy-workload applications, such as gaming services and Q&amp;A portals. But you can further improve performance by pooling users’ connections to a database. Client users need…</div></div><div class="bookmark-href"><img src="https://149351115.v2.pressablecdn.com/wp-content/themes/stackoverflow/img/apple-touch-icon.png" class="icon bookmark-icon"/>https://stackoverflow.blog/2020/10/14/improve-database-performance-with-connection-pooling/</div></div><img src="https://149351115.v2.pressablecdn.com/wp-content/uploads/2020/10/iStock-1167305774-scaled.jpg" class="bookmark-image"/></a></figure></li></ul><p id="30b37cde-268f-454f-8b38-7653c74b437f" class="">
+</p><h3 id="d98b4b1e-2ba9-407d-a8b3-0290063779b0" class="">Minimizing locking-related contention</h3><ul id="fbb23b1f-6d0b-4e03-ba11-bd4c47501827" class="bulleted-list"><li style="list-style-type:disc">Reduce the duration for which a lock is held<ul id="ed26cfc0-5dad-4705-96fc-e2c9e10d2f0f" class="bulleted-list"><li style="list-style-type:circle">Move out the code, out of the critical section, that doesn&#x27;t require lock (especially locks)</li></ul><ul id="d0b1f70d-e332-407c-bc11-ae6de2a5a3ea" class="bulleted-list"><li style="list-style-type:circle">It increases the chances of context switching<details open=""><summary style="font-weight:600;font-size:1.875em;line-height:1.3;margin:0">Does adding IO operation in critical section increases the change of context switching?</summary><div class="indented"><p id="bdeab2e2-dbc1-45e4-8a21-2a50454760f9" class="">Yes, adding Input/Output (IO) operations in a critical section can increase the likelihood of context switching. </p><p id="2654edd1-437f-4a2c-81f7-fdaa58f217e4" class="">Now, when an IO operation is added to a critical section, the following scenario can occur:</p><ol type="1" id="437bcd23-33ef-4ae4-853f-f2cb556a62b3" class="numbered-list" start="1"><li>Thread A enters the critical section and starts performing some IO operation, such as reading from a file or waiting for network data.</li></ol><ol type="1" id="9707cf62-f475-498c-838c-a7781c3cf9cd" class="numbered-list" start="2"><li>While Thread A is waiting for the IO operation to complete, the CPU is essentially idle during that time. The operating system might decide to perform a context switch and allow another ready thread (Thread B) to run on the CPU, utilizing the CPU time more efficiently.</li></ol><ol type="1" id="d61fa62c-68b5-4f59-af3a-539ce5c3e43b" class="numbered-list" start="3"><li>Once the IO operation of Thread A completes, the operating system will schedule Thread A again to continue its execution. This involves another context switch from Thread B back to Thread A.</li></ol><p id="d2dfdb9c-b0ee-41a4-a34f-52706f41f2fb" class="">The additional context switches between threads due to IO operations within the critical section can lead to an overhead in terms of performance. The more time threads spend waiting for IO operations to complete, the more context switches are likely to happen, and this can potentially impact the overall efficiency of the system.</p><p id="258fc4d8-9c87-4e95-9589-70ab9c177a01" class="">To minimize the impact of IO operations in critical sections, developers often use techniques like asynchronous IO or non-blocking IO to allow threads to continue executing other tasks while waiting for the IO operation to finish. This approach reduces the idle time and context switching caused by blocking IO operations, leading to better overall performance.</p></div></details><p id="55d32318-f9c0-4e1e-9c70-6bec1c77edaa" class="">
+</p></li></ul><ul id="bfce5115-5e11-4a32-bab7-05a9e8eefa44" class="bulleted-list"><li style="list-style-type:circle">Lock Splitting is used to split locks into lower granularity locks that are experiencing moderate contention.</li></ul><ul id="f0623288-1ba4-4b3c-8e8d-68622cfde4ff" class="bulleted-list"><li style="list-style-type:circle">Locking Striping is used to split locks for each partition of data like in Concurrent Hashmap.</li></ul><figure id="f91b9180-9f1f-478e-880b-501d2757c963"><a href="https://www.baeldung.com/java-lock-stripping" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Introduction to Lock Striping | Baeldung</div><div class="bookmark-description">Learn the key differences between coarse-grained synchronization and fine-grained synchronization and how to implement them in Java.</div></div><div class="bookmark-href"><img src="https://www.baeldung.com/wp-content/themes/baeldung/favicon/android-chrome-192x192.png" class="icon bookmark-icon"/>https://www.baeldung.com/java-lock-stripping</div></div><img src="https://www.baeldung.com/wp-content/uploads/2016/10/social-Java-On-Baeldung-2.jpg" class="bookmark-image"/></a></figure></li></ul><p id="c4e2e5fe-14ff-4df4-8c7f-cdf3f2898be4" class="">
+</p><ul id="90676bbc-af3e-42fd-83e1-e691ec0708ab" class="bulleted-list"><li style="list-style-type:disc">Replace exclusive locks with coordination mechanisms<ul id="5d954db1-091b-45ef-8d81-61d02f2e5dc4" class="bulleted-list"><li style="list-style-type:circle">use ReadWriteLock/Stamped locks <ul id="0b224e07-e34e-42b2-9cf3-e64946af4257" class="bulleted-list"><li style="list-style-type:square">Multiple read locks can be placed on a variable, but write locks are blocked till all the read locks are unlocked.</li></ul></li></ul><figure id="d753b9ea-949e-4d54-8707-dc732f735dc3"><a href="https://www.youtube.com/watch?v=7zI_4CKk-3Y" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">How to understand &amp; implement read-write locks and bounded buffers</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/344b7a23/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=7zI_4CKk-3Y</div></div><img src="https://i.ytimg.com/vi/7zI_4CKk-3Y/maxresdefault.jpg" class="bookmark-image"/></a></figure><ul id="c55b44ae-e417-4ea9-8051-870ed97999be" class="bulleted-list"><li style="list-style-type:circle">use atomic variables (protected by Compare and Swap)</li></ul></li></ul><p id="c19baec1-4833-4c08-a1f4-8b381f93ddee" class="">
+</p><p id="3aee7349-ac31-49b5-8f22-e924f2f73d90" class="">When it’s raining, we assume that it’s gonna rain and you take an umbrella. The pressimistic approach is to take the umbrella. Optimistic approach is to assume that it’s not going to rain. I don’t care if it rains. I’ll get an umbrella somehow. I’ll deal with it when it happens. </p><p id="c1e78797-2fa5-4e00-8820-cce2768ef144" class="">When two transaction trying to access the same row (writing). <a href="../../Fundamentals%20of%20database%20engineering%203567e651e39c4f51a931697292608bc8/ACID%20aabd352e2e354da1839b540dc978ae49/Isolation%20e46137f8713d46078c0a47425ee05da1.html">Isolation</a> </p><h2 id="364c256b-25fc-4696-9646-a04932f55483" class="">Pessimistic Locking</h2><p id="8263f2b7-d582-4e0c-aa89-0683a0854678" class="">Much larger critical section. Locks are held longer. Threads must wait to acquire locks.</p><figure id="be664533-6e71-4e2a-9d4f-f33f5e47d14e" class="image"><a href="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%205.png"><img style="width:672px" src="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%205.png"/></a></figure><p id="0745fea6-4ee1-4074-b817-b47e580c5810" class="">FOR UPDATE is used to acquire the lock in the above figure.</p><p id="fa986cc5-ad87-4dca-9b3e-7bd360b55608" class="">This locking is used when contention is very high.</p><figure id="05031ea1-1abd-45e8-b4ad-8cb9e6c1b850"><a href="https://www.youtube.com/watch?v=I8IlO0hCSgY" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Pessimistic concurrency control vs Optimistic concurrency control in Database Systems Explained</div><div class="bookmark-description">In this video, I discuss the different concurrency control at database transactions, specifically the pessimistic vs optimistic concurrency control. and the pros and cons of each.  
+
+0:00 Intro
+3:00 concurrency Control
+5:30 Pessimistic concurrency Control
+9:20 Optimistic concurrency Control
+
+Resources 
+https://en.wikipedia.org/wiki/Optimistic_concurrency_control
+https://www.baeldung.com/java-jpa-transaction-locks
+https://docs.oracle.com/javaee/7/api/javax/persistence/OptimisticLockException.html
+https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use
+https://www.2ndquadrant.com/en/blog/postgresql-anti-patterns-read-modify-write-cycles/
+
+
+🏭 Backend Engineering Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQUNnO4p00ua_C5mKTfldiYT
+
+💾 Database Engineering Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQXjD0HOzN7P2tgzu7scWpl2
+
+🛰 Network Engineering Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQUBSgBXilKhRMJ1ACqr7pTr
+
+🏰 Load Balancing and Proxies Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQVMeBmWI2AhxULWEeo7AaMC
+
+🐘 Postgres Videos 
+https://www.youtube.com/playlist?list=PLQnljOFTspQWGrOqslniFlRcwxyY94cjj
+
+🚢Docker
+https://www.youtube.com/playlist?list=PLQnljOFTspQWsD-rakNw1C20c1JI8UR1r
+
+🧮 Programming Pattern Videos 
+https://www.youtube.com/playlist?list=PLQnljOFTspQV1emqxKbcP5esAf4zpqWpe
+
+🛡 Web Security Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQU3YDMRSMvzflh_qXoz9zfv
+
+🦠 HTTP Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQU6zO0drAYHFtkkyfNJw1IO
+
+🐍 Python Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQU_M83ARz8mDdr4LThzkBKX
+
+🔆 Javascript Videos 
+https://www.youtube.com/playlist?list=PLQnljOFTspQWab0g3W6ZaDM6_Buh20EWM
+
+👾Discord Server https://discord.gg/CsFbFce
+
+Become a Member 
+https://www.youtube.com/channel/UC_ML5xP23TOWKUcc-oAE_Eg/join
+
+Support me on PayPal
+https://bit.ly/33ENps4
+
+Become a Patreon
+https://www.patreon.com/join/hnasr?
+
+Stay Awesome,
+Hussein</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/f6119d90/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=I8IlO0hCSgY</div></div><img src="https://i.ytimg.com/vi/I8IlO0hCSgY/sddefault.jpg" class="bookmark-image"/></a></figure><h2 id="6dc4c9a0-4c09-4c1a-8755-bbbe0475b886" class="">Optimistic Locking</h2><figure id="774413ae-8777-4fd6-9139-2cc6f3a23a76" class="image"><a href="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%206.png"><img style="width:576px" src="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%206.png"/></a></figure><p id="0241295d-1fb5-4a13-a7b5-7ad47929657a" class="">If the value changes, then you again retry to update.</p><p id="9d7e0414-c126-4be7-b458-98fa68a3e19f" class="">Used when contention is low to moderate.</p><figure id="9bdd560e-a240-4eeb-a405-0e4c2579b502"><a href="https://www.youtube.com/watch?v=x1wZPXKz40k&amp;ab_channel=Dr.DanielSoper" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Topic 06, Part 07 - Optimistic vs. Pessimistic Locking</div><div class="bookmark-description">Dr. Soper discusses and provides examples of optimistic and pessimistic resource locking. This video is Part 07 of Topic 06 in Dr. Soper&#x27;s class on Database Design and Management.</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/344b7a23/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=x1wZPXKz40k&amp;ab_channel=Dr.DanielSoper</div></div><img src="https://i.ytimg.com/vi/x1wZPXKz40k/maxresdefault.jpg" class="bookmark-image"/></a></figure><figure id="ae76a693-e8c9-414f-b350-84dd60fa378e"><a href="https://vladmihalcea.com/optimistic-vs-pessimistic-locking/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Optimistic vs. Pessimistic Locking - Vlad Mihalcea</div><div class="bookmark-description">Learn the difference between optimistic and pessimistic locking and when you should employ one or the other to prevent conflicts.</div></div><div class="bookmark-href"><img src="https://vladmihalcea.com/wp-content/uploads/2018/01/VladMihalcea-300x300.jpg" class="icon bookmark-icon"/>https://vladmihalcea.com/optimistic-vs-pessimistic-locking/</div></div><img src="https://vladmihalcea.com/wp-content/uploads/2021/03/LostUpdateOptimisticLocking.png" class="bookmark-image"/></a></figure><figure id="32afa337-aa66-4dfa-98a6-839a71b32474" class="image"><a href="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%207.png"><img style="width:768px" src="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%207.png"/></a></figure><p id="2f365dc9-1c2e-4f86-98c8-5fcc3c6e9860" class="">
+</p><h1 id="c1d6910b-c746-447d-be71-f5b5e8e61429" class="">Compare And Swap (CAS)</h1><p id="373d0a41-442c-4463-adb4-433aa6c9a235" class="">It’s an optimistic locking mechanism supported by OS. All modern hardware (CPU) supports this. Languages build CAS on top of it.</p><figure id="30b565be-8055-45fa-bc72-0955c8419f46" class="image"><a href="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%208.png"><img style="width:472px" src="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%208.png"/></a></figure><p id="dbd49b66-a3ac-4276-a76a-27d7fb166be0" class="">
+</p><h1 id="00c59f77-8dec-4827-96da-266a331b44a7" class="">Deadlocks</h1><p id="05cdb3e5-bde6-42ce-a7aa-9dea2b7ba5b6" class="">Deadlock is defined as a situation where a set of processes are blocked because each process holding a resource and waiting to acquire a resource held by another process.</p><p id="767952ce-98c3-4756-b344-12b965119222" class="">Two reasons</p><ul id="50259f4c-4ebe-4032-a115-edbc708927d6" class="bulleted-list"><li style="list-style-type:disc">Lock Ordering Related<ul id="9651b974-6b5b-4cc7-9e4e-5cbb97eb4529" class="bulleted-list"><li style="list-style-type:circle">Result of threads trying to acquire multiple locks<ul id="ab1292a5-d623-4785-86da-45197cf38190" class="bulleted-list"><li style="list-style-type:square">Simultaneous money transfer from X and Y accounts by thread T1 and T2.</li></ul><ul id="79aba50e-61fa-4c50-8e8e-3fed9044adab" class="bulleted-list"><li style="list-style-type:square">X is locked by T1 and Y is locked by T2</li></ul><figure id="23aa44cb-5714-4b4b-a301-4d53a61203bc" class="image"><a href="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%209.png"><img style="width:151px" src="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%209.png"/></a></figure><ul id="fce1b531-d4bc-4004-a37d-45b3546a2086" class="bulleted-list"><li style="list-style-type:square">T1 tries to lock Y, but is blocked since Y is locked by T2.</li></ul><ul id="68b2012b-5fbd-46b2-a59a-47ecdbc95eb6" class="bulleted-list"><li style="list-style-type:square">T2 tries to lock X, but is blocked since X is locked by T1.</li></ul></li></ul><ul id="7449dbe2-bd20-4a80-bf6a-de0ca271facb" class="bulleted-list"><li style="list-style-type:circle">The above-mentioned issue can be solved by acquiring locks in a fixed global order<ul id="ab330e12-5227-41f2-addc-0b492e9f76b8" class="bulleted-list"><li style="list-style-type:square">Both threads sort the accounts</li></ul><ul id="de1bd954-1f9b-4d32-86e5-e925eb42ab7d" class="bulleted-list"><li style="list-style-type:square">They lock the variables in the same order</li></ul><ul id="59e7716b-0f35-4459-b4f0-23489b942142" class="bulleted-list"><li style="list-style-type:square">T1 and T2 first try to lock X, and then Y</li></ul></li></ul></li></ul><ul id="f12d84da-da5d-4b68-80b4-3ca39fed1518" class="bulleted-list"><li style="list-style-type:disc">Request Load Related<ul id="45049937-edd5-45ad-899b-c394c4b27d14" class="bulleted-list"><li style="list-style-type:circle">Let’s assume we have a gateway with 10 threads in a thread pool. The request flow is 1-2-3-4 and back.</li></ul><figure id="203c18af-107d-423f-9845-b39eb862f8d7" class="image"><a href="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%2010.png"><img style="width:334px" src="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%2010.png"/></a></figure><ul id="0098747a-ef0e-4048-bdf1-3f959838f00d" class="bulleted-list"><li style="list-style-type:circle">10 clients make a request to the gateway. The 10 threads in the thread pool are now used. </li></ul><ul id="dca469c0-07d0-4ff1-a4f6-c6b90d89c998" class="bulleted-list"><li style="list-style-type:circle">1-2 connection is established.</li></ul><ul id="7d7d0498-396f-49d6-aec6-1848aaacdc89" class="bulleted-list"><li style="list-style-type:circle">2-3 connections won’t be established, since there are no free threads in the thread pool.</li></ul><ul id="dd034f72-7c0f-43ef-ae45-170caa32edd8" class="bulleted-list"><li style="list-style-type:circle">This results in a deadlock. </li></ul><ul id="4c6a8162-e496-45b3-8e01-81278ded2e34" class="bulleted-list"><li style="list-style-type:circle">This issue happens only in high-load situations.</li></ul></li></ul><p id="5959b9ab-b2ab-44cd-a816-facac898279b" class="">
+</p><h2 id="87ec21bc-0920-4278-aace-ee6006bd01bf" class="">Coherence related delays</h2><figure id="e8471ffe-80fc-4a0d-9e86-6002a15b2eb1" class="image"><a href="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%2011.png"><img style="width:192px" src="Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0/Untitled%2011.png"/></a></figure><p id="65c5c0b8-d422-4695-999a-c5b5ade50967" class="">Let’s assume we have an object shared by multiple threads. Each thread running on the CPU will have its own copy of the object in its cache. Change in one CPU won’t be reflected in the other.</p><p id="0889e539-17b5-47a3-94e0-bcf6c59ccf87" class="">We can add Visibility(volatile) or Lock (synchronized), these guarantee that the object is always read from the main memory and written back to the main memory when updated in the CPU. </p><p id="722ea541-97d0-4944-9095-f7fcec7cdc7e" class="">When we modify a variable guarded by synchronized code, any change in one CPU will make the cache of the other CPU dirty. So the CPU will be forced to read the value from the main memory. This latency is called coherence. </p><p id="79ef1b89-cf57-4d56-a106-f4d3d92eb141" class="">
+</p><p id="aa9b9237-877a-4761-9a10-203c7888f4ff" class="">
+</p><p id="81dc1338-bcec-4533-a3b3-d1dbaf684525" class="">
+</p><p id="7fbdcc35-e44a-4432-bcc8-1b902ff1dd4b" class="">
+</p><p id="0b1ff9c3-0eba-41b0-a249-37029fb0b43e" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

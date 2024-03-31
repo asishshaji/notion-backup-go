@@ -1,0 +1,844 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>B-Tree</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="40a007e7-f7a1-475e-9c47-ee6f9e0435cc" class="page mono"><header><h1 class="page-title">B-Tree</h1><p class="page-description"></p></header><div class="page-body"><figure id="d5d964c0-4f4f-4b5a-9937-85a7694d65f2"><a href="https://www.youtube.com/watch?v=aZjYr87r1b8" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">10.2  B Trees and B+ Trees. How they are useful in Databases</div><div class="bookmark-description">This video explains 
+B Trees and B+ Trees and how they are used in databases.
+
+Insertion, Deletion and Analysis will be covered in next video.
+
+Each node of a B+ Tree is a block on Disk. The degree of a Tree is decided based number of keys and child pointers that can fit inside a block.
+
+PATREON : https://www.patreon.com/bePatron?u=20475192
+
+Courses on Udemy
+================
+Java Programming
+https://www.udemy.com/course/java-se-programming/?referralCode=C71BADEAA4E7332D62B6
+
+Data Structures using C and C++
+https://www.udemy.com/course/datastructurescncpp/?referralCode=BD2EF8E61A98AB5E011D
+
+C++ Programming
+https://www.udemy.com/course/cpp-deep-dive/?referralCode=E4246A516919D7E84225</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/d133835b/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=aZjYr87r1b8</div></div><img src="https://i.ytimg.com/vi/aZjYr87r1b8/maxresdefault.jpg" class="bookmark-image"/></a></figure><figure id="879ee0a3-67b6-4653-99e8-9e21879e093e"><a href="https://www.youtube.com/watch?v=UzHl2VzyZS4" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">B-tree vs B+ tree in Database Systems</div><div class="bookmark-description">In this episode of the backend engineering show I&#x27;ll discuss the difference between b-tree and b+tree why they were invented, what problems do they solve, and the advantages and disadvantages of both. I&#x27;ll also discuss the limitation of implementing b-tree over b+tree and how Discord ran into a memory limitation using b-tree Mongo. 
+
+Check out my udemy Introduction to Database Engineering course 
+https://husseinnasser.com/courses  
+
+Learn the fundamentals of database systems to understand and build performant backend apps
+
+Chapters
+0:00 Data structure and algorithms 
+1:30 Working with large datasets
+6:00 Binary Tree
+8:30 B-tree
+19:30 B+ tree
+22:00 B-tree vs B+ tree benefits
+25:00 MongoDB Btree Indexes Trouble
+30:00 Summary
+
+
+working with a billion-row table (Members only)
+https://youtu.be/wj7KEMEkMUE
+
+indexing video
+https://youtu.be/-qNSXK7s7_w
+
+Discord moving from MongoDB to Cassandra
+https://www.youtube.com/watch?v=86olupkuLlU
+https://blog.discord.com/how-discord-stores-billions-of-messages-7fa6ec7ee4c7
+MongoDB Indexes
+https://docs.mongodb.com/manual/indexes/
+Postgres Indexes
+https://www.postgresql.org/docs/13/btree-implementation.html
+
+b-tree code from @usfcalifornia 
+https://www.cs.usfca.edu/~galles/visualization/BTree.html
+b+tree 
+https://www.cs.usfca.edu/~galles/visualization/BPlusTree.html
+
+
+
+Support my work on PayPal
+https://bit.ly/33ENps4
+ 
+Become a Member on YouTube
+https://www.youtube.com/channel/UC_ML5xP23TOWKUcc-oAE_Eg/join
+
+🧑‍🏫 Courses I Teach
+https://husseinnasser.com/courses 
+
+🏭 Backend Engineering Videos in Order
+https://backend.husseinnasser.com
+
+💾 Database Engineering Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQXjD0HOzN7P2tgzu7scWpl2
+
+🎙️Listen to the Backend Engineering Podcast
+https://husseinnasser.com/podcast 
+
+Gears and tools used on the Channel (affiliates)
+
+🖼️ Slides and Thumbnail Design 
+Canva
+https://partner.canva.com/c/2766475/647168/10068
+
+🎙️ Mic Gear
+Shure SM7B Cardioid Dynamic Microphone  
+https://amzn.to/3o1NiBi
+
+Cloudlifter
+https://amzn.to/2RAeyLo
+
+XLR cables
+https://amzn.to/3tvMJRu
+
+Focusrite Audio Interface
+https://amzn.to/3f2vjGY
+
+
+📷 Camera Gear
+Canon M50 Mark II
+https://amzn.to/3o2ed0c
+
+Micro HDMI to HDMI 
+https://amzn.to/3uwCxK3
+
+Video capture card
+https://amzn.to/3f34pyD
+
+AC Wall for constant power
+https://amzn.to/3eueoxP
+
+
+Stay Awesome,
+Hussein</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/d133835b/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=UzHl2VzyZS4</div></div><img src="https://i.ytimg.com/vi/UzHl2VzyZS4/sddefault.jpg" class="bookmark-image"/></a></figure><figure id="5a7b6b09-a31f-435a-99f0-fc19603fa16f"><a href="https://www.youtube.com/watch?v=09E-tVAUqQw" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Why do databases store data in B+ trees?</div><div class="bookmark-description">System Design for Beginners: https://arpitbhayani.me/sys-design
+System Design for Experienced Engineers: https://arpitbhayani.me/masterclass
+Become a member for exclusive in-depth videos: https://www.youtube.com/c/ArpitBhayani/join
+Redis Internals: https://arpitbhayani.me/redis
+
+Join this channel to get access to the perks:
+https://www.youtube.com/channel/UC_b1GUJv_2QiMP4BxC9-Dxg/join
+
+We all know databases store their data in B+ trees, but why and how?
+
+In this video, we answer this very question and go through the evolution of storage from a naive way to an optimized B+ tree. We will talk about why there was a need to use B+ trees, how table data is stored in B+ trees, and how is this tree serialized and stored on the disk.
+
+# Arpit&#x27;s System Design Masterclass
+
+I teach a course on System Design where you&#x27;ll learn how to intuitively design scalable systems. The course will help you
+
+ - become a better engineer
+ - ace your technical discussions
+ - get you acquainted with a massive spectrum of topics ranging from Storage Engines, High-throughput systems, to super-clever algorithms behind them.
+
+I have compressed my ~10 years of work experience into this course, and aim to accelerate your engineering growth 100x. To date, the course is trusted by 1000+ engineers from 13 different countries.
+
+Together, we will build some of the most amazing systems and dissect them to understand the intricate details.  You can find the week-by-week curriculum and topics,  benefits, testimonials, and other information here
+
+https://arpitbhayani.me/masterclass.
+
+### Other links
+
+If you have solved an interesting problem and want to talk about it on my channel, check out
+https://arpitbhayani.me/podcast
+
+CS Engineering and Software Development books that I have read
+https://arpitbhayani.me/bookshelf
+
+Research papers that I have read
+https://arpitbhayani.me/papershelf
+
+Newsletter: https://arpit.substack.com
+LinkedIn: https://linkedin.com/in/arpitbhayani
+Twitter: https://twitter.com/arpit_bhayani
+To follow the blogs and papers I am reading, join my telegram channel at https://t.me/asliengineering
+
+You can find handwritten notes and text notes about this video at https://arpitbhayani.me.
+
+Until next time, stay awesome :)
+
+Yours truly,
+Arpit
+https://arpitbhayani.me
+#AsliEngineering</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/d133835b/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=09E-tVAUqQw</div></div><img src="https://i.ytimg.com/vi/09E-tVAUqQw/maxresdefault.jpg" class="bookmark-image"/></a></figure><p id="a908a229-1646-4f1c-9974-d0b144f93352" class="">Storage structure are of two type mutable and immutable. Imutability is one of the core concepts influencing database design and implementation.</p><p id="4e1e974f-cb38-4ab0-b742-8052d66c077c" class="">Mutable storage structures use an in place update mechanism. During insert, update or delete operation the records are updated directly in the target file.</p><h1 id="2ea8d168-503a-48b2-941f-d3ed89882495" class="">Why B-tree</h1><p id="5b8b23ab-39e6-46cf-8c89-88ccb33ce73b" class="">There are multiple other solutions like Binary Search Tree, AVL tree etc</p><h3 id="62dc7c7e-72c4-470a-a5f3-f71b151347e7" class="">Binary Search Tree(BST)</h3><figure id="03e29c1f-57f9-4dcc-8020-c919da058286" class="image"><a href="B-Tree%2040a007e7f7a1475e9c47ee6f9e0435cc/Untitled.png"><img style="width:336px" src="B-Tree%2040a007e7f7a1475e9c47ee6f9e0435cc/Untitled.png"/></a><figcaption>BST</figcaption></figure><p id="0e1e1bac-966e-498e-a197-8ece1a6483de" class="">In BST following the right tree gives you the max key in the tree. Following the left tree gives you the min key in the tree.</p><p id="ef1e1ae6-fae1-4d36-ad92-140bd02b8964" class="">Then what’s the problem with BST?? <em><strong><span style="border-bottom:0.05em solid">Unbalanced Tree.</span></strong></em><em><strong> </strong></em>Insert operations don’t follow any specific pattern. Element insertion might lead to a situation where the tree is not balanced.</p><figure id="81a19da2-78cc-48ba-879c-9fc58d26775a" class="image"><a href="B-Tree%2040a007e7f7a1475e9c47ee6f9e0435cc/Untitled%201.png"><img style="width:480px" src="B-Tree%2040a007e7f7a1475e9c47ee6f9e0435cc/Untitled%201.png"/></a></figure><p id="efb233a6-156f-46ef-9da7-4a3782f185ae" class="">Here the second tree looks very similar to a linked list. If the tree becomes unbalanced, it’s going to be very difficult to search. In the second scenario instead of a logarithmic complexity, you get a linear time complexity. The tree needs to <a href="https://www.geeksforgeeks.org/balanced-binary-tree/">be balanced</a>. Without balancing you lose all the performance benefits of a BST.</p><p id="67f9d628-0b46-4942-b3d9-be0d1a723502" class="">You can balance the tree, by performing a rotation step after every insertion or deletion.</p><p id="85ec92a6-96ad-4a99-a2b8-2d0d7c54a8a4" class="">This increased maintenance cost makes BST an impractical candidate as an on-disk data structure.</p><h3 id="3f1d55ed-ec70-4e20-89d3-a266522f47f9" class="">Problems</h3><ul id="d4665d30-4e6b-4a5e-acd0-d4868091b156" class="bulleted-list"><li style="list-style-type:disc">No locality, because of elements added in random order and also due to rotation<ul id="e1d8536b-ef8d-4866-94d6-94ca21a50ac4" class="bulleted-list"><li style="list-style-type:circle">There is less probability that a newly added node is close to its parent</li></ul></li></ul><ul id="3171961e-f491-4415-baea-186cf536efff" class="bulleted-list"><li style="list-style-type:disc">Since binary trees have a fanout of 2, height = binary logarithm of # of elements, we will have to do O(log2 N) disk seeks to find the element.<ul id="d3c2aba5-77b1-4b35-ad08-95f47ab35a94" class="bulleted-list"><li style="list-style-type:circle">They make an efficient in-memory database, but the low fanout makes them an impractical candidate for external storage. </li></ul></li></ul><h3 id="213a46d8-11a0-4968-adb8-e9d8c127bbc5" class="">Inference</h3><ul id="d675ed81-3278-4f2f-8be2-446980ba7cfe" class="bulleted-list"><li style="list-style-type:disc">High fanout for a great locality</li></ul><ul id="3094ba6f-3185-4ed4-83b1-0c2db4476d0b" class="bulleted-list"><li style="list-style-type:disc">Low tree height for reducing disk seeks.</li></ul><p id="505dc0d4-e687-4d81-8b38-58816fae3f77" class="">
+</p><p id="b9ef4835-4391-4063-973e-29420200f004" class="">On-disk data structures are used when the data is so large that you need to store it on external storage. Only a fraction of data can be cached at a time, and the rest of the data has to be stored on an external storage in a manner that allows efficient access.</p><p id="0a15be9b-e997-4045-8b07-c56254654395" class="">
+</p><p id="51033bbd-20b8-4257-a922-297f27697c3b" class="">Pages are between 2 to 16Kb, and a block can contain 64 to 512 pages.</p><figure id="148651b4-d426-47c7-99db-27f9d26be9b8" class="image"><a href="B-Tree%2040a007e7f7a1475e9c47ee6f9e0435cc/Untitled%202.png"><img style="width:480px" src="B-Tree%2040a007e7f7a1475e9c47ee6f9e0435cc/Untitled%202.png"/></a></figure><p id="806dc29e-1c8b-4f7c-a226-e8cdc4f25414" class="">The smallest unit that can written/read is a page. </p><p id="9b8f93c6-a475-48aa-9962-85255f1de11a" class="">Writing only full blocks, and combining subsequent writes to the same block, can<br/>help to reduce the number of required I/O operations.<br/></p><p id="a4ebb7fc-e8ef-4855-b3de-e52153ac47a2" class="">The smallest unit of disk operation is a block. To follow a pointer to the specific location within the block, we have to fetch an entire block. Since we already have to do that, we can change the layout of<br/>the data structure to take advantage of it.<br/></p><p id="888a7082-58e0-4fcf-abb2-413db36bdea8" class=""><em><strong>B-Trees combine these ideas: increase node fanout, and reduce tree height, the number of node pointers, and<br/>the frequency of balancing operations.<br/></strong></em></p><p id="bfbffd67-05d7-4d5e-841c-a6c233daea63" class="">B-trees are built on top of the foundations of BST. They have a higher fanout and smaller tree height. </p><div id="eb890240-69dc-4f52-877c-0c41ce05c217" class="column-list"><div id="570aa4b2-f461-412b-acaf-8f054b6062af" style="width:50%" class="column"><figure id="49fe7b86-c1bb-4e51-ae5d-a2f9a2fa9afa" class="image"><a href="B-Tree%2040a007e7f7a1475e9c47ee6f9e0435cc/Untitled%203.png"><img style="width:1052px" src="B-Tree%2040a007e7f7a1475e9c47ee6f9e0435cc/Untitled%203.png"/></a></figure></div><div id="3fb1efdb-98da-4472-bb76-2a42d8cb598a" style="width:50%" class="column"><figure id="77cb36b8-5b36-4ba6-86a9-cb583e9629e7" class="image"><a href="B-Tree%2040a007e7f7a1475e9c47ee6f9e0435cc/Untitled%204.png"><img style="width:384px" src="B-Tree%2040a007e7f7a1475e9c47ee6f9e0435cc/Untitled%204.png"/></a></figure><p id="dd53c9de-3bbc-4f18-8aa3-5957df37b48c" class="">
+</p></div></div><p id="93b21161-beae-41a7-86a9-f854d7f851cc" class="">Keys inside B-Tree Node are sorted, so we can make use of the binary tree to find the key you are looking for.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="468d4c84-ffb3-4407-9817-e924673a61d6" class="code"><code class="language-Plain Text">		 [1,   4,   9]
+     /     |     \
+    v      v      v
+[1, 2, 3] [4, 6] [9, 11, 12]</code></pre><h3 id="2a1cd01b-e379-44a6-a6d6-42a9342ae877" class="">Rules for creating B-Tree</h3><ul id="0757595a-1cd3-41fc-a44d-dc1f75672884" class="bulleted-list"><li style="list-style-type:disc">At least half of the node must be filled before creating the child</li></ul><ul id="64fa619a-0d83-4789-87c8-9e823a97db3b" class="bulleted-list"><li style="list-style-type:disc">Root can have min two children</li></ul><ul id="5ece0663-abbd-4fba-958f-4abb55ee1333" class="bulleted-list"><li style="list-style-type:disc">All leaves at the same level</li></ul><ul id="68c747e3-95b4-466f-ae35-8d946313caf3" class="bulleted-list"><li style="list-style-type:disc">The creation process is bottom-up</li></ul><p id="9957d6a7-ee85-430a-a522-c50c50301b01" class="">
+</p><h2 id="ae2ff255-e744-4f89-94c2-b99165ef440f" class="">B-Tree balancing</h2><ul id="4e97c1a7-6f6b-4a06-8588-bee89f11c1ee" class="bulleted-list"><li style="list-style-type:disc">If a node is too large to fit on one page, it is split into two nodes. </li></ul><ul id="cdb88fed-1120-4848-835b-97086e431897" class="bulleted-list"><li style="list-style-type:disc">If a node is too small, try merging it with a sibling.</li></ul><p id="3f775260-3fe2-4792-a259-8706364c0774" class="">
+</p><p id="faf7f9b7-6e29-40a1-9fe2-be05f7c4d9b1" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

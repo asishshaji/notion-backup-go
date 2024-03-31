@@ -1,0 +1,694 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>I/O Control </title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="85ea536e-94d4-4e03-b7c9-89b49d02494d" class="page mono"><header><h1 class="page-title">I/O Control </h1><p class="page-description"></p></header><div class="page-body"><p id="9a5ed82d-9c1d-4d20-a0d9-5dffbb7103fb" class="">Most I/O devices have a hardware component called controller <code>disk controller, USB controller</code>. The controller contains a small processor which can be issued commands from the host operating system through the system bus. When the device completes a request, it triggers an interrupt which propagates back to the operating system. In turn, the OS uses this interrupt to return the relevant data back to the user-level process which initiated the request.</p><figure id="22502ebb-31f9-428b-b460-22acc20d9fc8" class="image"><a href="I%20O%20Control%2085ea536e94d44e03b7c989b49d02494d/Untitled.png"><img style="width:528px" src="I%20O%20Control%2085ea536e94d44e03b7c989b49d02494d/Untitled.png"/></a></figure><ul id="6762439d-96c5-4b80-966e-3d4916898733" class="bulleted-list"><li style="list-style-type:disc">Synchronous I/O <ul id="ac221264-c439-4c62-9912-e21bedccfb78" class="bulleted-list"><li style="list-style-type:circle">The calling process waits while the request is handled by the I/O device. </li></ul></li></ul><ul id="d51adb1c-a91f-46db-82a8-c386cf4887ad" class="bulleted-list"><li style="list-style-type:disc">Asynchronous I/O <ul id="5115f1a4-b45d-4c91-a6cc-63b34cc1844e" class="bulleted-list"><li style="list-style-type:circle">The calling process continues to execute while the I/O controller processes the request. This leads to improved system performance since the process can continue to run while the I/O request finished. </li></ul><ul id="3853b871-000e-4932-8701-4882ca5d6f22" class="bulleted-list"><li style="list-style-type:circle">Upon completion, the I/O device triggers an interrupt which returns the data back to the process.</li></ul></li></ul><blockquote id="3c2681ba-f427-49d8-a58c-a0811a7864f5" class="">In practice, synchronous I/O is often preferred since asynchronous I/O requests can require more complicated programming.</blockquote><ul id="c0af5d56-c389-4dea-93b5-000ae227d332" class="bulleted-list"><li style="list-style-type:disc">Memory Mapped I/O<ul id="4bbb2cc5-d721-44d5-be5c-298af3adf23a" class="bulleted-list"><li style="list-style-type:circle">device’s own onboard memory is mapped into the processor’s address space. OS reserve a part of the physical memory &amp; put the device manager in that memory. </li></ul><ul id="7b777a74-7ceb-4d18-8432-23fe1a677095" class="bulleted-list"><li style="list-style-type:circle">Data to be written to the device is copied by the driver to the device memory, and data read in by the device is available in the shared memory for copying back into the system memory.</li></ul><ul id="52509d03-3e86-4d41-b479-408050e24a46" class="bulleted-list"><li style="list-style-type:circle">used by network and video devices.</li></ul><ul id="6470e0a6-196b-4fc9-8938-37f468c5e14a" class="bulleted-list"><li style="list-style-type:circle">Many adapters offer a combination of programmed I/O and memory-mapped modes, where the data buffers are mapped into the processor’s memory space and the internal device registers that provide status is accessed through the I/O space.</li></ul><figure id="3bc34676-c88b-4a29-960d-5d8b4136e97c" class="image"><a href="https://www.baeldung.com/wp-content/uploads/sites/4/2022/04/MemoryMappedVsPortMapped.png"><img style="width:768px" src="https://www.baeldung.com/wp-content/uploads/sites/4/2022/04/MemoryMappedVsPortMapped.png"/></a></figure><p id="6e414026-564a-46b9-980f-469e0243145e" class="">
+</p><h2 id="bb84f282-81a8-4733-b878-9b745b80bba7" class="">Interrupt-based asynchronous I/O </h2><ul id="731fd20e-1fec-4eee-8af8-25d8887decf8" class="bulleted-list"><li style="list-style-type:circle">The device controller has its own small processor which executes asynchronously with the main CPU.</li></ul><ul id="aa490d3f-68e0-4c8f-bc47-b82d5d7ca1ab" class="bulleted-list"><li style="list-style-type:circle">Devices put an interrupt signal on the bus when the IO controller is finished.</li></ul><ul id="4741e4d0-5fcc-4afc-b906-ec4e0f0836aa" class="bulleted-list"><li style="list-style-type:circle">CPU takes the interrupt<ul id="f82c599f-fa31-4241-81eb-d19362be2a4d" class="bulleted-list"><li style="list-style-type:square">Save the critical CPU State (h/w state: registers..)</li></ul><ul id="5474685f-32a0-44f1-86b1-36c22966540f" class="bulleted-list"><li style="list-style-type:square">Disable interrupts </li></ul><ul id="c98af27b-95dc-4c6b-9cf4-3e47cb2fa573" class="bulleted-list"><li style="list-style-type:square">Save state that the interrupt handler will modify (s/w state)</li></ul><ul id="5eade74d-9789-45b6-835f-15c6aea122d7" class="bulleted-list"><li style="list-style-type:square">Invoke interrupt handler using the in-memory interrupt vector</li></ul><ul id="42ac85e4-5883-4534-8bb7-5ebc4195d5e9" class="bulleted-list"><li style="list-style-type:square">Restore s/w state </li></ul><ul id="453a9112-eeec-42a0-bb5a-3434a31dd595" class="bulleted-list"><li style="list-style-type:square">Enable interrupts</li></ul><ul id="52163bf4-784e-4d1d-b4cf-86f3b5baea9d" class="bulleted-list"><li style="list-style-type:square">Restore the h/w state and continue the execution of the interrupted process.</li></ul></li></ul></li></ul><p id="643d078b-b682-454b-b751-257431995924" class="">
+</p><h2 id="c414dc44-b002-436e-b956-79c9333ed747" class="">Timers</h2><p id="f6126aa0-9d6f-405d-aff7-17a6ff4e37b3" class="">Timers are useful for triggering the context switches that transfer control of the CPU between different processes. Usually, context-switching algorithms have a timer policy, 100ms or something. </p><p id="4a486409-f571-4a90-9cdd-2effe46af69d" class="">This also protects the CPU from being hogged. If the process in execution is a CPU-intensive process, the CPU will keep the process in execution. So there is a chance of the process keeping executing for long, making the other process non-responsive. (Preemptive Scheduling)</p><p id="bf6e8e17-ebf1-4912-8291-993171059833" class="">Timers are implemented using hardware clocks and a hardware interrupt table. <mark class="highlight-teal">A timer can be set by saving a timer value into a special register which is then decremented every millisecond. </mark>When the timer runs out, an additional register is checked to determine what code should be triggered, for eg the context switch code or an update to the system clock.</p><figure id="0f526641-ad4c-4a77-ab9b-75f1b112c7b1"><a href="https://www.youtube.com/watch?v=g_koa00MBLg" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">How do hardware timers work?</div><div class="bookmark-description">In this video, learn how a CPU uses hardware timers to control execution timing.
+More 6502 stuff: https://eater.net/6502
+
+Support these videos on Patreon: https://www.patreon.com/beneater or https://eater.net/support for other ways to support.
+
+------------------
+
+Social media:
+Website: https://www.eater.net
+Twitter: https://twitter.com/ben_eater
+Patreon: https://patreon.com/beneater
+Reddit: https://www.reddit.com/r/beneater
+
+Special thanks to these supporters for making this video possible:
+Aleksey Smolenchuk, Anders Carlsson, Andrew C. Young, Anson VanDoren, Anthanasius, anula, Armin Brauns, Ben, Ben Cochran, Ben Kamens, Ben Williams, Benny Olsson, Bill Cooksey, Binh Tran, Bouke Groenescheij, Bradley Pirtle, Bradley Stach, Bryan Brickman, Burt Humburg, Carlos Ambrozak, Chris, Christian Carter, Christopher Blackmon, Dale Andrew Darling, Daniel Jeppsson, Daniel Tang, Dave Burley, Dave Walter, David Clark, David Cox, David Dawkins, David House, David Sastre Medina, David Turner, David Worsham, Dean Bevan, Dean Winger, Dilip Gowda, Dissy, dko, Dmitry Guyvoronsky, Dušan Dželebdžić, Dzevad Trumic, Emilio Mendoza, Eric Dynowski, Erik Broeders, Eugene Bulkin, Evan Thayer, Eveli László, fisksvett, fxshlein, George Miroshnykov, Harry McDow, hotwire33, Ingo Eble, Ivan Sorokin, James Capuder, james schaefer, Jared Dziedzic, Jason DeStefano, JavaXP, Jaxon Ketterman, Jay Binks, Jayne Gabriele, Jeremy, Jeremy Cole, Jesse Miller, Jim Kelly, Jim Knowler, Jim Van Meggelen, Joe Beda, Joe OConnor, Joe Pregracke, Joel Miller, John Fenwick, John Hamberger jn., John Meade, Jon Dugan, Jonn Miller, Joseph Portaro, Joshua King, Jurģis Brigmanis, Kai Wells, Kefen, Kenneth Christensen, Kitick, Koreo, Lambda GPU Workstations, Larry, László Bácsi, Lucky Resistor, Lukasz Pacholik, Marcos Fujisawa, Marcus Classon, Mark Day, Marko Clemente, Martin Noble, Martin Roth, Mats Fredriksson, Matt Krueger, Matthäus Pawelczyk, Matthew Duphily, Max Gawletta, Maxim Hansen, melvin2001, Michael Tedder, Michael Timbrook, Michael Weitman, Miguel Ríos, mikebad, Mikel Lindsaar, Miles Macchiaroli, Muqeet Mujahid, My Yiddishe Mama, Nicholas Counts, Nicholas Moresco, Nick Chapman, Not Yet Wise, Örn Arnarson, Paul Pluzhnikov, Paul Randal, Pete Dietl, Phil Dennis, Philip Hofstetter, Phillip Glau, PixelSergey, Porus, ProgrammerDor, Randal Masutani, Randy True, raoulvp, Renaldas Zioma, Ric King, Richard Butler-Malone, Richard Ertel, Rick Hennigan, Robert Comyn, Robert Diaz, Robey Pointer, §çīŤøşHï ŇåĶąýŐbŕÔ, Scott Holmes, Sean Patrick O’Brien, Sergey Kruk, SonOfSofaman, Stefan Nesinger, Stefanus Du Toit, Stephen, Stephen Kovalcik, Stephen Riley, Stephen Smithstone, Steve  Jones, Tayler Porter, TheWebMachine, Thomas Bruggink, Thomas Eriksen, Thomas Rolfs, Tim Walkowski, Tom, Tom Yedwab, Tommaso Palmieri, Tyler Latham, Vincent Bernat, Walter Montalvo, Warren Miller, William, Wim Coekaerts, Wraithan McCarroll, xisente, Yee Lam Wan</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/4f068a87/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=g_koa00MBLg</div></div><img src="https://i.ytimg.com/vi/g_koa00MBLg/maxresdefault.jpg" class="bookmark-image"/></a></figure><figure id="9e7fa314-bbe2-4769-84e2-7ff1a4fd47bc"><a href="https://stackoverflow.com/questions/13208960/is-there-a-timer-in-the-cpu" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Is there a timer in the CPU?</div><div class="bookmark-description">We use timers in our code; I am just curious about the real implementation of it. Is there a timer in the CPU logic circuit or outside the CPU die – for example, an external clock or anything like ...</div></div><div class="bookmark-href"><img src="https://cdn.sstatic.net/Sites/stackoverflow/Img/apple-touch-icon.png?v=c78bd457575a" class="icon bookmark-icon"/>https://stackoverflow.com/questions/13208960/is-there-a-timer-in-the-cpu</div></div><img src="https://cdn.sstatic.net/Sites/stackoverflow/Img/apple-touch-icon@2.png?v=73d79a89bded" class="bookmark-image"/></a></figure><figure id="c45109df-c5c7-40f5-a1b8-7986d30aaa53"><a href="https://lemp.io/what-is-timer-interrupt-in-operating-system/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title"></div></div><div class="bookmark-href">https://lemp.io/what-is-timer-interrupt-in-operating-system/</div></div></a></figure><p id="9da8ff3e-95e8-4af7-9891-caf33c73e135" class="">
+</p><h2 id="aadcea50-47fc-4532-83fa-a6a963d3bf29" class="">Synchronisation</h2><p id="073fdaa9-2e2b-457e-ac68-10c5ea2c8062" class="">It is very important to coordinate the state among cooperating processes. It’s important because interrupts, for example from asynchronous I/O requests, can arrive at any time and disrupt the running code.</p><p id="c7c362a7-a062-4e79-8fc1-10def0d73489" class="">Similarly, multiple processes may need to synchronize access to shared data. Since processes are scheduled at unpredictable times and can be interrupted at will, it can be difficult to safely synchronize this data without hardware support. </p><p id="97de5cd7-755f-4106-9fb0-c9dcfe8e8192" class="">An architecture must provide a guarantee that a short sequence of operations [eg: read, modify, write] execute atomically.</p><ul id="d7e8e079-f513-4be8-9819-c9f057932bce" class="bulleted-list"><li style="list-style-type:disc">The idea of <strong>atomic sections</strong><ul id="4cfc8724-3c59-43c1-8055-91b50a7322ff" class="bulleted-list"><li style="list-style-type:circle">It’s a section of code which must run without any interruption.</li></ul><ul id="586aa0bc-28a4-4f38-b81a-2c5b2b170800" class="bulleted-list"><li style="list-style-type:circle">This is achieved by disabling interrupts prior to starting an atomic section and only enabling them after the code segment is complete.</li></ul><ul id="fb9f2f5b-89cb-47b0-bb53-28dcf2ef0ae4" class="bulleted-list"><li style="list-style-type:circle">During this time, any incoming interrupts must be queued by the hardware so they can be processed after the atomic section ends</li></ul></li></ul><ul id="94d3bec2-61e2-4882-ac29-da07bd7279dd" class="bulleted-list"><li style="list-style-type:disc">Hardware-level instructions <strong><strong><strong><strong><strong><strong><strong><strong><strong><strong>test &amp; set</strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></li></ul><p id="fa3c8cf0-2116-4254-ae44-22f3c7d9043d" class="">
+</p><h2 id="d74743af-81bc-4097-a604-d662ea021405" class="">Virtual Memory</h2><p id="ffcc237a-cb15-491c-8ad1-1631b3692866" class="">It’s an abstraction that gives processes the impression that a system has an infinite amount of memory available to it. </p><h3 id="a6eaec22-1ea6-4ea2-b10c-5880f624b59e" class="">How???</h3><p id="6a52d713-2ccc-4d3d-8101-d2a46d4b2e9b" class="">While a laptop or server may only have 2GB of RAM, virtual memory can be used to allow the OS to start up processes which utilize more memory than this physical limit. </p><p id="506ab55d-3d21-4c20-a874-d83d2d3f8ef8" class="">To achieve this, the OS only loads a portion of each process into memory at once. The remaining memory data for a process is actually stored on the disk while not in use. The OS then swaps data between memory and disk in order to keep the required data loaded into RAM at all times. While this gives the illusion of infinite memory, loading data to and from a disk can significantly decrease the performance of any running applications.</p><p id="71551977-e5e2-4723-aed2-7097ee550954" class="">In order to implement the virtual memory abstraction, the underlying hardware must support additional registers and lookup tables. It is called translation lookaside buffer [TLB] for speeding up the lookup.</p><p id="f9e4ec86-f083-4b98-a482-c41dc07edef7" class="">TLB is a memory cache that stores the recent translations of virtual memory to physical memory. It is used to reduce the time taken to access a user&#x27;s memory location. It is part of the chip’s memory-management unit [MMU]</p><figure id="7cea8d50-ffe3-475f-970f-9da681c5d315" class="image"><a href="https://media.geeksforgeeks.org/wp-content/uploads/20190225192626/tlb1.jpg"><img style="width:672px" src="https://media.geeksforgeeks.org/wp-content/uploads/20190225192626/tlb1.jpg"/></a></figure></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

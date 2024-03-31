@@ -1,0 +1,676 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>A Deep-dive into the Linux Filesystem | Part 1</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="6022953d-8968-41e9-8e62-8eb9f63ce3d4" class="page sans"><header><h1 class="page-title">A Deep-dive into the Linux Filesystem | Part 1</h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-url"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesUrl"><path d="M7.69922 10.8945L8.73828 9.84863C7.91797 9.77344 7.34375 9.51367 6.91992 9.08984C5.76465 7.93457 5.76465 6.29395 6.91309 5.14551L9.18262 2.87598C10.3379 1.7207 11.9717 1.7207 13.127 2.87598C14.2891 4.04492 14.2822 5.67188 13.1338 6.82031L11.958 7.99609C12.1768 8.49512 12.2451 9.10352 12.1289 9.62988L14.0908 7.6748C15.7725 6 15.7793 3.62109 14.084 1.92578C12.3887 0.223633 10.0098 0.237305 8.33496 1.91211L5.95605 4.29785C4.28125 5.97266 4.26758 8.35156 5.96289 10.0469C6.36621 10.4434 6.90625 10.7441 7.69922 10.8945ZM8.30078 5.13184L7.26855 6.17773C8.08203 6.25293 8.66309 6.51953 9.08008 6.93652C10.2422 8.09863 10.2422 9.73242 9.08691 10.8809L6.81738 13.1504C5.66211 14.3057 4.03516 14.3057 2.87305 13.1504C1.71094 11.9883 1.71777 10.3545 2.87305 9.20605L4.04199 8.03027C3.83008 7.53125 3.75488 6.92969 3.87109 6.39648L1.91602 8.35156C0.234375 10.0264 0.227539 12.4121 1.92285 14.1074C3.61816 15.8027 5.99707 15.7891 7.67188 14.1143L10.0439 11.7354C11.7256 10.0537 11.7324 7.6748 10.0371 5.98633C9.64062 5.58301 9.10059 5.28223 8.30078 5.13184Z"></path></svg></span>URL</th><td><a href="https://emmanuelbashorun.medium.com/a-deep-dive-into-the-linux-filesystem-part-1-d06d365d42bb" class="url-value">https://emmanuelbashorun.medium.com/a-deep-dive-into-the-linux-filesystem-part-1-d06d365d42bb</a></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesMultipleSelect"><path d="M1.91602 4.83789C2.44238 4.83789 2.87305 4.40723 2.87305 3.87402C2.87305 3.34766 2.44238 2.91699 1.91602 2.91699C1.38281 2.91699 0.952148 3.34766 0.952148 3.87402C0.952148 4.40723 1.38281 4.83789 1.91602 4.83789ZM5.1084 4.52344H14.3984C14.7607 4.52344 15.0479 4.23633 15.0479 3.87402C15.0479 3.51172 14.7607 3.22461 14.3984 3.22461H5.1084C4.74609 3.22461 4.45898 3.51172 4.45898 3.87402C4.45898 4.23633 4.74609 4.52344 5.1084 4.52344ZM1.91602 9.03516C2.44238 9.03516 2.87305 8.60449 2.87305 8.07129C2.87305 7.54492 2.44238 7.11426 1.91602 7.11426C1.38281 7.11426 0.952148 7.54492 0.952148 8.07129C0.952148 8.60449 1.38281 9.03516 1.91602 9.03516ZM5.1084 8.7207H14.3984C14.7607 8.7207 15.0479 8.43359 15.0479 8.07129C15.0479 7.70898 14.7607 7.42188 14.3984 7.42188H5.1084C4.74609 7.42188 4.45898 7.70898 4.45898 8.07129C4.45898 8.43359 4.74609 8.7207 5.1084 8.7207ZM1.91602 13.2324C2.44238 13.2324 2.87305 12.8018 2.87305 12.2686C2.87305 11.7422 2.44238 11.3115 1.91602 11.3115C1.38281 11.3115 0.952148 11.7422 0.952148 12.2686C0.952148 12.8018 1.38281 13.2324 1.91602 13.2324ZM5.1084 12.918H14.3984C14.7607 12.918 15.0479 12.6309 15.0479 12.2686C15.0479 11.9062 14.7607 11.6191 14.3984 11.6191H5.1084C4.74609 11.6191 4.45898 11.9062 4.45898 12.2686C4.45898 12.6309 4.74609 12.918 5.1084 12.918Z"></path></svg></span>Category</th><td><span class="selected-value select-value-color-pink">Linux</span><span class="selected-value select-value-color-orange">Optimisation</span></td></tr></tbody></table></header><div class="page-body"><p id="d7d8a59b-e4c8-4da9-aa12-17f9a26fee98" class="">This article is one out of a series of articles that seeks to embark on a low to deep level dive geared towards understanding the Linux filesystem.</p><p id="282a9369-50ea-4d33-8a13-3fa9dc8cfbe3" class="">This article is cool for:</p><ol type="1" id="994e98a0-1aa4-4a72-9dbf-016a407bb590" class="numbered-list" start="1"><li>new Linux users wanting to understand the filesystem mechanism,</li></ol><ol type="1" id="e65141fa-186d-4306-9e86-6188c34eabab" class="numbered-list" start="2"><li>mid-level Linux users that want to have a deep but not academic-type understanding of the filesystem,</li></ol><ol type="1" id="e5429fde-f068-45ca-936b-041cf8478f59" class="numbered-list" start="3"><li>programmers interested in how the kernel (some kernel dev’ish things) handles files and directories.</li></ol><ol type="1" id="1b1ca2e0-763b-4b7a-9430-7a939c86ee9f" class="numbered-list" start="4"><li>Or if you’re a professional knowledge hoarder like me</li></ol><p id="8a6d3464-eed9-4a40-9582-0bf864bc1066" class="">During the course of this article, there’d be some C code snippets around but you won’t need to be a C ninja to understand as I’m not even one. But I’d make sure to have simple explanations for them.</p><p id="b9a6144c-4c49-4939-9058-dfd67c89ab03" class="">But before throwing lots of Linux filesystem ‘gibberish’ at you, its pertinent to genuinely have an understanding on the working internals of a ‘filesystem’ regardless of the operating system so as the ‘gibberish’ can make some sense.</p><p id="8baa4130-67a4-40ef-9ba4-c8a17751789a" class="">So, to business…</p><h1 id="1ce79af4-2d29-45a2-bfe3-1246f0f935cc" class="">What’s a filesystem?</h1><p id="b0ad8e40-f142-4e6b-b68f-c7290f61fb12" class="">You see a filesystem basically handles how data (files, directories, block devices) is arranged, stored. It could also be described as a collection of these datastructures within the operating system. It can even be seen as the whole logic and program structure that controls the behavior of data.</p><p id="ae6e2f65-8b6a-4a4b-9b74-3f4444567a91" class="">Wikipedia says a filesystem</p><blockquote id="dbe4afe5-9698-4477-b733-536872ae1a53" class="">‘controls how data is stored and retrieved. Without a file system, data placed in a storage medium would be one large body of data with no way to tell where one piece of data stops and the next begins.’ https://en.wikipedia.org/wiki/File_system</blockquote><p id="e93fe09f-7158-414f-a977-181005c85168" class="">In essence the filesystem arranges data in an intelligent way. And the storage medium can be a HDD, SDD, flash drive or even a RAM. There are lots of filesystem implementations (Minix, EXT’s, XFS, ZFS, NTFS etc) around (I’d try to talk a bit about them later) with an individual and one collective (VFS comes later on) method of working with data. A filesystem could even be seen as a filesystem implementation.</p><p id="5264bf38-45cd-439b-bec0-0689467a8df0" class="">The filesystem gives the rules on how data should be accessed on our storage drive. The drive is usually formatted with a type of filesystem implementation to make it accessible to the operating system.</p><h1 id="bd0f99e7-7ae4-4f16-82fe-3bf823856aac" class="">Filesystem Structure</h1><p id="2419bcfe-700a-45be-8712-0a6b1f22fdd4" class="">NB: Data on disks are usually accessed in blocks rather than bytes.</p><p id="629b41aa-f5f3-4ba0-8666-76b707990a55" class="">As said earlier, data is organized on disk drives by the filesystems and the organization can be understood in layers.</p><p id="6706dd64-0e83-4c15-aa98-0c73d861b093" class="">Firstly, there’s the lowest layers which is the <strong>physical device</strong> or disk drive.</p><p id="c2fd73d1-36f4-4e67-9beb-69c252d3b804" class="">Secondly, the <a href="https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/12_FileSystemImplementation.html"><strong>Input/Output Control</strong></a> are the hardware drivers or programs which communicate with the devices by reading and writing special codes directly to and from memory addresses corresponding to the controller card’s register.</p><p id="af24c54d-5d89-43ca-980b-a644580eef80" class="">Thirdly, the <strong>basic file system</strong> cooperates with the device driver to retrieve and store information of blocks of data without knowing the blocks content.</p><p id="2d7b2110-7c2c-4e29-a527-e8150203ec7f" class="">Fourthly, the <strong>file organization module </strong>has information on how logical blocks are mapped to physical blocks on the disk for data storage or retrieval.</p><p id="a73db949-66e7-41f3-baba-2127614debde" class="">And lastly there’s the <strong>logical file system </strong>handles information about a file i.e. it meta data except the files actual data. Things like superblocks and inodes are handled here.</p><p id="cc9bccbb-c599-4b54-9293-7024e0fe1f6e" class="">Figure 1: Filesystem structure</p><figure id="ba7138ac-1f7c-4f1f-b390-8f1586685293" class="image"><a href="A%20Deep-dive%20into%20the%20Linux%20Filesystem%20Part%201%206022953d896841e98e628eb9f63ce3d4/1UXwrwlJFa05BzBuGqzbTUA.jpeg"><img style="width:213px" src="A%20Deep-dive%20into%20the%20Linux%20Filesystem%20Part%201%206022953d896841e98e628eb9f63ce3d4/1UXwrwlJFa05BzBuGqzbTUA.jpeg"/></a></figure><p id="b313a8d1-c53e-448e-a3ee-5efd26ff95f9" class="">Ref: <a href="https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/12_FileSystemImplementation.html">https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/12_FileSystemImplementation.html</a></p><p id="d35a5a79-8950-462d-abcd-d332e7139c24" class="">Data on a disk resides in a partition and a disk can be divided into more partitions.</p><p id="592070fd-4b41-48f7-a4bd-7186da485d12" class="">You create a partition on a disk drive by formatting it with a filesystem type (remember EXT’s, ZFS etc). Partitions are created if you want to independently have multiple drives formatted with different filesystems and operating system all on one physical hard disk.</p><p id="8ed7076d-a6b3-4c83-a1bd-91ee50f5ca8d" class="">By the way, a partition within a disk, be it an hard disk or flash drive is divided into sectors. This sector can be about 512 bytes in size. A group of sector is called a block. And a block can be made of one or more sectors. For information to be retrieved from disk, the operating system would have to point to a particular block.</p><p id="9747b93b-7054-4656-8699-881c33d320e9" class="">When a partition is created, data is pushed into the first block of the drive which is called the boot block or MBR (Master Boot Record). The boot block contains information that helps bootstrap the machine unto its feet.</p><p id="76ebd48c-4a34-4f4c-854b-2805415a3397" class="">The partition also contains the super block which holds information regarding the filesystem’s layout or structure. It also gives information about the drive’s size, permissions and control, how many file resides on the filesystem, inodes location. The superblock stores metatdata of the filesystem.</p><p id="cd88e404-3915-4e40-a7bf-750faca21253" class="">Check: <a href="https://www.slashroot.in/understanding-file-system-superblock-linux">https://www.slashroot.in/understanding-file-system-superblock-linux</a></p><p id="302124d8-b46a-4127-8489-29364e171a05" class="">Another component of a partition are the inodes (<strong>i</strong>ndex <strong>nodes</strong>). Each file is linked to a number called the i-number.</p><p id="aea60465-fcfc-46a4-8ddb-35bae5c479d8" class="">Inodes contain specific information such as owner identifier, type of file, array of pointers to data blocks on disk, file size etc about a particular file-object. They store the attribute of a particular disk block that data resides in.</p><p id="6a5004ea-3cdd-43c2-8ec5-06a2da11a807" class="">The inode stores metadata of a file. Feel free to call an inode the superblock of a file. Its similar to how superblocks store metadata of the entire filesystem.</p><blockquote id="afec8cdd-8c4e-4063-8ae5-ee05471f0f66" class="">The inode number indexes a table of inodes in a known location on the device. From the inode number, the kernel’s file system driver can access the inode contents, including the location of the file, thereby allowing access to the file</blockquote><p id="b38e2ef0-18e7-48a6-9b1d-a738c4313449" class="">Ref: <a href="https://en.wikipedia.org/wiki/Inode">https://en.wikipedia.org/wiki/Inode</a></p><p id="57ffd33a-4421-45ef-bfa3-3337cac95b8e" class="">Disk space allocation is controlled by inodes. They are created using the <strong>mkfs (1) </strong>command. These <a href="http://digi-cron.com:8080/filesystems.html">inodes</a> are so special that they can’t even be modified directly but are controlled by user space commands like touch or <a href="https://www.slashroot.in/what-is-system-call-in-unix-and-linux">systemcalls</a> like <strong>open(2)</strong>, <strong>unlink(2)</strong>. Commands like <strong>chmod(1)</strong> and <strong>chmod(2)</strong> can be used to alter access permissions.</p><p id="7a85e038-ee7c-4ee5-b47d-206015d5b416" class="">There’s also the data block which contains the actual data on the drive that makes sense to us. This could be your text documents or binary files.</p><p id="f04bab4a-ed57-466b-a527-62c3e0f87fdb" class="">Figure 2: The command shows the existing partition of my hard disk and the size of 1 sector.</p><figure id="b77ec573-9638-4828-a979-7ed1ffc3c22b" class="image"><a href="A%20Deep-dive%20into%20the%20Linux%20Filesystem%20Part%201%206022953d896841e98e628eb9f63ce3d4/1M0aOjcezS9Wn_BP5BSlILA.png"><img style="width:700px" src="A%20Deep-dive%20into%20the%20Linux%20Filesystem%20Part%201%206022953d896841e98e628eb9f63ce3d4/1M0aOjcezS9Wn_BP5BSlILA.png"/></a></figure><p id="6e579cf7-51d2-49a3-8631-77aa74be6824" class="">sda1 in the image above contains my Windows OS and also has the bootloader. sda5 is a logical partition that was derived from the sda2 extended partition.</p><p id="76da37c4-3445-4fdd-9888-1fa7dc30832e" class="">There was a time in ‘filesystems history’ that hard disks were designed to only have 4 partitions. This proved to be a problem when sysadmins, programmers and computer users need more than a partition to manage their hard disk. For instance a programmer probably wanted to have a Linux, Windows, FreeBSD, Solaris, MS-DOS and Minix OS all at once on his/her drive. Or may be the programmer needed a separate swap partition rather than a swap file. This couldn’t happen because of the limit imposed by the prevalent design schema of then.</p><p id="172ebe11-b772-43fd-a152-d7e156f69751" class="">So you see the problem huh?</p><blockquote id="aa509f85-ff57-40f2-94d5-38a02d442737" class="">To overcome this design problem, extended partitions were invented. This trick allows partitioning a primary partition into sub-partitions. The primary partition thus subdivided is the extended partition; the sub-partitions are logical partitions. They behave like primary partitions, but are created differently. There is no speed difference between them. By using an extended partition you can now have up to 15 partitions per disk.</blockquote><p id="28c87be5-064f-41b4-a85c-8c47a75cca12" class="">Ref: <a href="https://www.tldp.org/LDP/sag/html/partitions.html">https://www.tldp.org/LDP/sag/html/partitions.html</a></p><p id="449ef8e1-c66f-4c03-8f85-a2d4b9076334" class="">A flash drive on a PC is loaded by device drivers which makes it accessible to the PC but not readable or writable. It is then formatted using a file system of choice to make it usable.</p><p id="9b3593c6-2fe0-4917-8888-694d855e090c" class="">Before using the flash drive or a request to access a file on the flash drive requires Linux to check the superblock to see the formatted filesystem of the drive. Drivers that supports the flash drive’s file system are loaded from the Linux kernel to read the flash drive and place it on a specific directory. The action of placing a block device formatted with a particular file system on a directory is called <strong>mounting</strong> and that place is called the <strong>mount point</strong>.</p><h1 id="dcf77137-42fc-45b3-81db-57d57b17e0f4" class="">A few supported Linux File systems</h1><p id="55ebf71f-fdb4-4aa6-a643-8d02855583d8" class="">There are lots of filesystem types supported by the Linux kernel. You can check yours by running the following command on a terminal.</p><p id="bcce92b6-e040-4474-b0f7-3bf21891f306" class="">Figure 3: Command shows supported filesystem types</p><figure id="183498b8-38af-492c-b528-21a422f66ed9" class="image"><a href="A%20Deep-dive%20into%20the%20Linux%20Filesystem%20Part%201%206022953d896841e98e628eb9f63ce3d4/12L2oD4vKLEDCbicrUmUxOw.png"><img style="width:700px" src="A%20Deep-dive%20into%20the%20Linux%20Filesystem%20Part%201%206022953d896841e98e628eb9f63ce3d4/12L2oD4vKLEDCbicrUmUxOw.png"/></a></figure><p id="018da53c-8f53-4491-945d-c295156e41dc" class=""><strong>Minix</strong>: This filesytem was the defacto filesystem of the Minix OS. Minix had its own problems as it only could access 64MB of storage, wasn’t free and open source</p><p id="340bb4a8-d1ff-4dd3-82c0-a56f4ba5016d" class=""><strong>ext</strong>: This was created by Remy Card a year after Torvald’s debuted the Linux kernel. This filesystem could address up to 2GB of storage and 255-character filenames. It also introduced the Virtual File System abstraction layer.</p><p id="68ea30b1-96fe-4232-a72c-6db7a72fe9a9" class=""><strong>ext2</strong>: This came to solve ext’s problem by adding more timestamps to the inodes for file access, inode creation and file modification. It could also access a bigger pool of storage space. This was a proper filesystem</p><p id="aa50194a-85d4-4d3a-bfb4-c2c150751b4a" class=""><strong>ext3</strong>: The idea of <em>Journaling </em>came with ext3. ext2 could handle problems that results when there’s a power failure during read/write operations on the hard disk. This most of the time leads to great loss of data from related or unrelated files.</p><blockquote id="3db596eb-baee-49d6-b5f1-e85db9f17777" class="">A journaling filesystem is a filesystem that maintains a special file called a journal that is used to repair any inconsistencies that occur as the result of an improper shutdown of a computer. Such shutdowns are usually due to an interruption of the power supply or to a software problem that cannot be resolved without a rebooting.</blockquote><h2 id="b1b742cc-56e5-433c-b86d-2671c17ee870" class=""><a href="http://www.linfo.org/journaling_filesystem.html">What is a journaling filesystem? — definition by The Linux Information Project (LINFO)</a></h2><h3 id="9ee93c66-c9be-4590-af4c-c816fee0b969" class=""><a href="http://www.linfo.org/journaling_filesystem.html">A journaling filesystem is a filesystem that maintains a special file called a journal that is used to repair any…</a></h3><p id="cad8a9e6-c3a0-4a29-944f-2de0e313edaf" class=""><a href="http://www.linfo.org/journaling_filesystem.html">www.linfo.org</a></p><p id="a407196e-00ec-44d1-a289-82ff732c5333" class=""><strong>ext4</strong>: This is an extension of ext3 and also the latest iteration of the EXT’s. It provides a higher performance, resistance to fragmentation, and improved timestamps. It was built to be backward-compatible with ext3 but not vice-versa. <a href="https://opensource.com/article/18/4/ext4-filesystem">Check here for a solid talk on ext4 features</a>.</p><p id="b96524e5-06c3-40f7-af6f-b01e9daabcf0" class=""><strong>ZFS: </strong>This has been touted by people as a next-gen filesystem. It also doubles down as a volume manager. Features include: Copy-on-write, snapshots, cryptographically based check-summing ability (for detecting data corruption). <a href="https://www.freebsd.org/doc/handbook/zfs.html">https://www.freebsd.org/doc/handbook/zfs.htm, l</a><a href="https://itsfoss.com/what-is-zfs/">https://itsfoss.com/what-is-zfs/</a>.</p><p id="fb71842f-f1cd-442b-8183-6de93ab8d15d" class="">Others include <a href="http://man7.org/linux/man-pages/man5/xfs.5.html">xfs(5)</a>; <a href="https://btrfs.wiki.kernel.org/index.php/Main_Page">btrfs</a> and <strong>man 8 btrfs </strong>for btrfs on the man page.</p><p id="ddeaa08b-4b7a-47d0-b51c-df653eecec39" class=""><strong>Up next!</strong></p><p id="8e4341e8-a8f0-4d70-b60b-7339075d60b3" class="">The Linux filesystem hierarchy, permissions, access controls, mounting and formatting of partitions would be discussed in a subsequent article.</p><p id="0948305f-8e1a-43df-87c1-a07146f7619d" class="">Thanks and see you later!</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

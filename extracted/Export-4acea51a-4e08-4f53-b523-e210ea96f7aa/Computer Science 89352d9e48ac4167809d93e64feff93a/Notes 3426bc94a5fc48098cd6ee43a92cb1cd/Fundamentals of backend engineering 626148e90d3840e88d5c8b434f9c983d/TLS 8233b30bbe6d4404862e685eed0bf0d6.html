@@ -1,0 +1,922 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>TLS</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="8233b30b-be6d-4404-862e-685eed0bf0d6" class="page mono"><header><h1 class="page-title">TLS</h1><p class="page-description"></p></header><div class="page-body"><figure id="9f13a8e4-f505-40a1-9276-3b3ac64be9d0" class="image"><a href="TLS%208233b30bbe6d4404862e685eed0bf0d6/Untitled.png"><img style="width:384px" src="TLS%208233b30bbe6d4404862e685eed0bf0d6/Untitled.png"/></a></figure><figure id="6cb1b8a6-fda1-44ec-9dc5-d61ef907f482"><a href="https://medium.com/devops-dudes/deep-dive-into-tls-a9798ac1763a" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Deep Dive into TLS</div><div class="bookmark-description">How exactly are secure connections made between two clients and what is happening behind the scenes?</div></div><div class="bookmark-href"><img src="https://miro.medium.com/v2/resize:fill:152:152/1*sHhtYhaCe2Uc3IU0IgKwIQ.png" class="icon bookmark-icon"/>https://medium.com/devops-dudes/deep-dive-into-tls-a9798ac1763a</div></div><img src="https://miro.medium.com/v2/resize:fit:1200/0*Bpl9xs4i-lGLNY5m" class="bookmark-image"/></a></figure><p id="e0b44f99-9a0c-49dd-a9ba-2b71c0afdada" class=""><strong>TLS evolved from Secure Socket Layers (SSL)</strong></p><p id="a8968be6-343b-43e6-8e71-aa7e737ddb4b" class="">TLS does not secure data on end systems. It simply ensures the secure delivery of data over the Internet, avoiding possible eavesdropping and/or alteration of the content.</p><p id="0c8d57f0-d35c-4ae3-bcc7-a503c997546d" class=""><strong>TLS is normally implemented on top of TCP</strong> in order to encrypt Application Layer protocols such as HTTP, FTP, SMTP, and IMAP, although it can also be implemented on UDP, DCCP, and SCTP as well (e.g. for VPN and SIP-based application uses). This is known as Datagram Transport Layer Security (DTLS)</p><p id="479bc525-84b3-49e4-92e3-7696fe071a76" class="">TLS uses a <strong>combination of symmetric and asymmetric cryptography</strong></p><p id="cf618c6d-2e02-4751-beb6-187fa245e67f" class=""><strong>TLS uses asymmetric cryptography for securely generating and exchanging a session key.</strong> The session key is then used for encrypting the data transmitted by one party, and for decrypting the data received at the other end. Once the session is over, the session key is discarded.</p><hr id="60f7a134-543a-4b4c-8d6b-5ab3ff31e905"/><p id="0db2b012-8682-4fcd-b22b-cab6f9bdf2a8" class="">Symmetric key encryptions are much faster than asymmetric keys.</p><hr id="d832cfc9-9e5a-40e6-903f-531eb35c9367"/><h2 id="d72baab1-224c-4032-9d79-8d73f26517b6" class="">Diffie-Hellman Algorithm: TLS 1.3</h2><figure id="901b25a5-d976-4fae-a96c-132f5b40093b"><a href="https://www.youtube.com/watch?v=Yjrfm_oRO0w" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Diffie Hellman -the Mathematics bit- Computerphile</div><div class="bookmark-description">Correction : as oodles of commenters have pointed out, the clock face should go from 0 to n-1. Also, worth reminding people that Mike has simplified the notation in this video (as he mentions). 
+
+Mike explains the mathematics behind one of the most important pieces of computer security. (Simplified version with colour mixing analogy linked below)
+
+Secret key Exchange (Colour Mixing) Video: https://youtu.be/NmM9HA2MQGI 
+
+https://www.facebook.com/computerphile
+https://twitter.com/computer_phile
+
+This video was filmed and edited by Sean Riley.
+
+Computer Science at the University of Nottingham: https://bit.ly/nottscomputer
+
+Computerphile is a sister project to Brady Haran&#x27;s Numberphile. More at http://www.bradyharan.com</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/462a8d5d/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=Yjrfm_oRO0w</div></div><img src="https://i.ytimg.com/vi/Yjrfm_oRO0w/maxresdefault.jpg" class="bookmark-image"/></a></figure><figure id="017be46b-7df5-49f6-abfb-414b96bda7da"><a href="https://www.youtube.com/watch?v=NmM9HA2MQGI" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Secret Key Exchange (Diffie-Hellman) - Computerphile</div><div class="bookmark-description">How do we exchange a secret key in the clear? Spoiler: We don&#x27;t - Dr Mike Pound shows us exactly what happens. 
+
+Mathematics bit: https://youtu.be/Yjrfm_oRO0w 
+Computing Limit: https://youtu.be/jv2H9fp9dT8 
+
+https://www.facebook.com/computerphile
+https://twitter.com/computer_phile
+
+This video was filmed and edited by Sean Riley.
+
+Computer Science at the University of Nottingham: https://bit.ly/nottscomputer
+
+Computerphile is a sister project to Brady Haran&#x27;s Numberphile. More at http://www.bradyharan.com</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/462a8d5d/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=NmM9HA2MQGI</div></div><img src="https://i.ytimg.com/vi/NmM9HA2MQGI/maxresdefault.jpg" class="bookmark-image"/></a></figure><figure id="43abac9f-484f-4a9e-b539-e00ab22df3ab"><a href="https://www.youtube.com/watch?v=xSUMEer6J_E" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Diffie Hellman Key Exchange Algorithm | Complete Working with Diagram &amp; Example</div><div class="bookmark-description">Support Simple Snippets by Donations -
+Google Pay UPI ID - tanmaysakpal11@okicici
+PayPal - paypal.me/tanmaysakpal11
+--------------------------------------------------------------------------------------------- In this video tutorial we will study and understand the working of Diffie-Hellman Key exchange algorithm. 
+Symmetric Key Echange Problem - 
+1. Key exchange solution is not fool proof or  is not practically possible.
+2. This problem is called as key distribution or key exchange problem.
+3. It is inherently linked with the symmetric key cryptography
+
+Diffie-Hellman Key Exchange/ Agreement Algorithm -
+1. Two parties, can agree on a symmetric key using this technique.
+2. This can then be used for encryption/ decryption.
+3. This algorithm can be used only for key agreement, but not for encryption or decryption.
+4. It is based on mathematical principles
+
+Diffie Hellman Algorithm Steps -
+1. Firstly Alice and Bob mutually agree on 2 large prime numbers, n &amp; g. These 2 numbers need not be kept secret.
+2. Alice chooses another large random number x(private to her) and calculates A such that A = g^x mod n.
+3. Alice sends this number A to Bob.
+4. Bob independently chooses another large random number y(private to him) and calculates B such that B = g^y mod n.
+5. Bob sends this number B to Alice.
+6. Alice now computes her private key value K1 as: K1 = B^x mod n.
+7. Bob computes his private key value K2 as: K2 = A^y mod n.
+8. K1 == K2 (key exchange done successfully)
+
+Complete Network Security / Information Security Playlist - https://www.youtube.com/watch?v=IkfggBVUJxY&amp;list=PLIY8eNdw5tW_7-QrsY_n9nC0Xfhs1tLEK
+
+Download my FREE Network Security Android App - https://play.google.com/store/apps/details?id=com.intelisenze.networksecuritytutorials
+
+Simple Snippets Official Website - 
+http://simplesnippets.tech/
+Simple Snippets on Facebook -
+https://www.facebook.com/simplesnippets/
+Simple Snippets on Instagram -
+https://www.instagram.com/simplesnippets/
+Simple Snippets on Twitter - 
+https://twitter.com/simplesnippet
+Simple Snippets Google Plus Page -
+https://plus.google.com/+SimpleSnippets
+Simple Snippets email ID -
+simplesnippetsinfo@gmail.com
+
+For More Technology News, Latest Updates and Blog articles visit our Official Website - http://simplesnippets.tech/</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/462a8d5d/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=xSUMEer6J_E</div></div><img src="https://i.ytimg.com/vi/xSUMEer6J_E/maxresdefault.jpg" class="bookmark-image"/></a></figure><div id="8deea969-8102-41d8-9211-cd09f2e61575" class="column-list"><div id="648c7887-00a0-4e2e-a1f9-34e9d14e4cea" style="width:37.5%" class="column"><figure id="859cec18-399e-4c0a-8831-c7941534902c" class="image"><a href="TLS%208233b30bbe6d4404862e685eed0bf0d6/IMG_20230830_1537297642.jpg"><img style="width:432px" src="TLS%208233b30bbe6d4404862e685eed0bf0d6/IMG_20230830_1537297642.jpg"/></a></figure></div><div id="a4ed84a6-f89c-4431-b6d6-7e63b147c4b6" style="width:62.5%" class="column"><figure id="5b92e19d-54bc-4fb7-b46d-9ec36d71f557" class="image"><a href="TLS%208233b30bbe6d4404862e685eed0bf0d6/Untitled%201.png"><img style="width:768px" src="TLS%208233b30bbe6d4404862e685eed0bf0d6/Untitled%201.png"/></a></figure></div></div><figure id="7f4364ef-c7b6-4069-a03d-ee5f11fb3495"><a href="https://www.youtube.com/watch?v=ntytZy3i-Jo&amp;list=PLQnljOFTspQW4yHuqp_Opv853-G_wAiH-&amp;index=2" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Transport Layer Security 1.3 Explained - TLS Handshake, Key Exchange, TLS Extensions and MITM</div><div class="bookmark-description">In this video I want to describe in details the TLS 1.3 protocol. Transport Layer Security is a protocol that allows two party to communicate securely. I talk about how TLS 1.3 handshake, I discuss the math behind Diffie hellman , I discuss TLS extensions such as OCSP stapling, SNI, ESNI, ALPN and more and finally I talk about how TLS Man in the middle works. 
+
+Chapters
+0:00 Intro
+2:30  TLS 1.3 overview
+11:10 TLS 1.3 Extensions
+16:00 TLS 1.3 MITM
+
+
+
+
+🏭 Software Architecture Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQXNP6mQchJVP3S-3oKGEuw9
+
+💾 Database Engineering Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQXjD0HOzN7P2tgzu7scWpl2
+
+🛰 Network Engineering Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQUBSgBXilKhRMJ1ACqr7pTr
+
+🏰 Load Balancing and Proxies Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQVMeBmWI2AhxULWEeo7AaMC
+
+🐘 Postgres Videos 
+https://www.youtube.com/playlist?list=PLQnljOFTspQWGrOqslniFlRcwxyY94cjj
+
+🚢Docker
+https://www.youtube.com/playlist?list=PLQnljOFTspQWsD-rakNw1C20c1JI8UR1r
+
+🧮 Programming Pattern Videos 
+https://www.youtube.com/playlist?list=PLQnljOFTspQV1emqxKbcP5esAf4zpqWpe
+
+🛡 Web Security Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQU3YDMRSMvzflh_qXoz9zfv
+
+🦠 HTTP Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQU6zO0drAYHFtkkyfNJw1IO
+
+🐍 Python Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQU_M83ARz8mDdr4LThzkBKX
+
+🔆 Javascript Videos 
+https://www.youtube.com/playlist?list=PLQnljOFTspQWab0g3W6ZaDM6_Buh20EWM
+
+👾Discord Server https://discord.gg/CsFbFce
+
+Support me on PayPal
+https://bit.ly/33ENps4
+
+Become a Patreon
+https://www.patreon.com/join/hnasr?
+
+Stay Awesome,
+Hussein</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/462a8d5d/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=ntytZy3i-Jo&amp;list=PLQnljOFTspQW4yHuqp_Opv853-G_wAiH-&amp;index=2</div></div><img src="https://i.ytimg.com/vi/ntytZy3i-Jo/sddefault.jpg" class="bookmark-image"/></a></figure><figure id="0c8fbbc6-19c3-49ce-ba4a-b9690c53da3f" class="image"><a href="TLS%208233b30bbe6d4404862e685eed0bf0d6/Untitled%202.png"><img style="width:576px" src="TLS%208233b30bbe6d4404862e685eed0bf0d6/Untitled%202.png"/></a></figure><figure id="7374ada3-3f5d-4967-9842-5a930041583a"><a href="https://www.youtube.com/watch?v=IE0QLCcOr0I&amp;list=PLQnljOFTspQW4yHuqp_Opv853-G_wAiH-&amp;index=7" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">TLS 1.3 Handshake Explained In Details (with Math)</div><div class="bookmark-description">In this video, I want to explain the TLS handshake by reveling the math behind the Diffie Hellman. The main component of TLS 1.3 is the Diffie Hellman Key Exchange algorithm. The goal of the TLS handshake is to establish a shared symmetric key between the client and the server. This video shows how that math works.
+
+
+Given g and g^x it is very hard to determine x https://en.m.wikipedia.org/wiki/Diffie–Hellman_problem
+
+🏭 Software Architecture Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQXNP6mQchJVP3S-3oKGEuw9
+
+💾 Database Engineering Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQXjD0HOzN7P2tgzu7scWpl2
+
+🛰 Network Engineering Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQUBSgBXilKhRMJ1ACqr7pTr
+
+🏰 Load Balancing and Proxies Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQVMeBmWI2AhxULWEeo7AaMC
+
+🐘 Postgres Videos 
+https://www.youtube.com/playlist?list=PLQnljOFTspQWGrOqslniFlRcwxyY94cjj
+
+🚢Docker
+https://www.youtube.com/playlist?list=PLQnljOFTspQWsD-rakNw1C20c1JI8UR1r
+
+🧮 Programming Pattern Videos 
+https://www.youtube.com/playlist?list=PLQnljOFTspQV1emqxKbcP5esAf4zpqWpe
+
+🛡 Web Security Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQU3YDMRSMvzflh_qXoz9zfv
+
+🦠 HTTP Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQU6zO0drAYHFtkkyfNJw1IO
+
+🐍 Python Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQU_M83ARz8mDdr4LThzkBKX
+
+🔆 Javascript Videos 
+https://www.youtube.com/playlist?list=PLQnljOFTspQWab0g3W6ZaDM6_Buh20EWM
+
+👾Discord Server https://discord.gg/CsFbFce
+
+Support me on PayPal
+https://bit.ly/33ENps4
+
+Become a Patreon
+https://www.patreon.com/join/hnasr?
+
+Stay Awesome,
+Hussein</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/462a8d5d/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=IE0QLCcOr0I&amp;list=PLQnljOFTspQW4yHuqp_Opv853-G_wAiH-&amp;index=7</div></div><img src="https://i.ytimg.com/vi/IE0QLCcOr0I/sddefault.jpg" class="bookmark-image"/></a></figure><figure id="483c4552-2ceb-4ae5-90fc-2a9977bedf81"><a href="https://www.youtube.com/watch?v=0TLDTodL7Lc" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Transport Layer Security (TLS) - Computerphile</div><div class="bookmark-description">It&#x27;s absolutely everywhere, but what is TLS and where did it come from? Dr Mike Pound explains the background behind this ubiquitous Internet security protocol. 
+
+Heartbleed, Running the Code: https://www.youtube.com/watch?v=1dOCHwf8zVQ 
+Secure Web Browsing: https://www.youtube.com/watch?v=E_wX40fQwEA 
+Network Stacks &amp; The Internet: https://www.youtube.com/watch?v=PG9oKZdFb7w&amp;t=2s 
+
+https://www.facebook.com/computerphile
+https://twitter.com/computer_phile
+
+This video was filmed and edited by Sean Riley.
+
+Computer Science at the University of Nottingham: https://bit.ly/nottscomputer
+
+Computerphile is a sister project to Brady Haran&#x27;s Numberphile. More at http://www.bradyharan.com</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/462a8d5d/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=0TLDTodL7Lc</div></div><img src="https://i.ytimg.com/vi/0TLDTodL7Lc/maxresdefault.jpg" class="bookmark-image"/></a></figure><figure id="5b80f409-a25d-44b8-a699-9464dbcaa506"><a href="https://www.youtube.com/watch?v=86cQJ0MMses" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">TLS Handshake Explained - Computerphile</div><div class="bookmark-description">How does your computer arrange with a server to start talking in code? Dr Mike Pound explains the TLS handshake where the server and client organise everything. 
+
+https://www.facebook.com/computerphile
+https://twitter.com/computer_phile
+
+This video was filmed and edited by Sean Riley.
+
+Computer Science at the University of Nottingham: https://bit.ly/nottscomputer
+
+Computerphile is a sister project to Brady Haran&#x27;s Numberphile. More at http://www.bradyharan.com</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/462a8d5d/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=86cQJ0MMses</div></div><img src="https://i.ytimg.com/vi/86cQJ0MMses/maxresdefault.jpg" class="bookmark-image"/></a></figure><figure id="df94fb57-30a4-4a92-be8d-0918d6707633"><a href="https://www.youtube.com/watch?v=yPdJVvSyMqk" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">TLS 1.3 Handshake</div><div class="bookmark-description">The handshake process between client and server has changed dramatically with the new TLS 1.3 protocol.  The new process is much more efficient and allows encrypted application data to flow much faster than in previous versions.  In this video, John outlines the new TLS 1.3 handshake and talks about all the cool new features it has.
+
+https://community.f5.com/articles/lightboard-lessons-the-tls-13-handshake-31386</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/462a8d5d/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=yPdJVvSyMqk</div></div><img src="https://i.ytimg.com/vi/yPdJVvSyMqk/maxresdefault.jpg" class="bookmark-image"/></a></figure><figure id="d81f96b0-fb7f-48c8-991f-cb0c267da424"><a href="https://www.youtube.com/watch?v=06Kq50P01sI" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Wiresharking TLS - What happens during TLS 1.2 and TLS 1.3 Handshake</div><div class="bookmark-description">In this video, I pull the curtain behind Transport Layer Security and see exactly what happens, what packets are sent, and much more. 
+
+Chapters
+0:00 Intro
+1:37 TLS 1.2
+10:30 Failed TLS 1.3 Handshake
+13:07 TLS 1.3  
+
+#wireshark_them_all
+
+🏭 Backend Engineering Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQUNnO4p00ua_C5mKTfldiYT
+
+💾 Database Engineering Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQXjD0HOzN7P2tgzu7scWpl2
+
+🛰 Network Engineering Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQUBSgBXilKhRMJ1ACqr7pTr
+
+🏰 Load Balancing and Proxies Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQVMeBmWI2AhxULWEeo7AaMC
+
+🐘 Postgres Videos 
+https://www.youtube.com/playlist?list=PLQnljOFTspQWGrOqslniFlRcwxyY94cjj
+
+🚢Docker
+https://www.youtube.com/playlist?list=PLQnljOFTspQWsD-rakNw1C20c1JI8UR1r
+
+🧮 Programming Pattern Videos 
+https://www.youtube.com/playlist?list=PLQnljOFTspQV1emqxKbcP5esAf4zpqWpe
+
+🛡 Web Security Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQU3YDMRSMvzflh_qXoz9zfv
+
+🦠 HTTP Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQU6zO0drAYHFtkkyfNJw1IO
+
+🐍 Python Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQU_M83ARz8mDdr4LThzkBKX
+
+🔆 Javascript Videos 
+https://www.youtube.com/playlist?list=PLQnljOFTspQWab0g3W6ZaDM6_Buh20EWM
+
+👾Discord Server https://discord.gg/CsFbFce
+
+Become a Member 
+https://www.youtube.com/channel/UC_ML5xP23TOWKUcc-oAE_Eg/join
+
+Support me on PayPal
+https://bit.ly/33ENps4
+
+Become a Patreon
+https://www.patreon.com/join/hnasr?
+
+Stay Awesome,
+Hussein</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/462a8d5d/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=06Kq50P01sI</div></div><img src="https://i.ytimg.com/vi/06Kq50P01sI/sddefault.jpg" class="bookmark-image"/></a></figure></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

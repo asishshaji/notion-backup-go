@@ -1,0 +1,682 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Database Indexes</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="f0cdda47-a2da-4cbe-a917-8f8c4e87e17f" class="page mono"><header><h1 class="page-title">Database Indexes</h1><p class="page-description"></p></header><div class="page-body"><h2 id="b2683ddb-75d3-43ff-8068-c75276b4752e" class="">Hash indexes</h2><div id="fc8d4520-c939-408b-8602-bd83aebe7f95" class="column-list"><div id="d4056cfb-5194-4a64-ba8b-a47ae74ff026" style="width:50%" class="column"><p id="d1e1483e-bb5f-430e-ac18-778d12230b19" class="">Keep an in-memory hash table of key mapped to the corresponding data, occasionally write to disk. </p><h3 id="8ab36b23-e4a4-47fb-a5ac-11b4c004ca78" class="">Pros</h3><p id="3ec59306-0a30-4578-af64-81d9e8829f19" class="">Easy to implement and very fast(ram being faster than disk)</p><h3 id="bbeae3a0-3759-416e-b348-a82018f40c7a" class="">Cons</h3><p id="9a46a2a9-8b3d-4540-9285-e10f8af6795d" class="">All the keys must fit in the memory</p><p id="31b57ae5-906f-4332-9511-45327e5aa651" class="">Bad for range query because of the random distribution of the data due to the hash function.</p></div><div id="e456fa8f-c357-433a-bf02-d1d61b6b96a6" style="width:50%" class="column"><figure id="c5f875d9-e933-4362-81e5-b9965a87f0db" class="image"><a href="Database%20Indexes%20f0cdda47a2da4cbea9178f8c4e87e17f/Untitled.png"><img style="width:240px" src="Database%20Indexes%20f0cdda47a2da4cbea9178f8c4e87e17f/Untitled.png"/></a></figure></div></div><p id="7fa128aa-89c8-41f8-b762-9896c7c34e6c" class="">Why not keep a hash table in disk??? Random reads are expensive, the disk has to rotate.</p><p id="f843c4e5-a3f3-4b35-9e58-e4bfd4ca84a8" class="">
+</p><blockquote id="eb46a945-6279-4e80-bfe0-e0e1f0941eb7" class="">Use this when large number of writes per key, but it’s feasible to keep all the keys in memory.<br/>When there are large writes, but not many distinct keys<br/></blockquote><p id="f32a872a-9cfa-4549-bf6b-1314d3888266" class="">
+</p><h2 id="37f1ba5d-5287-4256-b927-642ffebab0a4" class="">SSTables and LSM Trees</h2><p id="1c2d6a2e-2f78-4622-9817-6f76b00b0ef3" class="">Hash Indexes were unordered. To sort data by key, we can use disk-based B-Tree or memory-based structures like AVL or red-black tree. Memory based are easier to implement. These allow writing in any order and reading back in sorted order.</p><div id="aad4bf13-f8d8-4b5d-b46b-056baca37325" class="column-list"><div id="2b02388c-bb9a-4c07-b61f-839ac6d3b097" style="width:50%" class="column"><figure id="428947fd-f086-4af5-abca-d57aeac177c8" class="image"><a href="Database%20Indexes%20f0cdda47a2da4cbea9178f8c4e87e17f/Untitled%201.png"><img style="width:768px" src="Database%20Indexes%20f0cdda47a2da4cbea9178f8c4e87e17f/Untitled%201.png"/></a></figure></div><div id="80ccfdd7-6b53-409b-8773-dcc1b72116b6" style="width:50%" class="column"><figure id="573656d0-a445-4977-ba75-798d57314131" class="image"><a href="Database%20Indexes%20f0cdda47a2da4cbea9178f8c4e87e17f/Untitled%202.png"><img style="width:528px" src="Database%20Indexes%20f0cdda47a2da4cbea9178f8c4e87e17f/Untitled%202.png"/></a></figure></div></div><p id="fd91ce1f-3585-4947-98f5-47d78444ef57" class="">Memtable is a in-memory balanced tree. When the write comes it’s first written to the mem table. When memtable gets bigger than some threshold, it’s written out to the disk as an SSTable file. This is very efficient because the tree maintains a sorted version of the data. The new sstable file becomes the recent segment of the database.</p><p id="0826b0a1-077f-43e2-b154-2e3691851d0d" class="">While the new SSTable is written to the disk, new writes can be done to the new in-memory tree instance.</p><h3 id="ba991111-6270-4774-98ce-eaa659634bfb" class="">How to read</h3><div id="ac68a821-4938-46c1-a282-a3e91c40630c" class="column-list"><div id="0c4d2788-5f49-42f5-bf52-c3e6a3fbf2c3" style="width:50%" class="column"><figure id="ce070ecf-dc2e-48ac-8169-9de19632497f" class="image" style="text-align:left"><a href="Database%20Indexes%20f0cdda47a2da4cbea9178f8c4e87e17f/Untitled%203.png"><img style="width:624px" src="Database%20Indexes%20f0cdda47a2da4cbea9178f8c4e87e17f/Untitled%203.png"/></a></figure></div><div id="c4037115-6e8a-4297-b3d1-73a012047fc1" style="width:50%" class="column"><ul id="06384a37-1a24-458f-b11c-77bdaa18d724" class="bulleted-list"><li style="list-style-type:disc">First look in the in-memory tree</li></ul><ul id="a8719f8d-4165-4e66-a867-03bc229d4fbd" class="bulleted-list"><li style="list-style-type:disc">if not found look in the recent sstable in disk, if not look at next-older segment etc.</li></ul></div></div><p id="dc37b0dd-3e2a-4a6b-8b9c-c2ba93d4299f" class="">
+</p><p id="20b18591-22ea-4b6f-9561-e698243ff8ae" class="">We run a merging and compaction process in the background to combine the segment files, and discard overwritten or deleted values.</p><p id="e8d95722-4d01-4c58-8da4-2c3a7a968947" class="">Even if the database crashes, you still have the sstable in disk, and the commit logs. You can use the commit log to generate the in-memory memtable, which was lost during the crash from memory.</p><blockquote id="e159f4f8-0c39-4e3e-862a-fa022d051e42" class="">Storage engines that are based on the principle of merging and compacting sorted files are called LSM (Log-structured Merge-tree) storage engines.</blockquote><p id="1893fd06-29da-4577-b0bc-19a3fcd3e0da" class="">
+</p><p id="da80f39e-2738-4eb9-b554-713f08864265" class="">LSM trees perform very poorly when you look for data which is not the storage. You look at the memtable, then all the segments to finally find out that the data doesn’t exist. You can use a bloom filter to check if the data is not in storage. Thus saving lot of unnecessary disk io.</p><figure id="f52c7a00-8809-446c-b454-1c624cab7886" class="link-to-page"><a href="../../Fundamentals%20of%20database%20engineering%203567e651e39c4f51a931697292608bc8/Database%20Indexing%20653974fa678c478dabfe24cb59a6b509/Bloom%20Filter%20(A%20Basic%20understanding)%20f52c7a008809446cb4541c624cab7886.html">Bloom Filter (A Basic understanding)</a></figure><div id="dcadfcbf-0456-4498-b82d-dbb10b2fa3ea" class="column-list"><div id="3f02783a-e6e3-47cd-bff9-f90982c68168" style="width:50%" class="column"><p id="f00cef76-02c4-447d-9068-8b6eb7cc3c3e" class="">Maintaining a sparse index in memory is an effective optimization technique.</p><p id="cde51536-6356-458f-9e85-4427246f2be1" class="">This method significantly improves the efficiency of range queries. Essentially, you group records and maintain a common index.</p><p id="8a7e1925-f53b-45aa-ad26-146d21175879" class="">For example, if you are searching for &#x27;Andy&#x27;, you would refer to your sparse index. Here, you would find that &#x27;Andy&#x27; falls between &#x27;Alice&#x27; and &#x27;Bob&#x27; in the disk offset. This allows you to only load the block for &#x27;A&#x27;. And then you run a binary search O(nlogn) on the block.</p><p id="02e5e65c-7e25-434f-ba74-bf0114a305e7" class="">Each entry in the sparse index corresponds to the start of a compressed block.</p></div><div id="d61bfc6d-cae0-44bc-87b3-ef9ded0bb017" style="width:50%" class="column"><figure id="f3c5c675-614d-4c87-9549-a8a140098c4f" class="image"><a href="Database%20Indexes%20f0cdda47a2da4cbea9178f8c4e87e17f/Untitled%204.png"><img style="width:288px" src="Database%20Indexes%20f0cdda47a2da4cbea9178f8c4e87e17f/Untitled%204.png"/></a></figure></div></div><h3 id="951bbd29-bd31-4386-903f-e7ad09b9cc31" class="">Pros</h3><ul id="c72220b0-f009-4ddc-bf1f-06b52ad4e83a" class="bulleted-list"><li style="list-style-type:disc">writes are faster due to writes going in to memory buffer</li></ul><ul id="b20b9b16-7fcf-44cd-9c65-1d7070f2a013" class="bulleted-list"><li style="list-style-type:disc">good for range queries due to internal sorting of data</li></ul><h3 id="2b90afb5-9661-4585-a4d7-90c91ca7a3e5" class="">Cons</h3><ul id="d580aed4-2a13-4021-aac3-94a6aee1bb7a" class="bulleted-list"><li style="list-style-type:disc">Slow reads, especially when the data does not exists in the database</li></ul><ul id="ce2cfbbe-27ba-4439-af55-8598bb430f51" class="bulleted-list"><li style="list-style-type:disc">merging and compaction is done as a background process, which can consume resource</li></ul><h2 id="e020f857-3699-454b-9532-7da57f179966" class="">B-Tree</h2><p id="6a1b2c5e-11f0-4bce-8534-bd125922f832" class="">Most commonly used type of index. A disk data structure. </p><p id="fcebc9dc-9ead-4a8a-90db-75a9ce3f61c9" class="">Model your data such that it’s a tree on disk.</p><p id="c8bc1af8-8f23-4149-b480-337e2c2f26ba" class="">
+</p><h1 id="6230eb38-d5d6-4bb3-881e-a6d951a50fad" class="">Verdict</h1><figure id="532f1b30-de9a-46cb-8864-5e12cde9ab9f" class="image" style="text-align:left"><a href="Database%20Indexes%20f0cdda47a2da4cbea9178f8c4e87e17f/Untitled%205.png"><img style="width:624px" src="Database%20Indexes%20f0cdda47a2da4cbea9178f8c4e87e17f/Untitled%205.png"/></a></figure><p id="15b331c1-c639-420a-9d47-0c2d8b63c1fa" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

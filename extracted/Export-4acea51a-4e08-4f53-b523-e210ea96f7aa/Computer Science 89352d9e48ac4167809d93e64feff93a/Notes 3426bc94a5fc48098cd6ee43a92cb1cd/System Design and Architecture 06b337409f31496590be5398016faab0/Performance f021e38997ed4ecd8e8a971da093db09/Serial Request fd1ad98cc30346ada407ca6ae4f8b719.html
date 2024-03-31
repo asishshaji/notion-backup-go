@@ -1,0 +1,683 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Serial Request</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="fd1ad98c-c303-46ad-a407-ca6ae4f8b719" class="page mono"><header><h1 class="page-title">Serial Request</h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-person"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesPerson"><path d="M10.9536 7.90088C12.217 7.90088 13.2559 6.79468 13.2559 5.38525C13.2559 4.01514 12.2114 2.92017 10.9536 2.92017C9.70142 2.92017 8.65137 4.02637 8.65698 5.39087C8.6626 6.79468 9.69019 7.90088 10.9536 7.90088ZM4.4231 8.03003C5.52368 8.03003 6.42212 7.05859 6.42212 5.83447C6.42212 4.63843 5.51245 3.68945 4.4231 3.68945C3.33374 3.68945 2.41846 4.64966 2.41846 5.84009C2.42407 7.05859 3.32251 8.03003 4.4231 8.03003ZM1.37964 13.168H5.49561C4.87231 12.292 5.43384 10.6074 6.78711 9.51807C6.18628 9.14746 5.37769 8.87231 4.4231 8.87231C1.95239 8.87231 0.262207 10.6917 0.262207 12.1628C0.262207 12.7974 0.548584 13.168 1.37964 13.168ZM7.50024 13.168H14.407C15.4009 13.168 15.7322 12.8423 15.7322 12.2864C15.7322 10.8489 13.8679 8.88354 10.9536 8.88354C8.04492 8.88354 6.17505 10.8489 6.17505 12.2864C6.17505 12.8423 6.50635 13.168 7.50024 13.168Z"></path></svg></span>Owner</th><td><span class="user"><img src="https://lh3.googleusercontent.com/a-/AOh14GiNFIvqEK9T2Ma-a9SoWywYHcnZYok9I79f7LDmGQ=s100" class="icon user-icon"/>Asish Shaji Thomas</span></td></tr><tr class="property-row property-row-verification"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesVerification"><path d="M3.86426 14.0459H5.32715C5.45475 14.0459 5.56185 14.0892 5.64844 14.1758L6.6875 15.2148C7.13411 15.6615 7.56934 15.8825 7.99316 15.8779C8.42155 15.8779 8.85677 15.6569 9.29883 15.2148L10.3379 14.1758C10.429 14.0892 10.5384 14.0459 10.666 14.0459H12.1221C12.751 14.0459 13.2158 13.8955 13.5166 13.5947C13.8219 13.2939 13.9746 12.8268 13.9746 12.1934V10.7305C13.9746 10.6029 14.0202 10.4958 14.1113 10.4092L15.1436 9.37012C15.5902 8.92806 15.8112 8.49284 15.8066 8.06445C15.8066 7.63607 15.5856 7.19857 15.1436 6.75195L14.1113 5.71289C14.0202 5.6263 13.9746 5.52148 13.9746 5.39844V3.92871C13.9746 3.30436 13.8242 2.83952 13.5234 2.53418C13.2227 2.22884 12.7555 2.07617 12.1221 2.07617H10.666C10.5384 2.07617 10.429 2.03288 10.3379 1.94629L9.29883 0.914062C8.85677 0.462891 8.42155 0.239583 7.99316 0.244141C7.56934 0.244141 7.13411 0.467448 6.6875 0.914062L5.64844 1.94629C5.56185 2.03288 5.45475 2.07617 5.32715 2.07617H3.86426C3.23535 2.07617 2.76823 2.22656 2.46289 2.52734C2.16211 2.82812 2.01172 3.29525 2.01172 3.92871V5.39844C2.01172 5.52148 1.96842 5.6263 1.88184 5.71289L0.849609 6.75195C0.402995 7.19857 0.179688 7.63607 0.179688 8.06445C0.179688 8.49284 0.402995 8.92806 0.849609 9.37012L1.88184 10.4092C1.96842 10.4958 2.01172 10.6029 2.01172 10.7305V12.1934C2.01172 12.8223 2.16211 13.2871 2.46289 13.5879C2.76823 13.8932 3.23535 14.0459 3.86426 14.0459ZM7.23438 11.4277C7.10221 11.4277 6.98372 11.4004 6.87891 11.3457C6.77409 11.291 6.67155 11.2021 6.57129 11.0791L4.89648 9.04199C4.83724 8.96452 4.79167 8.88477 4.75977 8.80273C4.72786 8.7207 4.71191 8.63639 4.71191 8.5498C4.71191 8.37663 4.77116 8.22852 4.88965 8.10547C5.0127 7.97786 5.16081 7.91406 5.33398 7.91406C5.44336 7.91406 5.54134 7.93685 5.62793 7.98242C5.71452 8.02799 5.80339 8.10775 5.89453 8.22168L7.20703 9.88965L10.0371 5.36426C10.1829 5.12728 10.3675 5.00879 10.5908 5.00879C10.7594 5.00879 10.9098 5.06348 11.042 5.17285C11.1787 5.28223 11.2471 5.42578 11.2471 5.60352C11.2471 5.68099 11.2288 5.76302 11.1924 5.84961C11.1559 5.93164 11.1149 6.00911 11.0693 6.08203L7.87012 11.0723C7.78809 11.1908 7.69238 11.2796 7.58301 11.3389C7.47819 11.3981 7.36198 11.4277 7.23438 11.4277Z"></path></svg></span>Verification</th><td>Verified</td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesMultipleSelect"><path d="M1.91602 4.83789C2.44238 4.83789 2.87305 4.40723 2.87305 3.87402C2.87305 3.34766 2.44238 2.91699 1.91602 2.91699C1.38281 2.91699 0.952148 3.34766 0.952148 3.87402C0.952148 4.40723 1.38281 4.83789 1.91602 4.83789ZM5.1084 4.52344H14.3984C14.7607 4.52344 15.0479 4.23633 15.0479 3.87402C15.0479 3.51172 14.7607 3.22461 14.3984 3.22461H5.1084C4.74609 3.22461 4.45898 3.51172 4.45898 3.87402C4.45898 4.23633 4.74609 4.52344 5.1084 4.52344ZM1.91602 9.03516C2.44238 9.03516 2.87305 8.60449 2.87305 8.07129C2.87305 7.54492 2.44238 7.11426 1.91602 7.11426C1.38281 7.11426 0.952148 7.54492 0.952148 8.07129C0.952148 8.60449 1.38281 9.03516 1.91602 9.03516ZM5.1084 8.7207H14.3984C14.7607 8.7207 15.0479 8.43359 15.0479 8.07129C15.0479 7.70898 14.7607 7.42188 14.3984 7.42188H5.1084C4.74609 7.42188 4.45898 7.70898 4.45898 8.07129C4.45898 8.43359 4.74609 8.7207 5.1084 8.7207ZM1.91602 13.2324C2.44238 13.2324 2.87305 12.8018 2.87305 12.2686C2.87305 11.7422 2.44238 11.3115 1.91602 11.3115C1.38281 11.3115 0.952148 11.7422 0.952148 12.2686C0.952148 12.8018 1.38281 13.2324 1.91602 13.2324ZM5.1084 12.918H14.3984C14.7607 12.918 15.0479 12.6309 15.0479 12.2686C15.0479 11.9062 14.7607 11.6191 14.3984 11.6191H5.1084C4.74609 11.6191 4.45898 11.9062 4.45898 12.2686C4.45898 12.6309 4.74609 12.918 5.1084 12.918Z"></path></svg></span>Tags</th><td><span class="selected-value select-value-color-gray">Backend</span><span class="selected-value select-value-color-blue">Performance</span></td></tr><tr class="property-row property-row-last_edited_time"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesCreatedAt"><path d="M8 15.126C11.8623 15.126 15.0615 11.9336 15.0615 8.06445C15.0615 4.20215 11.8623 1.00293 7.99316 1.00293C4.13086 1.00293 0.938477 4.20215 0.938477 8.06445C0.938477 11.9336 4.1377 15.126 8 15.126ZM8 13.7383C4.85547 13.7383 2.33301 11.209 2.33301 8.06445C2.33301 4.91992 4.84863 2.39746 7.99316 2.39746C11.1377 2.39746 13.6738 4.91992 13.6738 8.06445C13.6738 11.209 11.1445 13.7383 8 13.7383ZM4.54102 8.91211H7.99316C8.30078 8.91211 8.54004 8.67285 8.54004 8.37207V3.8877C8.54004 3.58691 8.30078 3.34766 7.99316 3.34766C7.69238 3.34766 7.45312 3.58691 7.45312 3.8877V7.83203H4.54102C4.2334 7.83203 4.00098 8.06445 4.00098 8.37207C4.00098 8.67285 4.2334 8.91211 4.54102 8.91211Z"></path></svg></span>Last edited time</th><td><time>@July 24, 2023 1:27 PM</time></td></tr></tbody></table></header><div class="page-body"><p id="2dfe7eda-d935-4d63-b3f1-f28a2fac96db" class="">Requests to a server are sent serially.ie, send the first request, wait for its result, and then send the next. Sequential requests.</p><h2 id="80cd4811-e947-4157-97b0-00599e19bff1" class="">Network latency</h2><p id="2ee8c219-de2f-442c-ac6b-d2769e2c9aad" class="">When we connect from browser to server, the communication is slower, because of hops between different networks which might have different speeds. Intranet communications are much faster.</p><figure id="8b1023b8-f8be-48c9-a0e0-40dac4cce457" class="image" style="text-align:center"><a href="Serial%20Request%20fd1ad98cc30346ada407ca6ae4f8b719/Untitled.png"><img style="width:912px" src="Serial%20Request%20fd1ad98cc30346ada407ca6ae4f8b719/Untitled.png"/></a></figure><h3 id="7544626f-82eb-4c3d-8e43-dbbbd1d27b3c" class="">Why the latency??</h3><ul id="18b1b70b-98be-4d2b-af88-58b2edc9dc18" class="bulleted-list"><li style="list-style-type:disc">Data is sent over the wire.</li></ul><ul id="715c19e6-90e1-4c44-9446-db486827226c" class="bulleted-list"><li style="list-style-type:disc">TCP connection (We are considering TCP only). The three-way handshake is very expensive. </li></ul><figure id="351661c4-3e5c-4e57-9781-9c553c7c6fef" class="link-to-page"><a href="../../Fundamentals%20of%20Networking%20Engineering%20for%20backend%202230374e6e2d48aeaa046961c826ab34/Transmission%20Control%20Protocol%20(TCP)%20351661c43e5c4e5797819c553c7c6fef.html">Transmission Control Protocol (TCP)</a></figure><ul id="7e69b772-070e-4755-9997-78b38c6a776d" class="bulleted-list"><li style="list-style-type:disc">If you have SSL on top of it, the latency is significant. Creating a TCP connection and then an SSL connection. </li></ul><p id="ef4c07d8-cf79-46cd-ac31-0b74bbeebf02" class="">
+</p><h3 id="c164ad28-7a06-4f7e-bb54-5beb16d193d5" class="">Minimizing network transfer latency</h3><ul id="aca0da9e-5ed1-4d19-b258-9d9adc2f2b26" class="bulleted-list"><li style="list-style-type:disc">Connection overheads<ul id="c4b503b8-d428-48ac-ae29-c3da0ba4c0fb" class="bulleted-list"><li style="list-style-type:circle">Reusing connections between server and DB. Maintain a connection pool</li></ul><ul id="f631e6d6-310a-40c0-b13e-c922abcf9e24" class="bulleted-list"><li style="list-style-type:circle">Preheat the TCP connection with the server and DB.</li></ul><ul id="959ad808-669a-4a91-9b00-b59dad34b964" class="bulleted-list"><li style="list-style-type:circle">From the client make a persistent connection to the server. </li></ul><ul id="2af50a1b-6d1e-4ae3-84cb-6f1821e8762e" class="bulleted-list"><li style="list-style-type:circle">If we are using http1.1, make use of domain sharding to get around <a href="https://www.youtube.com/watch?v=Xkr2nm6UPN8&amp;ab_channel=HusseinNasser">the browser’s 6 TCP connections per server</a>.</li></ul></li></ul><ul id="d182850d-e627-41ee-b1b9-886301181ec8" class="bulleted-list"><li style="list-style-type:disc">Data Transfer overheads<ul id="130a2113-e24c-44f3-b595-59e67f6586e2" class="bulleted-list"><li style="list-style-type:circle">Reduce the size of the data</li></ul><ul id="11769e68-d3ab-4fa3-9c6c-6d7ca6e61fb3" class="bulleted-list"><li style="list-style-type:circle">Avoid transfers that we don&#x27;t really need. ie cache the data.</li></ul><ul id="28ae5676-fe9d-4e1c-be70-bf7fe2b3695a" class="bulleted-list"><li style="list-style-type:circle">Use static data cache at the client.</li></ul><ul id="760b0322-a9a9-4950-ad31-dfa6288afb69" class="bulleted-list"><li style="list-style-type:circle">Cache data wherever possible</li></ul><ul id="5e5c52fe-303f-467c-80a7-715dfaeca74c" class="bulleted-list"><li style="list-style-type:circle">Can use data format and compression.<ul id="67a14e4c-b3db-44d0-a3c8-ba17e48eaeaf" class="bulleted-list"><li style="list-style-type:square">eg use binary communication between services at the backend, like grpc, Avro, thrift</li></ul></li></ul><ul id="f7be372a-07fe-4127-9bef-2df14a6ba7c4" class="bulleted-list"><li style="list-style-type:circle">Compress the data, and of course, you will have an overhead to compress and decompress the data. This requires CPU cycles, but, those overheads are not costly. </li></ul><ul id="91f5b43a-6238-4e12-b8f2-9ea9b9b40308" class="bulleted-list"><li style="list-style-type:circle">SSL Session Caching<ul id="ff2025dd-0e51-4ca0-8eec-dd46395bd95f" class="bulleted-list"><li style="list-style-type:square">session parameters are cached. This can reduce the overhead.</li></ul></li></ul></li></ul><h2 id="fb3cf920-140d-4ec3-be70-16d7b5c6cb51" class="">Memory Latency</h2><ul id="a158f4fc-a8f5-41e2-b517-7c0f84f6ad7d" class="bulleted-list"><li style="list-style-type:disc">For processes using heap memory, the GC will start running, mostly at finite intervals of time, which can cause the running process to slow down.</li></ul><ul id="0ca93307-b1bb-4ce0-b140-11bffb741978" class="bulleted-list"><li style="list-style-type:disc">Large Heap memory, if the heap memory is large, the extra space is taken from the hard disk, which has some overhead. If the heap memory is large, the GC has to do extra work to clean up the memory.</li></ul><ul id="d8345c67-869c-4034-9009-871d26cec9a4" class="bulleted-list"><li style="list-style-type:disc">The selection of the GC algorithm is important</li></ul><p id="afc41b10-21f3-41ed-b605-881101f96c60" class="">
+</p><h3 id="63414243-f117-47c6-9291-3ed72f7a8f19" class="">Minimizing Memory Latency</h3><figure id="7d15c808-96c7-4eaf-b9e1-7d3b911e0ae5" class="image"><a href="Serial%20Request%20fd1ad98cc30346ada407ca6ae4f8b719/Untitled%201.png"><img style="width:624px" src="Serial%20Request%20fd1ad98cc30346ada407ca6ae4f8b719/Untitled%201.png"/></a></figure><ul id="1f1bb974-0025-49ae-82d3-9234878c78b7" class="bulleted-list"><li style="list-style-type:disc">Control the number of allocations on the heap as possible.</li></ul><ul id="54e77582-20a4-4d7d-914e-185f93af66a1" class="bulleted-list"><li style="list-style-type:disc">Weak/Soft References, sort of like setting priorities for the variables on the heap. So if memory runs out, which object should GC start deleting first? </li></ul><figure id="31cac9b1-055b-4cb5-8ed1-305b6e66f014"><a href="https://www.baeldung.com/java-reference-types" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Strong, Weak, Soft, and Phantom References in Java | Baeldung</div><div class="bookmark-description">A quick and practical overview of all reference types in Java.</div></div><div class="bookmark-href"><img src="https://www.baeldung.com/wp-content/themes/baeldung/favicon/android-chrome-192x192.png" class="icon bookmark-icon"/>https://www.baeldung.com/java-reference-types</div></div><img src="https://www.baeldung.com/wp-content/uploads/2021/09/Java-8-Featured.png" class="bookmark-image"/></a></figure><ul id="820c28f1-2851-45f6-ab2b-6e8a16631388" class="bulleted-list"><li style="list-style-type:disc">Multiple smaller processes are better than a large process.</li></ul><ul id="29bfe101-0615-468b-b6fc-9a2aee3c6365" class="bulleted-list"><li style="list-style-type:disc">Garbage collection algorithms</li></ul><p id="8436fad8-20e5-4a6f-864f-b548d2c1b8bc" class="">
+</p><h2 id="8c9574e4-f808-47f1-9460-9dafc293ba27" class="">Disk Latency</h2><p id="3af4037c-5855-4c84-95e2-d5b85c74ed42" class="">All systems one way or another disk access.</p><figure id="edf56f68-540c-4ed3-be38-075ba7beed0c" class="image"><a href="Serial%20Request%20fd1ad98cc30346ada407ca6ae4f8b719/Untitled%202.png"><img style="width:768px" src="Serial%20Request%20fd1ad98cc30346ada407ca6ae4f8b719/Untitled%202.png"/></a></figure><h3 id="0dc3756d-7c96-42f2-85c7-af9c7e847236" class="">Minimizing Disk Latency</h3><ul id="b488ae3c-b17d-4a1f-bce2-4bdff468ef28" class="bulleted-list"><li style="list-style-type:disc">Logging<ul id="c81fd99f-285c-4040-941d-39e906e74bfc" class="bulleted-list"><li style="list-style-type:circle">Logging are essentially append-only database. It’s a sequential write operation, so that’s faster.</li></ul><ul id="df58683e-39e9-454e-bb9c-fd214a67ebd1" class="bulleted-list"><li style="list-style-type:circle">Batching log messages are better<ul id="57b8cd7d-1057-47cf-ac48-29dcd3e44495" class="bulleted-list"><li style="list-style-type:square">If we are doing a computation followed by a log, then we proceed to do it 4 times. There are chances for context switching. So if there is a way to group or batch the logs together, then it’s a better approach.</li></ul></li></ul></li></ul><ul id="f6d439b9-bc22-48fb-a5a3-ad7efc7c49f0" class="bulleted-list"><li style="list-style-type:disc">Web Content Caching</li></ul><ul id="9ab8bcbc-f3dd-46e0-aca6-b900788431fe" class="bulleted-list"><li style="list-style-type:disc">Page cache, Zero copy</li></ul><ul id="caa3c322-9af5-4f1f-a9be-8cf7f5ddac86" class="bulleted-list"><li style="list-style-type:disc">DB Disk Access<ul id="89e22695-eb0d-4e7e-b3af-6d2906a1bac8" class="bulleted-list"><li style="list-style-type:circle">add a cache in front of the database</li></ul><ul id="9e2f242d-73bb-44a6-a071-a5a614c43705" class="bulleted-list"><li style="list-style-type:circle">Schema Optimization<ul id="a7bc29ae-6cd4-48bb-9539-e35f8e634a31" class="bulleted-list"><li style="list-style-type:square">Denormalisation. Why?? If your Finite Buffer Memory of the DB is large, you can denormalise the data opposed to normalised data.</li></ul><ul id="07e15c73-2289-4057-9775-2df9a5bfb24d" class="bulleted-list"><li style="list-style-type:square">Most database related optimisations can be improved by adding indexes. </li></ul></li></ul><ul id="1c585bf0-5577-4d6b-b057-797794292906" class="bulleted-list"><li style="list-style-type:circle">Use SSD for disk IO expensive db.</li></ul><ul id="83fe412b-fc63-45c5-80be-1fac6a49d856" class="bulleted-list"><li style="list-style-type:circle">Use higher IOPS for random accesses. </li></ul></li></ul><p id="e365974c-f329-4cfc-ac91-8f38a1b3eaca" class="">
+</p><h2 id="cd84b2f1-558e-43b2-9d11-d4a4a90bb7a9" class="">CPU Latency</h2><p id="64008345-11df-453b-b61f-754daccfb39a" class="">Causes are inefficient algorithms and context switching. Inefficent algorithms can be improved by writing better code.</p><p id="ccf7ccce-5e3a-445b-be63-885a68c012ee" class="">Context switching is not so straightforward. </p><figure id="248061d4-bfa2-4d51-996f-9a765693369b" class="image"><a href="Serial%20Request%20fd1ad98cc30346ada407ca6ae4f8b719/Untitled%203.png"><img style="width:720px" src="Serial%20Request%20fd1ad98cc30346ada407ca6ae4f8b719/Untitled%203.png"/></a></figure><p id="816a5110-3edb-42f7-a514-520195be2b62" class="">So how did the context switch happen?? </p><ul id="c6e57d17-5792-4af9-a400-414f87964fe4" class="bulleted-list"><li style="list-style-type:disc">It can happen if the process is waiting, ie it’s doing some IO.</li></ul><ul id="ec57c528-c3a0-4997-a404-246159d0c4e2" class="bulleted-list"><li style="list-style-type:disc">It can also happen if the time slice for the process is expired. </li></ul><h3 id="4676dd94-8242-4810-b66e-5ccfc4455984" class="">Minimizing CPU Latency (Improving context switching)</h3><ul id="1641f2db-ec9f-439f-8f1a-27da18c93539" class="bulleted-list"><li style="list-style-type:disc">Use batch/async IO where ever possible<ul id="115d993e-5191-4afb-bc1f-1a51759a3b58" class="bulleted-list"><li style="list-style-type:circle">Combine writes or reads together to avoid context switching as possible.</li></ul><ul id="39c7bd4c-3527-4f13-86f3-0ef64e7183db" class="bulleted-list"><li style="list-style-type:circle">eg: we log in our application to have a record of various states of our application. When you log, you are performing an IO operation. Let assume this can cause a context switching. So it’s better to batch these together. You can move the logger to a separate thread and let that thread handle the logging operation.</li></ul></li></ul><ul id="f7a04159-8bfb-4315-a4bf-e218224438c1" class="bulleted-list"><li style="list-style-type:disc">Single threaded model<ul id="416c9f96-2df9-441f-aae1-3fca0ed5e829" class="bulleted-list"><li style="list-style-type:circle">they are used in v8 engine, nodejs, voltdb, nginx </li></ul><ul id="5b7dbd3a-0458-4ffd-b63f-e46769421ef7" class="bulleted-list"><li style="list-style-type:circle">IO operations are delegated to separate async IO threads. </li></ul></li></ul><ul id="1f8270b8-1ac4-4e7f-8b0f-fb4b8b610f05" class="bulleted-list"><li style="list-style-type:disc">Thread Pool Size<ul id="9100536b-7f47-4b28-b41c-44fe44c1b0a2" class="bulleted-list"><li style="list-style-type:circle">We should not have a large thread pool.</li></ul><ul id="4b270662-bd1c-46d3-9814-62937745de64" class="bulleted-list"><li style="list-style-type:circle">Let’s say we have a two core machine, and the thread pool is using 100 threads, these threads most probably won’t even get time to run on these core. 100 : 2 </li></ul></li></ul><ul id="5f11bce2-52bc-4ecd-92b8-afefb540b67f" class="bulleted-list"><li style="list-style-type:disc">Multi-process in virtual env</li></ul><p id="94f3006c-f14a-4633-af76-faafaebf4aac" class="">
+</p><p id="f5072760-7e17-4ffc-8fd3-3376a2a9076c" class="">
+</p><h2 id="21d7d54c-eab3-45c9-a04e-eb2c1f71686a" class="">Latency Costs</h2><figure id="9fdecc09-49df-4740-add9-29955afa4018" class="image" style="text-align:left"><a href="Serial%20Request%20fd1ad98cc30346ada407ca6ae4f8b719/Untitled%204.png"><img style="width:816px" src="Serial%20Request%20fd1ad98cc30346ada407ca6ae4f8b719/Untitled%204.png"/></a></figure><p id="71fa8c59-0a0a-4931-9ed2-57b24e72a337" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

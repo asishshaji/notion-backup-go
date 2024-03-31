@@ -1,0 +1,810 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Recursion</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="4f44b74d-e7de-4c95-abdc-d8bf6f3dbfee" class="page mono"><header><h1 class="page-title">Recursion</h1><p class="page-description"></p></header><div class="page-body"><figure id="b69a1597-c5de-4e47-8b3d-ded5eff6cca9"><a href="https://deriveit.org/coding/recursion/how-to-use-recursion-215" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">How to use Recursion - DeriveIt</div><div class="bookmark-description">Recursion is a method that you can use to solve literally every coding problem. Recursion is just when you have an equation with the same thing on both sides. Here are a couple examples of recursion: You can literally solve any problem if you find a recursion. Here we&#x27;ll go over an example, and you&#x27;ll learn about the 3 steps you should use to find any recursion. -- Given the root node of a binary tree root , return the number of nodes in the tree. Example: root, 220 s2 Step 1 is to find a recursive equation. In this problem, we want to find a recursive equation for the number of nodes in a tree, which we&#x27;ll call numNodes(root) . This equation should have numNodes on both sides of it, so it should look something like this: numNodes(root) = something with numNodes(?) When you&#x27;re coming up with any recursion, you should think about nodes that are close to the root node that you&#x27;re given. In this problem, this means we should consider the nodes root.left and root.right. Here&#x27;s a visual of this: 0, 250 From this image, you can see that the number of nodes in the tree is just equal to the number of nodes in the left tree, plus the number of nodes in the right tree, plus the 1 root node. This is our recursive equation, since it has numNodes on both sides of it. You should typically write the recursion in your code editor and tell it to your interviewer. -1,60 s3 Step 2 is to find when the recursive equation stops working. This is called the &quot;base case&quot;. The recursive equation works on most nodes, but it breaks if we call a null node, numNodes(None) . This is because the recursion uses None.left and None.right which throws an error. We can&#x27;t use the recursion to find numNodes(None) , so we need to manually set what this value is equal to. The number of nodes at a null node is just 0. numNodes(None) = 0 s4 Step 3 is to code up the solution. You should write a function that always returns what numNodes is equal to. That way it&#x27;s guaranteed to be correct. numNodes is always equal to the recursion, unless we&#x27;re in the base case in which case it&#x27;s equal to 0. Here&#x27;s the full code: def numNodes(root): base case if root is None: return 0 recursion return 1 + numNodes(root.left) + numNodes(root.right) tc . We visit every node in the tree, where n is the total number of nodes. sc . For now, you don&#x27;t need to know where this comes from - we&#x27;ll go over the full details in the next lesson &quot;Call Stack&quot;. Just know the computer needs some memory to keep track of the function calls it&#x27;s making.</div></div><div class="bookmark-href"><img src="https://deriveit.org/plus_icon.svg" class="icon bookmark-icon"/>https://deriveit.org/coding/recursion/how-to-use-recursion-215</div></div><img src="https://d2cbplr7otmyd7.cloudfront.net/user/9/file/7bc65da0-c5bf-4e99-b667-2e225b1d2edd" class="bookmark-image"/></a></figure><figure id="4c0ceab5-e84a-4f8e-a361-aec91d6b880d"><a href="https://medium.com/@daniel.oliver.king/getting-started-with-recursion-f89f57c5b60e" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title"></div></div><div class="bookmark-href">https://medium.com/@daniel.oliver.king/getting-started-with-recursion-f89f57c5b60e</div></div></a></figure><figure id="eb18c554-67e9-4d90-8a39-5d172f1a9804"><a href="https://medium.com/@daniel.oliver.king/learning-to-think-with-recursion-part-2-887bd4c41274#.miz09qwck" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title"></div></div><div class="bookmark-href">https://medium.com/@daniel.oliver.king/learning-to-think-with-recursion-part-2-887bd4c41274#.miz09qwck</div></div></a></figure><figure id="e1ac260a-d09f-4f29-a68b-a5f7eaba248c"><a href="https://web.stanford.edu/class/archive/cs/cs106b/cs106b.1126/lectures/08/Slides08.pdf" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title"></div></div><div class="bookmark-href">https://web.stanford.edu/class/archive/cs/cs106b/cs106b.1126/lectures/08/Slides08.pdf</div></div></a></figure><figure id="9b4f64cc-2bcd-4375-b54d-5209ded31046"><a href="https://www.youtube.com/watch?v=gl3emqCuueQ" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Lecture 8 | Programming Abstractions (Stanford)</div><div class="bookmark-description">Lecture 8 by Julie Zelenski for the Programming Abstractions Course (CS106B) in the Stanford Computer Science Department. 
+
+Julie talks about solving problems recursively. She covers functional recursion with the simple example of writing an exponential function using recursion. From the simple program performing as an exponential function Julie continues to show a more efficient recursion code. The next example she covers is that of binary search and how recursion is used in this instance. 
+
+Complete Playlist for the Course:
+http://www.youtube.com/view_play_list?p=FE6E58F856038C69
+
+CS 106B Course Website:
+http://cs106b.stanford.edu
+
+Stanford Center for Professional Development:
+http://scpd.stanford.edu/
+
+Stanford University:
+http://www.stanford.edu/
+
+Stanford University Channel on YouTube:
+http://www.youtube.com/stanforduniversity/</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/703706a9/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=gl3emqCuueQ</div></div><img src="https://i.ytimg.com/vi/gl3emqCuueQ/hqdefault.jpg" class="bookmark-image"/></a></figure><figure id="d5366431-ce77-43c1-ae01-68bc6e323c6b"><a href="https://www.youtube.com/watch?v=NA2Oj9xqaZQ" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">How to Code Combinations Using Recursion</div><div class="bookmark-description">In this video, we provide a deep dive into what combinations are and how to determine all combinations using recursion.
+
+Table of Contents:
+0:18 Learning Objectives
+0:38 Combinatorics Overview
+1:18 What is a Combination? 
+3:28 Diagramming Combinations Using a Tree
+6:57 Javascript Implementation Using Recursion
+20:04 Time &amp; Space Complexity
+21:39 Recap 
+
+Need a review on recursion? Check out our other videos: 
+* Introduction to recursion: http://bit.ly/intro-to-recursion 
+* Advanced recursion with Fibonacci &amp; Arrays: http://bit.ly/advanced-recursion 
+* Permutations: http://bit.ly/youtube-permutations
+
+To access hundreds of real coding challenges on algorithms, React, SQL, and more along with nearly one million solutions, visit https://coderbyte.com/.
+
+Stay up to date with interview prep tips and hiring trends at https://medium.com/coderbyte
+
+Let us know how we can improve our videos here: http://bit.ly/youtube-algos-feedback</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/703706a9/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=NA2Oj9xqaZQ</div></div><img src="https://i.ytimg.com/vi/NA2Oj9xqaZQ/maxresdefault.jpg" class="bookmark-image"/></a></figure><hr id="79a6e458-2884-4c72-bf7c-e7af4e4e4c89"/><p id="3f51d788-4bee-416d-b743-82cc4cd1ff30" class="">
+</p><p id="85efdbe1-05d3-470c-b6f6-9693d28a5de4" class="">Defining a problem in terms of itself</p><ul id="1634d5a4-b8f1-45c7-af93-13fdc6ddb48e" class="bulleted-list"><li style="list-style-type:disc">Base case</li></ul><ul id="7696d322-120e-4384-8ae5-19c9c776f09b" class="bulleted-list"><li style="list-style-type:disc">Work towards base case - make the problem smaller</li></ul><ul id="4aac686c-0908-4682-aa7e-c70f62a699a4" class="bulleted-list"><li style="list-style-type:disc">Recursive call</li></ul><p id="f259f738-0fec-4282-939a-61880c043f39" class="">
+</p><p id="adc613b8-0c46-4c75-a915-880c427a11ee" class="">The base case is far easier to identify, do not worry about it, it will all make sense once you write the recursive calls.</p><h2 id="a4740ac8-6a00-4cad-8be1-403fd8ab821e" class="">Golden rules for solving recursive calls</h2><ul id="983817f5-b992-47b4-a6db-15648c8ec868" class="bulleted-list"><li style="list-style-type:disc">Break the problem into a problem that is one step simpler, with emphasis on the one-step simpler</li></ul><ul id="2238058b-ae6c-449b-81ca-71b81c813b22" class="bulleted-list"><li style="list-style-type:disc">Assume that your function works</li></ul><ul id="b232431a-26f4-4403-9c8e-84edb2bdecb3" class="bulleted-list"><li style="list-style-type:disc">Ask yourself: since I know how to solve the simpler problem, how would I solve the more complex problem?</li></ul><p id="b1563561-500a-4748-9224-80afce52aad0" class="">
+</p><h2 id="c586bd72-001e-4fdb-80bc-7ee913eb3f16" class="">Write a function that reverses a string.</h2><ul id="65a22f21-bcf3-44c7-9139-305be93b2230" class="bulleted-list"><li style="list-style-type:disc">One step simpler <ul id="8353720b-a331-4e74-9f1d-287de036ee23" class="bulleted-list"><li style="list-style-type:circle">reversing a string with one character shorter</li></ul></li></ul><ul id="ac709436-7b51-4a90-ad79-10d0716c21c5" class="bulleted-list"><li style="list-style-type:disc">Assume the function works and can reverse a string that is one letter shorter than the original string. </li></ul><ul id="5c70213e-0c11-4bd4-a8d9-ffdb85d536aa" class="bulleted-list"><li style="list-style-type:disc">first_char + func(string without first_char)</li></ul><p id="bf43d281-77a2-43e1-b3d5-8106c0be498c" class="">
+</p><p id="c82c908a-f719-48a6-b1d6-5080695edbcd" class="">Don&#x27;t think how you would break the problem all the way down to the base case. Think about one step simpler to the actual problem,.</p><p id="7c890577-cc1a-48f1-8c42-8a6194cabb2b" class="">
+</p><p id="face0fc8-3ae4-485f-8cee-81f0b77b5662" class="">Recursion implicitly uses the stack, hence all-recursive approaches can be rewritten using a stack.</p><p id="0ebe4f0a-08b0-41d0-8d6e-1aece8199cc9" class=""><em><strong>Combination, Permutation, trees = Recursion</strong></em></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="77b6ac14-b3f0-43d1-8767-d77d4daece44" class="code"><code class="language-Python">def get_permutations(str):
+    if len(str) &lt;= 1:
+        return [str]
+    first = str[0]
+    last = str[1:]
+
+    rest_permutations = get_permutations(last)  # I assume that this function returns
+    # me the list of permutations
+
+    permutations = []
+
+    for perm in rest_permutations:
+        for i in range(len(perm) + 1):
+            temp = perm[:i] + first + perm[i:]
+            permutations.append(temp)
+
+    return permutations
+
+
+input_string = &quot;abc&quot;
+permutations = get_permutations(input_string)
+print(permutations)</code></pre><p id="ca190598-9ec9-4856-bec0-9d8b02fe5cac" class="">
+</p><figure id="2fbd0cbf-addf-4054-a178-116d184c86f2"><a href="https://inventwithpython.com/recursion/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">The Recursive Book of Recursion</div><div class="bookmark-description">Recursion, and recursive algorithms, have a reputation for being intimidating. They&#x27;re seen as an advanced computer science topic often brought up in coding interviews. Moreover, coders often perceive the use of a recursive algorithm as a sophisticated solution that only true programmers can produce. But there&#x27;s nothing magical about recursion. Its fearsome reputation is more a product of poor teaching than of the complexity of recursion itself.</div></div><div class="bookmark-href"><img src="https://inventwithpython.com/favicon.ico" class="icon bookmark-icon"/>https://inventwithpython.com/recursion/</div></div></a></figure><figure id="0b9dafbb-a99e-41c1-98c2-e65882340898"><a href="https://www.youtube.com/watch?si=hTP07XNhJi0eMFox&amp;v=IJDJ0kBx2LM&amp;feature=youtu.be" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Recursion in Programming - Full Course</div><div class="bookmark-description">Recursion is a powerful technique that helps us bridge the gap between complex problems being solved with elegant code. Within this course, we will break down what recursion is, why you would and wouldn’t want to use it and look at a variety of examples for how it can be used.
+
+We’ll break down recursion with all sorts of data-structures, animations, debugging and call-stack analysis to get a deeper understanding to these principles.
+
+The code is written in Java, but the principles are agnostic to any language. 
+
+✏️ This course was developed by The Simple Engineer. Find him online:
+🔗 https://youtube.com/TheSimpleEngineer
+🔗 https://www.patreon.com/thesimpleengineer
+
+⭐️ Course Contents ⭐️
+⌨️ (0:00:00) Introduction
+⌨️ (0:00:42) What Is Recursion?
+⌨️ (0:00:50) Explaining Recursion via ATM Analogy
+⌨️ (0:04:56) Explaining Recursion via Essay Revision Analogy
+⌨️ (0:06:22) Summarizing What Recursion Is
+⌨️ (0:07:15) Why &amp; Why Not Recursion
+⌨️ (0:10:57) Understanding The Call Stack
+⌨️ (0:11:32) Call Stack Analogy
+⌨️ (0:16:35) Recursion With Strings Introduction
+⌨️ (0:16:50) String Reversal Explanation
+⌨️ (0:20:47) String Reversal Call Stack Animation
+⌨️ (0:22:59) Palindrome Explanation
+⌨️ (0:25:46) Palindrome Call Stack Animation
+⌨️ (0:27:46) Recursion With Numbers
+⌨️ (0:28:02) Decimal To Binary Explanation
+⌨️ (0:31:12) Decimal To Binary Code &amp; Debug
+⌨️ (0:34:33) Sum of Natural Numbers Explanation
+⌨️ (0:36:17) Sum of Natural Numbers Code &amp; Debug
+⌨️ (0:38:51) Divide &amp; Conquer Algorithms
+⌨️ (0:39:27) Binary Search Animation &amp; Explanation
+⌨️ (0:43:50) Fibonacci Explanation
+⌨️ (0:45:54) Fibonacci Animation
+⌨️ (0:49:07) Merge Sort Explanation &amp; Animation
+⌨️ (0:53:21) Merge Sort Code &amp; Debug
+⌨️ (1:09:36) Linked Lists
+⌨️ (1:09:49) Linked List Reversal Animation
+⌨️ (1:14:48) Linked List Code &amp; Debug
+⌨️ (1:19:52) Merge Two Sorted Linked Lists Animation
+⌨️ (1:25:53) Merge Two Sorted Linked Lists Code &amp; Debug
+⌨️ (1:29:02) Trees
+⌨️ (1:29:14) Insert Value Into Binary Search Tree Animation
+⌨️ (1:31:32) Insert Value Into Binary Search Tree Code Walkthrough
+⌨️ (1:33:43) Insert Value Into Binary Search Tree Call Stack Animation
+⌨️ (1:35:11) Print All Leaf Nodes Explanation
+⌨️ (1:37:02) Print All Leaf Nodes Code &amp; Debug
+⌨️ (1:41:09) Graphs
+⌨️ (1:41:21) Depth-First Search Animation
+⌨️ (1:42:58) Depth-First Search Code Walkthrough
+⌨️ (1:45:38) Recursion Optimizations
+⌨️ (1:45:44) Memoization &amp; Caching
+⌨️ (1:47:59) Tail-Call Recursion
+⌨️ (1:50:48) Conclusion
+
+🎉 Thanks to our Champion and Sponsor supporters:
+👾 Wong Voon jinq
+👾 hexploitation
+👾 Katia Moran
+👾 BlckPhantom
+👾 Nick Raker
+👾 Otis Morgan
+👾 DeezMaster
+👾 Treehouse
+👾 AppWrite
+
+--
+
+Learn to code for free and get a developer job: https://www.freecodecamp.org
+
+Read hundreds of articles on programming: https://freecodecamp.org/news</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/87423d78/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?si=hTP07XNhJi0eMFox&amp;v=IJDJ0kBx2LM&amp;feature=youtu.be</div></div><img src="https://i.ytimg.com/vi/IJDJ0kBx2LM/maxresdefault.jpg" class="bookmark-image"/></a></figure><p id="c32263cb-b18f-4039-8f5f-b4e5c5319cc3" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
