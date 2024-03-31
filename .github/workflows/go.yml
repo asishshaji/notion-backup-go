@@ -22,4 +22,11 @@ jobs:
         go-version: '1.21.6'
 
     - name: Build
-      run: go build -v ./...
+      run: go build .
+    - name: Run
+      run: ./notion-backup-go
+      env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_FILE_TOKEN: ${{ secrets.NOTION_FILE_TOKEN }}
+          NOTION_SPACE_ID: ${{ secrets.NOTION_SPACE_ID }}
+          NODE_OPTIONS: "--max-http-header-size 15000"
