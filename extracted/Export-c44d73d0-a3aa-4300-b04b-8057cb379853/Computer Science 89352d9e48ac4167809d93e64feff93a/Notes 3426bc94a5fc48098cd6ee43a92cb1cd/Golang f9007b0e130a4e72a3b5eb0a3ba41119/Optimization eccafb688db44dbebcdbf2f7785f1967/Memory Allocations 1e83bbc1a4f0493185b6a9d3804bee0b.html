@@ -1,0 +1,753 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Memory Allocations</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="1e83bbc1-a4f0-4931-85b6-a9d3804bee0b" class="page mono"><header><h1 class="page-title">Memory Allocations</h1><p class="page-description"></p></header><div class="page-body"><p id="35e54558-893b-4be9-8f9b-0a29e2609f99" class="">Memory allocation operations will consume some CPU resources, more the allocation more the CPU consumption. In programming we should try to avoid unnecessary memory allocations to get better code execution performances.</p><p id="e4600483-1562-4235-bdb4-de2f370581ae" class="">
+</p><p id="29695fdc-038b-4a29-9544-84b6c8d06bbe" class="">Go runtime might find a memory block on the stack or on the heap. More the memory blocks on the heap, the more the pressure on the garbage collection.</p><p id="cf4734d3-66ad-4752-b2d9-fa3c95c45311" class="">Allocating memory on the stack also has costs, but they are mosly cheaper</p><p id="ed89136d-e1a7-478f-b962-d277cd849433" class="">
+</p><p id="29b3840d-a997-4d9f-ba5c-153382466cff" class="">The following operations will make at least one allocation</p><ul id="794c11db-8892-4434-a9cc-1670c849a777" class="bulleted-list"><li style="list-style-type:disc">declaring variables</li></ul><ul id="65fb38ad-5095-4029-b214-150b3ddff643" class="bulleted-list"><li style="list-style-type:disc">calling new function</li></ul><ul id="33ab9268-b208-463a-9bce-ada01cd30b65" class="bulleted-list"><li style="list-style-type:disc">calling make function</li></ul><ul id="6c0bbf1e-f41e-4407-8c23-68d01a5cb6da" class="bulleted-list"><li style="list-style-type:disc">modifying slices and maps with composite literals</li></ul><ul id="473ecd90-612b-4dc7-9478-e1b04f5ba808" class="bulleted-list"><li style="list-style-type:disc">converting int to strings</li></ul><ul id="986be959-cc07-49fd-825c-bc374a71e611" class="bulleted-list"><li style="list-style-type:disc">concatenate strings by using +</li></ul><ul id="709399d3-cee5-41d9-b17b-b308a8d0e10c" class="bulleted-list"><li style="list-style-type:disc">converting strings to byte and vice versa</li></ul><ul id="3f61988d-779a-48f3-a6de-f9ab5a0f9f96" class="bulleted-list"><li style="list-style-type:disc">strings to rune slices</li></ul><ul id="2273519a-903f-4dfb-bff3-e20e29daa37a" class="bulleted-list"><li style="list-style-type:disc">box values into interfaces (converting non-interface values into interfaces)</li></ul><ul id="5e861b5b-decd-4c31-8a8d-1e04f4205438" class="bulleted-list"><li style="list-style-type:disc">append elements to a slice and the capacity of slice is not large enough</li></ul><ul id="f92a742e-e09d-4f99-a0df-dc19a65af851" class="bulleted-list"><li style="list-style-type:disc">put new entries into map and the underlying array of the map is not large enough to store the new entries.</li></ul><p id="1e0b24eb-7bf0-4af3-a627-9a6364530be5" class="">In most of the cases, the Go compiler makes some special code optimizations so that some of the above listed operations will not make allocations.</p><p id="882d56db-00a7-48f2-8d33-f256ad42494f" class="">
+</p><p id="c33b5ca1-dcf5-4f49-8bca-e6530f3d4062" class="">
+</p><h2 id="f111588d-3a7d-4e78-822a-39a8cb83ec09" class="">Memory wasting caused by allocated memory blocks larger than needed</h2><p id="6e1042c3-73af-4623-8441-88215835a49e" class=""><a href="https://github.com/golang/go/blob/master/src/runtime/sizeclasses.go">Some memory block size</a> classes are predefined. 8,16,24,32,48,64,…..</p><p id="7118f71f-163f-4cf6-a77c-f78ee81ce578" class="">For memory blocks larger than 32,768 bytes, each of them is always composed of multiple memory pages. The memory page size used by the run time is 8192 bytes</p><p id="9c46c8cb-1bd9-4490-a360-bfe0e275a987" class="">So, </p><ul id="149dcd58-bef7-4c5e-9c75-f05f1444bc47" class="bulleted-list"><li style="list-style-type:disc">to allocate a heap memory block the value whose size is in the range [33, 48], the size of block is 48. 15 bytes is wasted if the value size is 33.<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="675d33b8-7f31-4dc0-b2b2-afac7c0209a3" class="code"><code class="language-Go">var t *[5]int64
+
+func Benchmark_f(b *testing.B) {
+	for i := 0; i &lt; b.N; i++ {
+		t = &amp;[5]int64{} // 5 * 8 = 40
+	}
+}
+
+Benchmark_f-8   	49204881	        23.77 ns/op	      48 B/op	       1 allocs/op</code></pre><p id="d84c37cd-de59-4eff-912d-7d290e3a3acf" class="">The value is 48.</p><p id="a6184326-95b9-4cd0-83ca-5aa2ebbee790" class="">
+</p></li></ul><ul id="a2447a35-f26e-4566-a811-1f60a9b58713" class="bulleted-list"><li style="list-style-type:disc">For memory blocks larger than 32,768 bytes, each of them is always composed of multiple memory pages. The heap in Golang is composed of a block of memory, represented as <code>heapArena</code> in runtime, each block is 64MB in size and consists of many pages, with one page occupying 8KB of space (at 64bit).</li></ul><ul id="b7add30d-9922-449e-8de7-1cf39d3ea71a" class="bulleted-list"><li style="list-style-type:disc">to create a byte slice with 32,769 elements on heap. So about 8191 bytes will be wasted here.<ul id="122e3cf5-1884-4e31-bc97-9cc5cacb3d81" class="bulleted-list"><li style="list-style-type:circle">32, 768 = 8192 * 4</li></ul><ul id="ee4772e0-c89e-494f-b344-8a413a78bffc" class="bulleted-list"><li style="list-style-type:circle">so 32,768 bytes can be stored</li></ul><ul id="f22b6152-219d-4ccc-bbd3-011414c52148" class="bulleted-list"><li style="list-style-type:circle">here we need one more, so another 8182 bytes block is needed, and thus the wastage</li></ul></li></ul><p id="d53e71dd-6b07-4cc4-9c8e-6cd4b5fe00ca" class="">
+</p><h2 id="3b53a91c-9801-400d-a454-3a93d06b66f2" class="">Avoid unnecessary allocations by allocating enough in advance</h2><p id="ca2955bb-010d-4356-bdb5-9c23112ae339" class="">Consider a situation in which we are appending to a slice. If the append function needs to called multiple times, it’s best to ensure that the base slice has a large enough capacity, to avoid several unnecessary allocations in the whole pushing process.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3171b1d4-fd16-427d-8bf3-ee7a266fa378" class="code"><code class="language-Go">func MergeWithOneLoop(data ...[]int) []int {
+	var r []int
+	for _, s := range data {
+		r = append(r, s...)
+	}
+	return r
+}
+
+func MergeWithTwoLoops(data ...[]int) []int {
+	n := 0
+	for _, s := range data {
+		n += len(s)
+	}
+
+	r := make([]int, 0, n)
+	for _, s := range data {
+		r = append(r, s...)
+	}
+	return r
+}
+
+Benchmark_MergeWithOneLoop-8    	 7739151	       152.6 ns/op	     352 B/op	       4 allocs/op
+Benchmark_MergeWithTwoLoops-8   	18837558	        61.98 ns/op	     176 B/op	       1 allocs/op</code></pre><p id="4c35e44e-538f-45da-bf95-67516af4879f" class="">
+</p><p id="854aa2c2-3675-406d-83ec-3b1b0084f59a" class="">By calculating the size of array before hand we reduced the allocation to 1 allocs/op </p><p id="db326e30-193a-4a2f-a60a-ab6a53e8b5e7" class="">
+</p><h2 id="68a798c0-1c3f-469f-8257-33e5132b944e" class="">Save memory and reduce allocations by combining memory blocks</h2><p id="a9564c90-29fc-4a14-b91d-2f9465fc9830" class="">Sometimes, we could allocate one large memory block to carry many value parts instead of allocating a small memory block for each value part.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="e335be26-2dbd-44dd-a849-9aedbe25aea6" class="code"><code class="language-Go">type Book struct {
+	Title  string
+	Author string
+	Pages  int
+}
+
+func CreateBooksInOneBlock(n int) []*Book {
+	books := make([]Book, n)
+	pBooks := make([]*Book, n)
+	for i := 0; i &lt; n; i++ {
+		pBooks[i] = &amp;books[i]
+	}
+
+	return pBooks
+}
+
+func CreateBooksInMultiple(n int) []*Book {
+	pBooks := make([]*Book, n)
+	for i := 0; i &lt; n; i++ {
+		pBooks[i] = new(Book)
+	}
+	return pBooks
+}
+
+Benchmark_CreateBooksInOneBlock-8   	 1329960	       899.0 ns/op	    4992 B/op	       2 allocs/op
+Benchmark_CreateBooksInMultiple-8   	  307483	      4022 ns/op	    5696 B/op	     101 allocs/op</code></pre><p id="73ada822-79c8-4181-9668-f765dc9c16d4" class="">
+</p><p id="7ade2a75-0c76-4f3e-8bb4-512aac4a7e61" class="">From these results,</p><ul id="a6670d68-ebdd-4ee1-8519-ed527738d03c" class="bulleted-list"><li style="list-style-type:disc">spends much less CPU time<ul id="a644c1e3-7622-4775-854d-7d31ee816207" class="bulleted-list"><li style="list-style-type:circle">Two allocations are better than 101 allocations</li></ul></li></ul><ul id="f615696d-db5c-4cc8-94e8-b883554cf9e2" class="bulleted-list"><li style="list-style-type:disc">consumes a bit less memory<ul id="dec37ae2-37d7-459a-a75f-f471c11ef635" class="bulleted-list"><li style="list-style-type:circle">When the size of a small value doesnt exactly match any memory block classes, then a bit larger memory block than needed will be allocated for the small value, if small value is created individually.</li></ul><ul id="ecf13644-08d0-4aa0-9adb-09a8fb1d9fdb" class="bulleted-list"><li style="list-style-type:circle">The size of Book type is 40 bytes, but 48 is closer, so allocating each book wastes 8 bytes.</li></ul><p id="b1fc3524-1c4e-49e3-b0e2-01fa7a11633d" class="">4992 = <a href="https://github.com/golang/go/blob/master/src/runtime/sizeclasses.go">4096</a> + 896 </p><p id="16c1c19b-07bb-42ba-b9dd-812ffeee4ef4" class="">5696 = 896 + 48 * 100</p></li></ul><p id="afccd0b9-e042-4f02-8322-ec2efb9b137e" class="">
+</p><p id="b63ededf-19c1-47c7-9c9a-19c05066131d" class="">The second part may not always make sense, if the value if N = 820, it needsto allocate a memory block of min size 32,800(820 * 40), which is larger than the largest small memory block 32,768. So the memory block needs on more memory page. 8192 * 5 = 40,960</p><p id="115a653c-6836-4c6c-87c8-4ece1e72aa1c" class="">40,960 - 32,800 = 8160 bytes are wasted.</p><p id="9dbd0108-e0f6-4843-b38c-595bcfd129a4" class="">Despite it sometimes wastes more memory, generally speaking, allocating many small value parts on one large memory block is comparatively better than allocating each of them on a separated memory block. This is especially true when the life times of the small value parts are almost the same, in which case allocating many small value parts on one large memory block could often effectively avoid memory fragmentation.</p><p id="2d8fe509-2fb2-47a9-9758-eb61a94a100b" class="">
+</p><p id="b772e626-2f94-4013-b9b0-fef75a98e5ff" class=""><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong><em><strong>Use value cache pool to avoid some allocations.</strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></strong></em></p><p id="04f936cc-fb5c-4cc8-87c2-0f39e57ac80d" class="">
+</p><p id="8863adfb-24d8-469e-87aa-2caa21f512a2" class="">
+</p><p id="5b069640-6bbf-49de-a455-dea4a178f364" class="">
+</p><p id="b03317f5-e2b8-46d1-9647-e2dab40c410a" class="">
+</p><p id="41b5a5db-4f8c-483a-99c7-ac08354d4daa" class="">
+</p><p id="11b0e6e9-7178-4151-9b3d-8e27a81a7dc3" class="">
+</p><p id="567b928a-ff5b-470d-88f9-05c99009e3c7" class="">
+</p><p id="ef08d851-31b8-44c9-ac34-7c55c1e99b1f" class="">
+</p><p id="b1715d0b-5ddf-41c8-bbf0-c910d5ae22d7" class="">
+</p><p id="dd2135d3-6241-441f-81e6-e0580d689e91" class="">
+</p><p id="d5c5ab06-0e4a-49ab-9a4d-eeb4c2106b0c" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

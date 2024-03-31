@@ -1,0 +1,3 @@
+# Concurrency Control
+
+[When it’s raining, we assume that it’s gonna rain and you take an umbrella. The pressimistic approach is to take the umbrella. Optimistic approach is to assume that it’s not going to rain. I don’t care if it rains. I’ll get an umbrella somehow. I’ll deal with it when it happens. ](../System%20Design%20and%20Architecture%2006b337409f31496590be5398016faab0/Performance%20f021e38997ed4ecd8e8a971da093db09/Parallel%20Request%207bd9d477ce644b86973fd832fd5bc6f0.md)

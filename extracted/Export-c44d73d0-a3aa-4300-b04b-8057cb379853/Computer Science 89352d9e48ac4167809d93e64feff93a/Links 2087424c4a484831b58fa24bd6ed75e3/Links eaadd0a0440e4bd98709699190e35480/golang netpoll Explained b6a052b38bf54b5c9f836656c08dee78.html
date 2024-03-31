@@ -1,0 +1,731 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>golang netpoll Explained</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="b6a052b3-8bf5-4b5c-9f83-6656c08dee78" class="page sans"><header><h1 class="page-title">golang netpoll Explained</h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-url"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesUrl"><path d="M7.69922 10.8945L8.73828 9.84863C7.91797 9.77344 7.34375 9.51367 6.91992 9.08984C5.76465 7.93457 5.76465 6.29395 6.91309 5.14551L9.18262 2.87598C10.3379 1.7207 11.9717 1.7207 13.127 2.87598C14.2891 4.04492 14.2822 5.67188 13.1338 6.82031L11.958 7.99609C12.1768 8.49512 12.2451 9.10352 12.1289 9.62988L14.0908 7.6748C15.7725 6 15.7793 3.62109 14.084 1.92578C12.3887 0.223633 10.0098 0.237305 8.33496 1.91211L5.95605 4.29785C4.28125 5.97266 4.26758 8.35156 5.96289 10.0469C6.36621 10.4434 6.90625 10.7441 7.69922 10.8945ZM8.30078 5.13184L7.26855 6.17773C8.08203 6.25293 8.66309 6.51953 9.08008 6.93652C10.2422 8.09863 10.2422 9.73242 9.08691 10.8809L6.81738 13.1504C5.66211 14.3057 4.03516 14.3057 2.87305 13.1504C1.71094 11.9883 1.71777 10.3545 2.87305 9.20605L4.04199 8.03027C3.83008 7.53125 3.75488 6.92969 3.87109 6.39648L1.91602 8.35156C0.234375 10.0264 0.227539 12.4121 1.92285 14.1074C3.61816 15.8027 5.99707 15.7891 7.67188 14.1143L10.0439 11.7354C11.7256 10.0537 11.7324 7.6748 10.0371 5.98633C9.64062 5.58301 9.10059 5.28223 8.30078 5.13184Z"></path></svg></span>URL</th><td><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/" class="url-value">https://www.sobyte.net/post/2021-09/golang-netpoll/</a></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesMultipleSelect"><path d="M1.91602 4.83789C2.44238 4.83789 2.87305 4.40723 2.87305 3.87402C2.87305 3.34766 2.44238 2.91699 1.91602 2.91699C1.38281 2.91699 0.952148 3.34766 0.952148 3.87402C0.952148 4.40723 1.38281 4.83789 1.91602 4.83789ZM5.1084 4.52344H14.3984C14.7607 4.52344 15.0479 4.23633 15.0479 3.87402C15.0479 3.51172 14.7607 3.22461 14.3984 3.22461H5.1084C4.74609 3.22461 4.45898 3.51172 4.45898 3.87402C4.45898 4.23633 4.74609 4.52344 5.1084 4.52344ZM1.91602 9.03516C2.44238 9.03516 2.87305 8.60449 2.87305 8.07129C2.87305 7.54492 2.44238 7.11426 1.91602 7.11426C1.38281 7.11426 0.952148 7.54492 0.952148 8.07129C0.952148 8.60449 1.38281 9.03516 1.91602 9.03516ZM5.1084 8.7207H14.3984C14.7607 8.7207 15.0479 8.43359 15.0479 8.07129C15.0479 7.70898 14.7607 7.42188 14.3984 7.42188H5.1084C4.74609 7.42188 4.45898 7.70898 4.45898 8.07129C4.45898 8.43359 4.74609 8.7207 5.1084 8.7207ZM1.91602 13.2324C2.44238 13.2324 2.87305 12.8018 2.87305 12.2686C2.87305 11.7422 2.44238 11.3115 1.91602 11.3115C1.38281 11.3115 0.952148 11.7422 0.952148 12.2686C0.952148 12.8018 1.38281 13.2324 1.91602 13.2324ZM5.1084 12.918H14.3984C14.7607 12.918 15.0479 12.6309 15.0479 12.2686C15.0479 11.9062 14.7607 11.6191 14.3984 11.6191H5.1084C4.74609 11.6191 4.45898 11.9062 4.45898 12.2686C4.45898 12.6309 4.74609 12.918 5.1084 12.918Z"></path></svg></span>Category</th><td><span class="selected-value select-value-color-blue">Golang</span><span class="selected-value select-value-color-default">Network</span></td></tr></tbody></table></header><div class="page-body"><figure id="06fe10d4-af70-4b62-95a1-7e643b454a54" class="image"><a href="https://www.sobyte.net/android-chrome-192x192.png"><img style="width:250px" src="https://www.sobyte.net/android-chrome-192x192.png"/></a></figure><hr id="31f0c265-5b4c-4f13-a8be-06d3d6b5f0a7"/><p id="6ae58e30-ea89-4e65-88fc-c9ddfc8e2079" class="">Computer io models are distinguished into a variety of, currently the most used is also nio, epoll, select.</p><p id="75e331e1-ae05-4819-a1f3-dcc9b7494381" class="">Combining different scenarios with different io models is the right solution.</p><h2 id="d1777417-1315-4820-a30e-a01c4f659c21" class="">Network io in golang</h2><p id="9fea9554-fa90-4219-9922-7e94b6cf969f" class="">golang is naturally suited for concurrency, why? One is the lightweight concurrency, and the other is the abstraction of complex io, which simplifies the process.</p><p id="705ca1c4-e211-4fa5-962c-f49ff7a40800" class="">For example, if we simply access an http service, a few simple lines of code will do the trick:</p><table id="5bdda0d9-dbee-4829-9b39-663f680d7370" class="simple-table"><tbody><tr id="eb721984-3dad-4c4c-b0b9-764a16475bb6"><td id="Jcg@" class=""><br/><br/><br/><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-0-1"><code>1</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-0-2"><code>2</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-0-3"><code>3</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-0-4"><code>4</code></a></td><td id="IIdg" class=""><br/><br/><br/><code>tr := &amp;recordingTransport{}<br/>client := &amp;Client{Transport: tr}<br/>url := &quot;http://dummy.faketld/&quot;<br/>client.Get(url) // Note: doesn&#x27;t hit network<br/></code></td></tr></tbody></table><p id="e5898e47-555d-448a-b396-107b1d28eb94" class="">So what optimizations does golang make for Io? What about the ability to achieve such a simple switch?</p><h2 id="77126d49-e98d-43ef-aa79-6602662a486b" class="">groutinue Scheduling for io events</h2><p id="de3e0b0b-672e-4ee5-aa06-042a73c73d84" class="">We assume here that you already have some knowledge of groutinue scheduling.</p><p id="afdcb14e-54fe-4cfa-84ed-760f18a0fe5d" class="">We know that in go, each process is bound to a virtual machine, and in the machine, it has a g0 that traverses its own queue locally to get g or gets g from the global queue.</p><figure id="2ed81582-0600-4839-b07e-f0eb600217a3" class="image"><a href="golang%20netpoll%20Explained%20b6a052b38bf54b5c9f836656c08dee78/b6526812bc5647129a9639cb1f734e8e.png"><img style="width:700px" src="golang%20netpoll%20Explained%20b6a052b38bf54b5c9f836656c08dee78/b6526812bc5647129a9639cb1f734e8e.png"/></a></figure><p id="0b42b9f6-cf01-4bb5-842e-736f24393cb4" class="">We also know that when g is running, g hands over execution to g0 for rescheduling, so how does g hand back events to g0 in io events? This is when it comes to our main character today —-netpoll.</p><h2 id="d5ec1bc5-7ab8-43e8-9d06-2ca5eb1b1cf3" class="">netpoll</h2><p id="9fe39e8f-cad9-440f-9d48-f8a6d243cf90" class="">The go language uses the I/O multiplexing model in the network poller to handle I/O operations, but it does not choose the most common system call, <code>select</code>. <code>select</code> can also provide I/O multiplexing capabilities, but there are more limitations to its use.</p><ul id="0f19a533-4d3c-4812-b44b-a95203d7c617" class="bulleted-list"><li style="list-style-type:disc">Limited listening capability - can only listen to a maximum of 1024 file descriptors, which can be changed by manually modifying the limit, but at a relatively high cost in all respects.</li></ul><ul id="821f0acb-d5e1-4887-aa46-4bf738d0f5fc" class="bulleted-list"><li style="list-style-type:disc">High memory copy overhead - a larger data structure needs to be maintained to store the file descriptors, which needs to be copied to the kernel.</li></ul><ul id="d037800d-d28a-4ba4-b360-4d9a9db452dd" class="bulleted-list"><li style="list-style-type:disc">time complexity - after returning the number of ready events, all file descriptors need to be traversed.</li></ul><p id="035b9705-9ae7-4347-9f39-a6d5c169c5f3" class="">golang officially encapsulates a network event poll in a unified way, independent of platform, providing a specific implementation for epoll/kqueue/port/AIX/Windows.</p><ul id="89b03e25-8cd9-4c0c-ba9c-a36e5f0199ea" class="bulleted-list"><li style="list-style-type:disc"><code>src/runtime/netpoll_epoll.go</code></li></ul><ul id="62205e7c-1e7d-448c-9f4a-27e4ac5d956e" class="bulleted-list"><li style="list-style-type:disc"><code>src/runtime/netpoll_kqueue.go</code></li></ul><ul id="fe93ad10-ebb3-4e5b-8fbc-bcca4f44cac1" class="bulleted-list"><li style="list-style-type:disc"><code>src/runtime/netpoll_solaris.go</code></li></ul><ul id="dd6cce81-29f1-4fd7-8bbb-677bb494c21d" class="bulleted-list"><li style="list-style-type:disc"><code>src/runtime/netpoll_windows.go</code></li></ul><ul id="a7583d2e-ffc7-4dbd-880c-705bcdcf8d8d" class="bulleted-list"><li style="list-style-type:disc"><code>src/runtime/netpoll_aix.go</code></li></ul><ul id="5bd7d342-cfdd-4aea-ad15-5f6315f6192d" class="bulleted-list"><li style="list-style-type:disc"><code>src/runtime/netpoll_fake.go</code></li></ul><p id="0eae0d55-db4c-4ac9-89fe-af279acce9f8" class="">These modules, which implement the same functionality on different platforms, form a common tree structure. When the compiler compiles a Go language program, it selects specific branches in the tree for compilation based on the target platform</p><p id="7a0a39c2-a9d7-4976-acd6-12a6ce69d52e" class="">The methods that must be implemented are</p><table id="edaf76c8-7002-4d43-9c23-8a6345e75cd4" class="simple-table"><tbody><tr id="6b6e9177-1eb8-4c74-8d8d-582175185c17"><td id="]M}?" class=""><br/><br/><br/><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-1-1"><code>1</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-1-2"><code>2</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-1-3"><code>3</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-1-4"><code>4</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-1-5"><code>5</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-1-6"><code>6</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-1-7"><code>7</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-1-8"><code>8</code></a></td><td id="r}ir" class=""><br/><br/><br/><code>​netpollinit 初始化网络轮询器，通过 `sync.Once` 和 `netpollInited` 变量保证函数只会调用一次<br/>​netpollopen 监听文件描述符上的边缘触发事件，创建事件并加入监听poll_runtime_pollOpen函数，这个函数将用户态协程的pollDesc信息写入到epoll所在的单独线程，从而实现用户态和内核态的关联。<br/>​netpoll  轮询网络并返回一组已经准备就绪的 Goroutine，传入的参数会决定它的行为：<br/>  - 如果参数小于0，阻塞等待文件就绪<br/>  - 如果参数等于0，非阻塞轮询<br/>  - 如果参数大于0，阻塞定期轮询<br/>​netpollBreak 唤醒网络轮询器，例如：计时器向前修改时间时会通过该函数中断网络轮询器<br/>​netpollIsPollDescriptor  判断文件描述符是否被轮询器使用<br/></code></td></tr></tbody></table><p id="1034adc6-8c29-47d0-9cae-b8048b5ddf2b" class="">There are 2 important structures in netpoll.</p><table id="d80be0f7-a308-4efb-ac9f-16ad9dce5f88" class="simple-table"><tbody><tr id="fd592f37-05d7-4473-94c4-68c70275b0ed"><td id="XJxo" class=""><br/><br/><br/><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-1"><code> 1</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-2"><code> 2</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-3"><code> 3</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-4"><code> 4</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-5"><code> 5</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-6"><code> 6</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-7"><code> 7</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-8"><code> 8</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-9"><code> 9</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-10"><code>10</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-11"><code>11</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-12"><code>12</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-13"><code>13</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-14"><code>14</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-15"><code>15</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-16"><code>16</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-17"><code>17</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-18"><code>18</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-19"><code>19</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-20"><code>20</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-21"><code>21</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-22"><code>22</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-23"><code>23</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-24"><code>24</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-25"><code>25</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-26"><code>26</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-27"><code>27</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-28"><code>28</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-29"><code>29</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-30"><code>30</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-31"><code>31</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-32"><code>32</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-33"><code>33</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-34"><code>34</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-35"><code>35</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-36"><code>36</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-2-37"><code>37</code></a></td><td id="OBF=" class=""><br/><br/><br/><code>//pollCache  <br/>//pollDesc<br/>type pollDesc struct {<br/>	link *pollDesc // in pollcache, protected by pollcache.lock<br/>	// The lock protects pollOpen, pollSetDeadline, pollUnblock and deadlineimpl operations.<br/>	// This fully covers seq, rt and wt variables. fd is constant throughout the PollDesc lifetime.<br/>	// pollReset, pollWait, pollWaitCanceled and runtime·netpollready (IO readiness notification)<br/>	// proceed w/o taking the lock. So closing, everr, rg, rd, wg and wd are manipulated<br/>	// in a lock-free way by all operations.<br/>	// NOTE(dvyukov): the following code uses uintptr to store *g (rg/wg),<br/>	// that will blow up when GC starts moving objects.<br/>	lock    mutex // protects the following fields<br/>	fd      uintptr<br/>	closing bool<br/>	everr   bool      // marks event scanning error happened<br/>	user    uint32    // user settable cookie<br/>	rseq    uintptr   // protects from stale read timers<br/>	rg      uintptr   // pdReady, pdWait, G waiting for read or nil<br/>	rt      timer     // read deadline timer (set if rt.f != nil)<br/>	rd      int64     // read deadline<br/>	wseq    uintptr   // protects from stale write timers<br/>	wg      uintptr   // pdReady, pdWait, G waiting for write or nil<br/>	wt      timer     // write deadline timer<br/>	wd      int64     // write deadline<br/>	self    *pollDesc // storage for indirect interface. See (*pollDesc).makeArg.<br/>}<br/>type pollCache struct {<br/>	lock  mutex<br/>	first *pollDesc<br/>	// PollDesc objects must be type-stable,<br/>	// because we can get ready notification from epoll/kqueue<br/>	// after the descriptor is closed/reused.<br/>	// Stale notifications are detected using seq variable,<br/>	// seq is incremented when deadlines are changed or descript<br/></code></td></tr></tbody></table><ul id="47a24eff-5440-474e-ae52-af2f7915202c" class="bulleted-list"><li style="list-style-type:disc"><code>rseq</code> and <code>wseq</code> - indicate that the file descriptor is reused or the timer is reset.</li></ul><ul id="1187b708-d7bb-41d4-9405-8308653c9964" class="bulleted-list"><li style="list-style-type:disc"><code>rg</code> and <code>wg</code> - indicate binary semaphores, possibly <code>pdReady</code>, <code>pdWait</code>, goroutine waiting for the file descriptor to become readable or writable, and <code>nil</code>.</li></ul><ul id="04b74ec3-5c81-4dc6-95ab-4975671ed04b" class="bulleted-list"><li style="list-style-type:disc"><code>rd</code> and <code>wd</code> - deadlines for waiting for file descriptors to become readable or writable.</li></ul><ul id="26d75ddc-e2e7-4b58-8da6-65a027599f47" class="bulleted-list"><li style="list-style-type:disc"><code>rt</code> and <code>wt</code> - timers for waiting for file descriptors.</li></ul><p id="825bf621-122f-4fe0-a2c4-52772891dc9c" class="">golang on io time to do a lot of unified encapsulation under runtime/netpoll (actually called under the internal/poll package), and then through the internal package to the runtime package to call, the internal package also encapsulates a pollDesc object of the same name, but is a pointer (there is a detail about the internal is that this package can not be called externally).</p><table id="2c5c3844-bdf8-495f-a319-a43a676458bf" class="simple-table"><tbody><tr id="72b81596-19fb-4290-9f89-73b4f37260cd"><td id="`\?:" class=""><br/><br/><br/><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-3-1"><code>1</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-3-2"><code>2</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-3-3"><code>3</code></a></td><td id="tMU:" class=""><br/><br/><br/><code>type pollDesc struct {<br/>	runtimeCtx uintptr<br/>}<br/></code></td></tr></tbody></table><p id="87699504-4da0-4776-9159-bc9a0e4c61d3" class="">In fact, it is ultimately a call under the runtime, but encapsulates some easy-to-use methods, such as read, write, and do some abstraction.</p><table id="90178871-3116-4fd1-9989-6899dd4d5fa8" class="simple-table"><tbody><tr id="1a3e8975-6b6d-4f13-9fdf-ac95aa623ecc"><td id="}NyS" class=""><br/><br/><br/><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-4-1"><code> 1</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-4-2"><code> 2</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-4-3"><code> 3</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-4-4"><code> 4</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-4-5"><code> 5</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-4-6"><code> 6</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-4-7"><code> 7</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-4-8"><code> 8</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-4-9"><code> 9</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-4-10"><code>10</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-4-11"><code>11</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-4-12"><code>12</code></a></td><td id="Styk" class=""><br/><br/><br/><code>func runtime_pollServerInit()  //初始化<br/>func runtime_pollOpen(fd uintptr) (uintptr, int)  //打开<br/>func runtime_pollClose(ctx uintptr)   //关闭<br/>func runtime_pollWait(ctx uintptr, mode int) int //等待<br/>func runtime_pollWaitCanceled(ctx uintptr, mode int) int  //等待并（失败时）退出<br/>func runtime_pollReset(ctx uintptr, mode int) int  //重置状态,复用<br/>func runtime_pollSetDeadline(ctx uintptr, d int64, mode int) //设置读/写超时时间<br/>func runtime_pollUnblock(ctx uintptr)  // 解锁 <br/>func runtime_isPollServerDescriptor(fd uintptr) bool  <br/>// 这里的ctx实际上是一个io fd，不是上下文<br/>// mod 是 r 或者 w  ,io事件毕竟只有有这两种<br/>// d 意义和time.d差不多，就是关于时间的<br/></code></td></tr></tbody></table><p id="1b86424c-5c30-4eba-8f7c-9b688cb99294" class="">The specific implementation of these methods is under runtime, so let’s pick a few important ones.</p><table id="349ee77b-8955-4f50-b5ee-2bb64e1e3a6c" class="simple-table"><tbody><tr id="162cded9-d04f-4d2f-8531-e1d582db8ee3"><td id="NpFC" class=""><br/><br/><br/><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-1"><code> 1</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-2"><code> 2</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-3"><code> 3</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-4"><code> 4</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-5"><code> 5</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-6"><code> 6</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-7"><code> 7</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-8"><code> 8</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-9"><code> 9</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-10"><code>10</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-11"><code>11</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-12"><code>12</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-13"><code>13</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-14"><code>14</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-15"><code>15</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-16"><code>16</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-17"><code>17</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-18"><code>18</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-19"><code>19</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-20"><code>20</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-21"><code>21</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-22"><code>22</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-23"><code>23</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-5-24"><code>24</code></a></td><td id="qF[J" class=""><br/><br/><br/><code>//将就绪好得io事件，写入就绪的grotion对列<br/>// netpollready is called by the platform-specific netpoll function.<br/>// It declares that the fd associated with pd is ready for I/O.<br/>// The toRun argument is used to build a list of goroutines to return<br/>// from netpoll. The mode argument is &#x27;r&#x27;, &#x27;w&#x27;, or &#x27;r&#x27;+&#x27;w&#x27; to indicate<br/>// whether the fd is ready for reading or writing or both.<br/>//<br/>// This may run while the world is stopped, so write barriers are not allowed.<br/>//go:nowritebarrier<br/>func netpollready(toRun *gList, pd *pollDesc, mode int32) {<br/>	var rg, wg *g<br/>	if mode == &#x27;r&#x27; || mode == &#x27;r&#x27;+&#x27;w&#x27; {<br/>		rg = netpollunblock(pd, &#x27;r&#x27;, true)<br/>	}<br/>	if mode == &#x27;w&#x27; || mode == &#x27;r&#x27;+&#x27;w&#x27; {<br/>		wg = netpollunblock(pd, &#x27;w&#x27;, true)<br/>	}<br/>	if rg != nil {<br/>		toRun.push(rg)<br/>	}<br/>	if wg != nil {<br/>		toRun.push(wg)<br/>	}<br/>}<br/></code></td></tr></tbody></table><table id="602b59c9-22e4-4ced-9b0e-abe22e23caa6" class="simple-table"><tbody><tr id="e3293fcd-f06c-4849-b8e4-d06a7a309bf9"><td id="kKwd" class=""><br/><br/><br/><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-1"><code> 1</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-2"><code> 2</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-3"><code> 3</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-4"><code> 4</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-5"><code> 5</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-6"><code> 6</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-7"><code> 7</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-8"><code> 8</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-9"><code> 9</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-10"><code>10</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-11"><code>11</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-12"><code>12</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-13"><code>13</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-14"><code>14</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-15"><code>15</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-16"><code>16</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-17"><code>17</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-18"><code>18</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-19"><code>19</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-20"><code>20</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-21"><code>21</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-22"><code>22</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-23"><code>23</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-24"><code>24</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-25"><code>25</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-26"><code>26</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-27"><code>27</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-28"><code>28</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-29"><code>29</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-30"><code>30</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-31"><code>31</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-32"><code>32</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-33"><code>33</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-34"><code>34</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-35"><code>35</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-36"><code>36</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-37"><code>37</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-38"><code>38</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-39"><code>39</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-40"><code>40</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-41"><code>41</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-42"><code>42</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-43"><code>43</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-44"><code>44</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-45"><code>45</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-46"><code>46</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-47"><code>47</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-48"><code>48</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-49"><code>49</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-50"><code>50</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-51"><code>51</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-52"><code>52</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-53"><code>53</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-54"><code>54</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-55"><code>55</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-56"><code>56</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-57"><code>57</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-58"><code>58</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-59"><code>59</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-60"><code>60</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-61"><code>61</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-62"><code>62</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-63"><code>63</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-64"><code>64</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-65"><code>65</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-66"><code>66</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-67"><code>67</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-6-68"><code>68</code></a></td><td id="NLkC" class=""><br/><br/><br/><code>//轮询时调用的方法，如果io就绪了返回ok，如果没就绪，返回flase<br/>// returns true if IO is ready, or false if timedout or closed<br/>// waitio - wait only for completed IO, ignore errors<br/>func netpollblock(pd *pollDesc, mode int32, waitio bool) bool {<br/>	gpp := &amp;pd.rg<br/>	if mode == &#x27;w&#x27; {<br/>		gpp = &amp;pd.wg<br/>	}<br/>	// set the gpp semaphore to pdWait<br/>	for {<br/>		old := *gpp<br/>		if old == pdReady {<br/>			*gpp = 0<br/>			return true<br/>		}<br/>		if old != 0 {<br/>			throw(&quot;runtime: double wait&quot;)<br/>		}<br/>		if atomic.Casuintptr(gpp, 0, pdWait) {<br/>			break<br/>		}<br/>	}<br/>	// need to recheck error states after setting gpp to pdWait<br/>	// this is necessary because runtime_pollUnblock/runtime_pollSetDeadline/deadlineimpl<br/>	// do the opposite: store to closing/rd/wd, membarrier, load of rg/wg<br/>	if waitio || netpollcheckerr(pd, mode) == 0 {<br/>	  //gopark是很重要得一个方法，本质上是让出当前协程执行权，一般是返回到g0让g0重新调度<br/>		gopark(netpollblockcommit, unsafe.Pointer(gpp), waitReasonIOWait, traceEvGoBlockNet, 5)<br/>	}<br/>	// be careful to not lose concurrent pdReady notification<br/>	old := atomic.Xchguintptr(gpp, 0)<br/>	if old &gt; pdWait {<br/>		throw(&quot;runtime: corrupted polldesc&quot;)<br/>	}<br/>	return old == pdReady<br/>}<br/>//获取到当前io所在的协程，如果协程已关闭，直接返回nil<br/>func netpollunblock(pd *pollDesc, mode int32, ioready bool) *g {<br/>	gpp := &amp;pd.rg<br/>	if mode == &#x27;w&#x27; {<br/>		gpp = &amp;pd.wg<br/>	}<br/>	for {<br/>		old := *gpp<br/>		if old == pdReady {<br/>			return nil<br/>		}<br/>		if old == 0 &amp;&amp; !ioready {<br/>			// Only set pdReady for ioready. runtime_pollWait<br/>			// will check for timeout/cancel before waiting.<br/>			return nil<br/>		}<br/>		var new uintptr<br/>		if ioready {<br/>			new = pdReady<br/>		}<br/>		if atomic.Casuintptr(gpp, old, new) {<br/>			if old == pdWait {<br/>				old = 0<br/>			}<br/>			return (*g)(unsafe.Pointer(old))<br/>		}<br/>	}<br/>}<br/></code></td></tr></tbody></table><p id="51cc3f9f-30a2-4997-b0e7-c4ffe28ffe23" class="">Think about.</p><ol type="1" id="95fc3513-4051-4c49-af3e-81adbcd8b502" class="numbered-list" start="1"><li>a, b two co-processes, b io blocking, finished, has not obtained the scheduling rights, what will happen.</li></ol><ol type="1" id="202194d4-2ccb-409a-88a4-cfc01b0959e2" class="numbered-list" start="2"><li>a, b two co-processes, b io blocking, 2s time out, but a has been occupying the execution rights, b has not obtained the scheduling rights, 5s before obtaining to, b to the use of the end has timed out, this time is time out or not time out</li></ol><p id="e73f57af-28a2-4c73-8608-f9b8ad889ad3" class="">So set the time out, not necessarily the real io waiting, may not get the right to execute.</p><h2 id="a83dd435-5bb8-444e-a93f-e0c840b51254" class="">How is the read event triggered?</h2><p id="3209d42b-a8ad-458b-8cbc-e6dd17877e8e" class="">Because write io is an active operation for us, how does read perform the operation? This is a passive state</p><p id="d3acaf41-3de8-4428-b864-252909a117e9" class="">First we understand a structure. golang identifies all network events and file reads and writes with fd (located under the internal package).</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="d4dac9f6-b7c7-4814-a655-98767366862d" class="code"><code class="language-Go">// FD is a file descriptor. The net and os packages use this type as a
+// field of a larger type representing a network connection or OS file.
+type FD struct {
+	// Lock sysfd and serialize access to Read and Write methods.
+	fdmu fdMutex
+	// System file descriptor. Immutable until Close.
+	Sysfd int
+	// I/O poller.
+	pd pollDesc
+	// Writev cache.
+	iovecs *[]syscall.Iovec
+	// Semaphore signaled when file is closed.
+	csema uint32
+	// Non-zero if this file has been set to blocking mode.
+	isBlocking uint32
+	// Whether this is a streaming descriptor, as opposed to a
+	// packet-based descriptor like a UDP socket. Immutable.
+	IsStream bool
+	// Whether a zero byte read indicates EOF. This is false for a
+	// message based socket connection.
+	ZeroReadIsEOF bool
+	// Whether this is a file rather than a network socket.
+	isFile bool
+}</code></pre><p id="ad1bd95d-e52a-4931-ada3-05582c49c608" class="">We see that the pollDesc associated with the fd calls the various platform io events implemented inside the runtime package through the pollDesc.</p><p id="7ba8e1c2-717a-47df-bd11-b1fd25bc2674" class="">When we do a read operation (here is the code capture)</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="914eed4b-9992-4aef-8396-feb5d5140de0" class="code"><code class="language-Go">for {
+	n, err := ignoringEINTRIO(syscall.Read, fd.Sysfd, p)
+	if err != nil {
+		n = 0
+		if err == syscall.EAGAIN &amp;&amp; fd.pd.pollable() {
+			if err = fd.pd.waitRead(fd.isFile); err == nil {
+				continue
+			}
+		}
+	}
+	err = fd.eofError(n, err)
+	return n, err
+	}</code></pre><p id="bb5a4610-ca89-409b-bace-3dbbde372fb1" class="">Will block the call waiteRead method, the method is mainly called inside the runtime_pollWait.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="6b319f18-c3eb-4ffe-839c-d3ddb41f82a1" class="code"><code class="language-Go">
+func poll_runtime_pollWait(pd *pollDesc, mode int) int {
+	errcode := netpollcheckerr(pd, int32(mode))
+	if errcode != pollNoError {
+		return errcode
+	}
+	// As for now only Solaris, illumos, and AIX use level-triggered IO.
+	if GOOS == &quot;solaris&quot; || GOOS == &quot;illumos&quot; || GOOS == &quot;aix&quot; {
+		netpollarm(pd, mode)
+	}
+	for !netpollblock(pd, int32(mode), false) {
+		errcode = netpollcheckerr(pd, int32(mode))
+		if errcode != pollNoError {
+			return errcode
+		}
+		// Can happen if timeout has fired and unblocked us,
+		// but before we had a chance to run, timeout has been reset.
+		// Pretend it has not happened and retry.
+	}
+	return pollNoError
+}</code></pre><p id="533e6eb9-0a73-4c60-a262-58b127acd0ea" class="">Here is mainly controlled by netpollblock,netpollblock method we have said above, when the io is not yet ready, directly release the current execution rights, otherwise it is already read and write the io event, directly read the operation can be.</p><h2 id="b19a13e9-ba50-46a2-b664-346977683eab" class="">Summary</h2><p id="04983482-b404-4dfc-8bde-549a3e61f21a" class="">Overall flow listenStream -&gt; bind&amp;listen&amp;init -&gt; pollDesc.Init -&gt; poll_runtime_pollOpen -&gt; runtime.netpollopen - &gt; epollctl(EPOLL_CTL_ADD)</p><p id="be0e8656-bbaa-4058-9cb7-689f49538c31" class="">Draw a diagram to understand more easily, of course, I was lazy to find the diagram</p><figure id="8549dcd0-24f0-44dc-8a16-373e81c300f0" class="image"><a href="golang%20netpoll%20Explained%20b6a052b38bf54b5c9f836656c08dee78/b068bfd61f21470c868696b75bf6f456.png"><img style="width:700px" src="golang%20netpoll%20Explained%20b6a052b38bf54b5c9f836656c08dee78/b068bfd61f21470c868696b75bf6f456.png"/></a></figure><p id="5f86d28a-4483-4f62-a933-c2072b15ba0d" class="">When g io events are encountered in golang, they are encapsulated in a unified way, first establishing a system event (this article focuses on epoll), then giving up the cpu (gopark), and then executing other g’s in a concurrent scheduling process. when the g io event is completed, it will interact with epoll to see if it is ready (epoll ready list), and if it is ready, pop will take out a g and execute it down the line. (Actually, there is some logic in the pop ready list, such as delayed processing)</p><p id="8049bfad-4986-4f1d-bbfb-dfbdf85d872c" class="">runtime/proc.go.</p><table id="be31d64a-6e7f-4dde-a94d-460754e0878d" class="simple-table"><tbody><tr id="8d581c21-6095-47b4-b097-4237c6f44b6c"><td id="[Ova" class=""><br/><br/><br/><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-1"><code> 1</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-2"><code> 2</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-3"><code> 3</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-4"><code> 4</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-5"><code> 5</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-6"><code> 6</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-7"><code> 7</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-8"><code> 8</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-9"><code> 9</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-10"><code>10</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-11"><code>11</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-12"><code>12</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-13"><code>13</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-14"><code>14</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-15"><code>15</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-16"><code>16</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-17"><code>17</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-18"><code>18</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-19"><code>19</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-20"><code>20</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-21"><code>21</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-22"><code>22</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-23"><code>23</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-24"><code>24</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-25"><code>25</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-26"><code>26</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-27"><code>27</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-28"><code>28</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-29"><code>29</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-30"><code>30</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-31"><code>31</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-10-32"><code>32</code></a></td><td id="&lt;|Qo" class=""><br/><br/><br/><code>// Finds a runnable goroutine to execute.<br/>// Tries to steal from other P&#x27;s, get g from local or global queue, poll network.<br/>func findrunnable() (gp *g, inheritTime bool) {<br/>	_g_ := getg()<br/>	// The conditions here and in handoffp must agree: if<br/>	// findrunnable would return a G to run, handoffp must start<br/>	// an M.<br/>top:<br/>	_p_ := _g_.m.p.ptr()<br/>	//......<br/>	// Poll network.<br/>	// This netpoll is only an optimization before we resort to stealing.<br/>	// We can safely skip it if there are no waiters or a thread is blocked<br/>	// in netpoll already. If there is any kind of logical race with that<br/>	// blocked thread (e.g. it has already returned from netpoll, but does<br/>	// not set lastpoll yet), this thread will do blocking netpoll below<br/>	// anyway.<br/>	if netpollinited() &amp;&amp; atomic.Load(&amp;netpollWaiters) &gt; 0 &amp;&amp; atomic.Load64(&amp;sched.lastpoll) != 0 {<br/>		if list := netpoll(0); !list.empty() { // non-blocking<br/>			gp := list.pop()<br/>			injectglist(&amp;list)<br/>			casgstatus(gp, _Gwaiting, _Grunnable)<br/>			if trace.enabled {<br/>				traceGoUnpark(gp, 0)<br/>			}<br/>			return gp, false<br/>		}<br/>	}<br/>	//......<br/>}<br/></code></td></tr></tbody></table><p id="a2b494c9-35d8-4904-981a-ee7938ea7f1f" class="">Also in sysmon, netpoll is scheduled.</p><table id="024fda51-3117-404b-9e50-dba42565e00c" class="simple-table"><tbody><tr id="4a2a8f18-2b82-4145-bf16-fa472d891952"><td id="X{Vh" class=""><br/><br/><br/><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-1"><code> 1</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-2"><code> 2</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-3"><code> 3</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-4"><code> 4</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-5"><code> 5</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-6"><code> 6</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-7"><code> 7</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-8"><code> 8</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-9"><code> 9</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-10"><code>10</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-11"><code>11</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-12"><code>12</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-13"><code>13</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-14"><code>14</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-15"><code>15</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-16"><code>16</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-17"><code>17</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-18"><code>18</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-19"><code>19</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-20"><code>20</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-21"><code>21</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-22"><code>22</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-23"><code>23</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-24"><code>24</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-25"><code>25</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-26"><code>26</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-27"><code>27</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-28"><code>28</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-11-29"><code>29</code></a></td><td id="_~uo" class=""><br/><br/><br/><code>// Always runs without a P, so write barriers are not allowed.<br/>//<br/>//go:nowritebarrierrec<br/>func sysmon() {<br/>	lock(&amp;sched.lock)<br/>	sched.nmsys++<br/>	checkdead()<br/>	unlock(&amp;sched.lock)<br/>	//......<br/>	// poll network if not polled for more than 10ms<br/>	lastpoll := int64(atomic.Load64(&amp;sched.lastpoll))<br/>	if netpollinited() &amp;&amp; lastpoll != 0 &amp;&amp; lastpoll+10*1000*1000 &lt; now {<br/>		atomic.Cas64(&amp;sched.lastpoll, uint64(lastpoll), uint64(now))<br/>		list := netpoll(0) // non-blocking - returns list of goroutines<br/>		if !list.empty() {<br/>			// Need to decrement number of idle locked M&#x27;s<br/>			// (pretending that one more is running) before injectglist.<br/>			// Otherwise it can lead to the following situation:<br/>			// injectglist grabs all P&#x27;s but before it starts M&#x27;s to run the P&#x27;s,<br/>			// another M returns from syscall, finishes running its G,<br/>			// observes that there is no work to do and no other running M&#x27;s<br/>			// and reports deadlock.<br/>			incidlelocked(-1)<br/>			injectglist(&amp;list)<br/>			incidlelocked(1)<br/>		}<br/>	}<br/>	//......<br/>}<br/></code></td></tr></tbody></table><h2 id="b66db3d6-d5dc-49b1-879e-ea4e483b56a6" class="">Remarks</h2><h3 id="0826d5a0-6f60-45e0-b2ef-ef436187d9e3" class="">epoll</h3><p id="2b65ec5b-5cff-428a-8231-40561b4ef73a" class="">epoll is a separate thread maintained by the system kernel, not by go itself</p><h3 id="a6e8b8f1-7f65-429d-b3f7-74d7bd1fd168" class="">Constants</h3><p id="a656b469-d839-453f-a2c9-3ba0cee1e6b2" class="">FD_CLOEXEC is used to set the close-on-exec status criteria of the file. This, emm, is quite difficult to understand.</p><h3 id="6d46eeca-fdde-438b-bbad-ec0a345387ca" class="">gc</h3><p id="945fe37b-3c1d-45a3-a489-4f00fccec549" class="">pollDesc is maintained by pollCache and is not monitored by GC (persistentalloc method allocation), so in the normal case about io operations, we must perform a manual shutdown to clean up the reference objects in epoll (specific implementation in poll_runtime_Semrelease).</p><table id="c4f3f039-44a5-4e9c-a8f9-868690eaaeea" class="simple-table"><tbody><tr id="cd111934-5f4b-4983-a1b7-f6880efd21d1"><td id="kYEl" class=""><br/><br/><br/><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-12-1"><code>1</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-12-2"><code>2</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-12-3"><code>3</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-12-4"><code>4</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-12-5"><code>5</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-12-6"><code>6</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-12-7"><code>7</code></a><a href="https://www.sobyte.net/post/2021-09/golang-netpoll/#hl-12-8"><code>8</code></a></td><td id="&gt;_iv" class=""><br/><br/><br/><code>// Must be in non-GC memory because can be referenced<br/>// only from epoll/kqueue internals.<br/>mem := persistentalloc(n*pdSize, 0, &amp;memstats.other_sys)<br/>for i := uintptr(0); i &lt; n; i++ {<br/>	pd := (*pollDesc)(add(mem, i*pdSize))<br/>	pd.link = c.first<br/>	c.first = pd<br/>}<br/></code></td></tr></tbody></table><h3 id="d38a0259-2a2f-4e7f-ae93-6978d45b667a" class="">sysmon</h3><p id="a482f902-bebe-41cb-98ff-d2216e6e1da4" class="">Go’s standard library provides a thread to monitor your application and help you (find) any bottlenecks your application may encounter. This thread is called sysmon, the system monitor. In the GMP model, this (special) thread is not linked to any P, which means that the scheduler does not take it into account, and is therefore always running.</p><figure id="ab3e0511-dd9d-4eb3-867e-55e0b41b880c" class="image"><a href="golang%20netpoll%20Explained%20b6a052b38bf54b5c9f836656c08dee78/7ebb38990f984a3ba32ee88f3d43c0da.png"><img style="width:307px" src="golang%20netpoll%20Explained%20b6a052b38bf54b5c9f836656c08dee78/7ebb38990f984a3ba32ee88f3d43c0da.png"/></a></figure><p id="d4a99903-4b79-4f96-a5ac-13fc3f2ecddf" class="">The sysmon thread has a wide range of roles, mainly in the following areas:</p><ul id="03c90fa5-976f-4d17-ba44-51b09d3d858c" class="bulleted-list"><li style="list-style-type:disc">Timers (timers) created by the application. The sysmon thread looks at timers that should be running but are still waiting for execution time. In this case, Go will look at the list of idle M and P timers so that it can run them as fast as possible.</li></ul><ul id="97992cd0-aa38-4847-b49d-d3fc9dcfb5c6" class="bulleted-list"><li style="list-style-type:disc"><strong>Network pollers and system calls. It will run goroutines that are blocked during network operations.</strong></li></ul><ul id="821917e2-e9e3-4870-892c-9ce4b23c0b5c" class="bulleted-list"><li style="list-style-type:disc">Garbage collector (if it has not been running for a long time). If the garbage collector has not run for two minutes, sysmon will force a round of garbage collection (GC).</li></ul><ul id="b0fe0c73-2534-4d0c-92b4-e70c6846231a" class="bulleted-list"><li style="list-style-type:disc">Preemption of long-running goroutines. Any goroutine that runs for more than 10 milliseconds will be preempted, leaving the running time for other goroutines.</li></ul></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

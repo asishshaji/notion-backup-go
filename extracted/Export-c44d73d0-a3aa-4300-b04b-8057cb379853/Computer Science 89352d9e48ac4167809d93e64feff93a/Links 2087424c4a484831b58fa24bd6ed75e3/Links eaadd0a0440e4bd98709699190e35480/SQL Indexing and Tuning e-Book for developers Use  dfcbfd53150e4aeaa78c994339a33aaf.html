@@ -1,0 +1,676 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>SQL Indexing and Tuning e-Book for developers: Use The Index, Luke covers Oracle, MySQL, PostgreSQL, SQL Server, ...</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="dfcbfd53-150e-4aea-a78c-994339a33aaf" class="page sans"><header><h1 class="page-title">SQL Indexing and Tuning e-Book for developers: Use The Index, Luke covers Oracle, MySQL, PostgreSQL, SQL Server, ...</h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-url"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesUrl"><path d="M7.69922 10.8945L8.73828 9.84863C7.91797 9.77344 7.34375 9.51367 6.91992 9.08984C5.76465 7.93457 5.76465 6.29395 6.91309 5.14551L9.18262 2.87598C10.3379 1.7207 11.9717 1.7207 13.127 2.87598C14.2891 4.04492 14.2822 5.67188 13.1338 6.82031L11.958 7.99609C12.1768 8.49512 12.2451 9.10352 12.1289 9.62988L14.0908 7.6748C15.7725 6 15.7793 3.62109 14.084 1.92578C12.3887 0.223633 10.0098 0.237305 8.33496 1.91211L5.95605 4.29785C4.28125 5.97266 4.26758 8.35156 5.96289 10.0469C6.36621 10.4434 6.90625 10.7441 7.69922 10.8945ZM8.30078 5.13184L7.26855 6.17773C8.08203 6.25293 8.66309 6.51953 9.08008 6.93652C10.2422 8.09863 10.2422 9.73242 9.08691 10.8809L6.81738 13.1504C5.66211 14.3057 4.03516 14.3057 2.87305 13.1504C1.71094 11.9883 1.71777 10.3545 2.87305 9.20605L4.04199 8.03027C3.83008 7.53125 3.75488 6.92969 3.87109 6.39648L1.91602 8.35156C0.234375 10.0264 0.227539 12.4121 1.92285 14.1074C3.61816 15.8027 5.99707 15.7891 7.67188 14.1143L10.0439 11.7354C11.7256 10.0537 11.7324 7.6748 10.0371 5.98633C9.64062 5.58301 9.10059 5.28223 8.30078 5.13184Z"></path></svg></span>URL</th><td><a href="https://use-the-index-luke.com/" class="url-value">https://use-the-index-luke.com/</a></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesMultipleSelect"><path d="M1.91602 4.83789C2.44238 4.83789 2.87305 4.40723 2.87305 3.87402C2.87305 3.34766 2.44238 2.91699 1.91602 2.91699C1.38281 2.91699 0.952148 3.34766 0.952148 3.87402C0.952148 4.40723 1.38281 4.83789 1.91602 4.83789ZM5.1084 4.52344H14.3984C14.7607 4.52344 15.0479 4.23633 15.0479 3.87402C15.0479 3.51172 14.7607 3.22461 14.3984 3.22461H5.1084C4.74609 3.22461 4.45898 3.51172 4.45898 3.87402C4.45898 4.23633 4.74609 4.52344 5.1084 4.52344ZM1.91602 9.03516C2.44238 9.03516 2.87305 8.60449 2.87305 8.07129C2.87305 7.54492 2.44238 7.11426 1.91602 7.11426C1.38281 7.11426 0.952148 7.54492 0.952148 8.07129C0.952148 8.60449 1.38281 9.03516 1.91602 9.03516ZM5.1084 8.7207H14.3984C14.7607 8.7207 15.0479 8.43359 15.0479 8.07129C15.0479 7.70898 14.7607 7.42188 14.3984 7.42188H5.1084C4.74609 7.42188 4.45898 7.70898 4.45898 8.07129C4.45898 8.43359 4.74609 8.7207 5.1084 8.7207ZM1.91602 13.2324C2.44238 13.2324 2.87305 12.8018 2.87305 12.2686C2.87305 11.7422 2.44238 11.3115 1.91602 11.3115C1.38281 11.3115 0.952148 11.7422 0.952148 12.2686C0.952148 12.8018 1.38281 13.2324 1.91602 13.2324ZM5.1084 12.918H14.3984C14.7607 12.918 15.0479 12.6309 15.0479 12.2686C15.0479 11.9062 14.7607 11.6191 14.3984 11.6191H5.1084C4.74609 11.6191 4.45898 11.9062 4.45898 12.2686C4.45898 12.6309 4.74609 12.918 5.1084 12.918Z"></path></svg></span>Category</th><td><span class="selected-value select-value-color-green">Database</span><span class="selected-value select-value-color-yellow">Postgres</span></td></tr></tbody></table></header><div class="page-body"><figure id="583e9f53-653f-4730-8a91-ab19a46df413" class="image"><a href="https://use-the-index-luke.com/static/util_squirrel.og.fMeqdSQq.png"><img style="width:250px" src="https://use-the-index-luke.com/static/util_squirrel.og.fMeqdSQq.png"/></a></figure><hr id="1c49b874-89e8-48f0-8020-5fc938eabc1a"/><p id="1631b5c7-c2a9-4edd-b09d-753b3221e40a" class="">A site explaining SQL indexing to developers—no crap about administration.</p><p id="bb64f88d-2d55-48a4-b928-b7619344f08f" class="">SQL indexing is the most effective tuning method—yet it is often neglected during development. <em>Use The Index, Luke</em> explains SQL indexing from grounds up and doesn’t stop at ORM tools like Hibernate.</p><p id="c4efa99b-1695-48ba-9a10-946f24c88eea" class=""><em>Use The Index, Luke</em> is the free web-edition of <a href="https://sql-performance-explained.com/?utm_source=use-the-index-luke.com&amp;utm_campaign=front&amp;utm_medium=web">SQL Performance Explained</a>. If you like this site, consider getting the book. Also have a look at the <a href="https://use-the-index-luke.com/shop">shop for other cool stuff that supports this site</a>.</p><h2 id="7fe76bf5-69a7-4eb2-9d48-f801864f49a0" class="">SQL Indexing in MySQL, Oracle, SQL Server, etc.</h2><p id="056fcc0e-3678-456e-8ac3-960a9e9dd669" class=""><em>Use The Index, Luke</em> presents indexing in a vendor agnostic fashion. Product specific notes are provided like here:</p><p id="ed85efe8-2895-4c7f-b9ad-4cda9a0ec4d9" class="">DB2MySQL<em>Use The Index, Luke</em> covers SQL indexing for the Oracle database. Tests were conducted with Oracle 11g through 21c.PostgreSQLSQL Server</p><p id="fdcf2b3b-f7a1-4cd1-9105-bf3da439a3db" class="">Have more questions about SQL indexing or tuning? No problem—have a look at my training and tuning services at <a href="https://winand.at/">winand.at</a>.</p><h2 id="eea194fe-9285-4e48-8bfe-7d526da7e63f" class="">Table of Contents</h2><ol type="1" id="821720d0-1c21-4469-b88e-67a1483c5c05" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/preface"><em>Preface</em></a> — Why is indexing a development task?</li></ol><ol type="1" id="4f8c3ffc-448a-480b-b42b-f68dd7615f87" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/anatomy"><em>Anatomy of an Index</em></a> — What does an index look like?<ol type="a" id="b10f491e-34bd-4578-830d-161f87d17801" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/anatomy/the-leaf-nodes"><em>The Leaf Nodes</em></a> — A doubly linked list</li></ol><ol type="a" id="fac461b4-e077-492d-ae3e-e1e87e38eece" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/anatomy/the-tree"><em>The B-Tree</em></a> — It’s a balanced tree</li></ol><ol type="a" id="ce62cd41-2868-48a8-bfed-f68d869aae4f" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/anatomy/slow-indexes"><em>Slow Indexes, Part I</em></a> — Two ingredients make the index slow</li></ol></li></ol><ol type="1" id="4325c0d0-b014-4b4a-8ef8-7a9d6b28ecd1" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/where-clause"><em>The Where Clause</em></a> — Indexing to improve search performance<ol type="a" id="f895ad76-7298-42c8-8c15-491c71b9baa0" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/where-clause/the-equals-operator"><em>The Equals Operator</em></a> — Exact key lookup<ol type="i" id="91ecc7f3-784e-44ab-a776-6cc644c454d0" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/where-clause/the-equals-operator/primary-keys"><em>Primary Keys</em></a> — Verifying index usage</li></ol><ol type="i" id="8a922c59-4de0-4714-9444-b2c2a2b6051c" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/where-clause/the-equals-operator/concatenated-keys"><em>Concatenated Keys</em></a> — Multi-column indexes</li></ol><ol type="i" id="62dc9325-0417-449f-aecd-ce58ca687434" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/where-clause/the-equals-operator/slow-indexes-part-ii"><em>Slow Indexes, Part II</em></a> — The first ingredient, revisited</li></ol></li></ol><ol type="a" id="a07babad-ea9a-42f3-a452-e8398f15cbc6" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/where-clause/functions"><em>Functions</em></a> — Using functions in the <code>where</code> clause<ol type="i" id="6c31ad32-b70c-4ecf-9d85-eb4802d1cd13" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/where-clause/functions/case-insensitive-search"><em>Case-Insensitive Search</em></a> — <code>UPPER</code> and <code>LOWER</code></li></ol><ol type="i" id="b955b5a6-5874-4306-88e3-5c13aaf6ff35" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/where-clause/functions/user-defined-functions"><em>User-Defined Functions</em></a> — Limitations of function-based indexes</li></ol><ol type="i" id="77051883-06eb-449f-9c14-fd328a180382" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/where-clause/functions/over-indexing"><em>Over-Indexing</em></a> — Avoid redundancy</li></ol></li></ol><ol type="a" id="e6d7e34d-52a5-4bf8-8be2-326bcf43c64c" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/where-clause/bind-parameters"><em>Bind Variables</em></a> — For security and performance</li></ol><ol type="a" id="3a96b86f-f28d-49a1-9a43-72bcabd942ec" class="numbered-list" start="4"><li><a href="https://use-the-index-luke.com/sql/where-clause/searching-for-ranges"><em>Searching for Ranges</em></a> — Beyond equality<ol type="i" id="cd91ce9c-a276-4ef8-917f-181beff3e057" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/where-clause/searching-for-ranges/greater-less-between-tuning-sql-access-filter-predicates"><em>Greater, Less and </em></a><a href="https://use-the-index-luke.com/sql/where-clause/searching-for-ranges/greater-less-between-tuning-sql-access-filter-predicates"><code><em>BETWEEN</em></code></a> — The column order revisited</li></ol><ol type="i" id="2808206e-015b-4fca-bf84-ddca6c42e6ad" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/where-clause/searching-for-ranges/like-performance-tuning"><em>Indexing SQL </em></a><a href="https://use-the-index-luke.com/sql/where-clause/searching-for-ranges/like-performance-tuning"><code><em>LIKE</em></code></a><a href="https://use-the-index-luke.com/sql/where-clause/searching-for-ranges/like-performance-tuning"><em> Filters</em></a> — <code>LIKE</code> is not for full-text search</li></ol><ol type="i" id="bfe18a7d-a852-48ba-a020-f5e766af442a" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/where-clause/searching-for-ranges/index-merge-performance"><em>Index Combine</em></a> — Why not using one index for every column?</li></ol></li></ol><ol type="a" id="070ef8dc-1ee5-48c0-a403-079a64dd5ec4" class="numbered-list" start="5"><li><a href="https://use-the-index-luke.com/sql/where-clause/partial-and-filtered-indexes"><em>Partial Indexes</em></a> — Indexing selected rows</li></ol><ol type="a" id="405508ff-eca7-4254-a174-20283247a6bc" class="numbered-list" start="6"><li><a href="https://use-the-index-luke.com/sql/where-clause/null"><code><em>NULL</em></code></a><a href="https://use-the-index-luke.com/sql/where-clause/null"><em> in the Oracle Database</em></a> — An important curiosity<ol type="i" id="2834e518-eecc-4671-a81b-ccc5c11880be" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/where-clause/null/index"><code><em>NULL</em></code></a><a href="https://use-the-index-luke.com/sql/where-clause/null/index"><em> in Indexes</em></a> — Every index is a partial index</li></ol><ol type="i" id="a82c95f8-78e5-46bf-97dd-14ab7b25086d" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/where-clause/null/not-null-constraint"><code><em>NOT NULL</em></code></a><a href="https://use-the-index-luke.com/sql/where-clause/null/not-null-constraint"><em> Constraints</em></a> — affect index usage</li></ol><ol type="i" id="f5ffc184-0efd-4514-80e0-295826fc0da4" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/where-clause/null/partial-index"><em>Emulating Partial Indexes</em></a> — using function-based indexing</li></ol></li></ol><ol type="a" id="b0fcfb61-a0a5-4aa4-8ced-69937a82c7b5" class="numbered-list" start="7"><li><a href="https://use-the-index-luke.com/sql/where-clause/obfuscation"><em>Obfuscated Conditions</em></a> — Common anti-patterns<ol type="i" id="8d03b187-2e65-41a1-8069-eb38739dd38e" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/where-clause/obfuscation/dates"><em>Dates</em></a> — Pay special attention to <code>DATE</code> types</li></ol><ol type="i" id="7f1da304-4137-4fe5-b994-bbecf0be175d" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/where-clause/obfuscation/numeric-strings"><em>Numeric Strings</em></a> — Don’t mix types</li></ol><ol type="i" id="cd46fe45-3f9e-405b-82e6-052ec39b208c" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/where-clause/obfuscation/concatenation"><em>Combining Columns</em></a> — use redundant <code>where</code> clauses</li></ol><ol type="i" id="f68830db-79b0-49b4-b95e-535dc69c3666" class="numbered-list" start="4"><li><a href="https://use-the-index-luke.com/sql/where-clause/obfuscation/smart-logic"><em>Smart Logic</em></a> — The smartest way to make SQL slow</li></ol><ol type="i" id="b0408463-2ef0-4593-96e8-edab3816d48e" class="numbered-list" start="5"><li><a href="https://use-the-index-luke.com/sql/where-clause/obfuscation/math"><em>Math</em></a> — Databases don’t solve equations</li></ol></li></ol></li></ol><ol type="1" id="bc13e043-0ff3-4d67-8637-5843376be530" class="numbered-list" start="4"><li><a href="https://use-the-index-luke.com/sql/testing-scalability"><em>Testing and Scalability</em></a> — About hardware<ol type="a" id="d3e210e7-3ab4-4423-92b4-7f394288ffc3" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/testing-scalability/data-volume"><em>Data Volume</em></a> — Sloppy indexing bites back</li></ol><ol type="a" id="59fe13de-6c0e-4362-85ae-9462fec58cf2" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/testing-scalability/system-load"><em>System Load</em></a> — Production load affects response time</li></ol><ol type="a" id="e54e05d1-57e2-4f8c-ab26-a54ff41c4ea8" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/testing-scalability/response-time-throughput-scaling-horizontal"><em>Response Time and Throughput</em></a> — Horizontal scalability</li></ol></li></ol><ol type="1" id="ee98f7c1-b53d-4d84-88b1-2af226595505" class="numbered-list" start="5"><li><a href="https://use-the-index-luke.com/sql/join"><em>The Join Operation</em></a> — Not slow, if done right<ol type="a" id="5fd6f98e-09c3-4f05-bd65-dd5944c26eea" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/join/nested-loops-join-n1-problem"><em>Nested Loops</em></a> — About the N+1 selects problem in ORM</li></ol><ol type="a" id="2308a125-cba2-49a7-9149-366e0d67bcef" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/join/hash-join-partial-objects"><em>Hash Join</em></a> — Requires an entirely different indexing approach</li></ol><ol type="a" id="f9c63a80-4ef1-4cd4-a95f-e4efd4b67142" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/join/sort-merge-join"><em>Sort-Merge Join</em></a> ‌— Like a zipper on two sorted sets</li></ol></li></ol><ol type="1" id="59f7fe92-246e-4453-bc1a-14bf4ff45762" class="numbered-list" start="6"><li><a href="https://use-the-index-luke.com/sql/clustering"><em>Clustering Data</em></a> — To reduce IO<ol type="a" id="03a4c076-6470-4825-902c-2f5b7a8a80f9" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/clustering/index-filter-predicates"><em>Index Filter Predicates Intentionally Used</em></a> — to tune <code>LIKE</code></li></ol><ol type="a" id="8769c577-73ba-4a54-85ac-49e1817723bb" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/clustering/index-only-scan-covering-index"><em>Index-Only Scan</em></a> — Avoiding table access</li></ol><ol type="a" id="f7e86974-b0e5-4115-9f89-a857412f5845" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/clustering/index-organized-clustered-index"><em>Index-Organized Table</em></a> — Clustered indexes without tables</li></ol></li></ol><ol type="1" id="4ca6b4e8-7064-40d0-b870-941252cab7d0" class="numbered-list" start="7"><li><a href="https://use-the-index-luke.com/sql/sorting-grouping"><em>Sorting and Grouping</em></a> — Pipelined <code>order by</code>: the third power<ol type="a" id="4f6d2cfb-b7c7-49f6-aec5-2a533f9dc53b" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/sorting-grouping/indexed-order-by"><em>Indexed Order By</em></a> — <code>where</code> clause interactions</li></ol><ol type="a" id="0251e8ff-c9af-4d32-a82c-434df56c6210" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/sorting-grouping/order-by-asc-desc-nulls-last"><code><em>ASC</em></code></a><a href="https://use-the-index-luke.com/sql/sorting-grouping/order-by-asc-desc-nulls-last"><em>/</em></a><a href="https://use-the-index-luke.com/sql/sorting-grouping/order-by-asc-desc-nulls-last"><code><em>DESC</em></code></a><a href="https://use-the-index-luke.com/sql/sorting-grouping/order-by-asc-desc-nulls-last"><em> and </em></a><a href="https://use-the-index-luke.com/sql/sorting-grouping/order-by-asc-desc-nulls-last"><code><em>NULL FIRST</em></code></a><a href="https://use-the-index-luke.com/sql/sorting-grouping/order-by-asc-desc-nulls-last"><em>/</em></a><a href="https://use-the-index-luke.com/sql/sorting-grouping/order-by-asc-desc-nulls-last"><code><em>LAST</em></code></a> — changing index order</li></ol><ol type="a" id="7ba60cda-74c7-41a4-9603-5fa9376960fb" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/sorting-grouping/indexed-group-by"><em>Indexed Group By</em></a> — Pipelining <code>group by</code></li></ol></li></ol><ol type="1" id="a66f8b00-c5a5-4ef4-a14d-c0bc44e747f3" class="numbered-list" start="8"><li><a href="https://use-the-index-luke.com/sql/partial-results"><em>Partial Results</em></a> — Paging efficiently<ol type="a" id="5dba4642-92e6-466d-85ae-848c0610be5b" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/partial-results/top-n-queries"><em>Selecting Top-N Rows</em></a> — if you need the first few rows only</li></ol><ol type="a" id="ce465eb4-b4f4-4077-a23a-98524e65e1ed" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/partial-results/fetch-next-page"><em>Fetching The Next Page</em></a> — The offset and seek methods compared</li></ol><ol type="a" id="9b379c4c-a9d3-4db7-b3ba-7e456113caf0" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/partial-results/window-functions"><em>Window-Functions</em></a> — Pagination using analytic queries</li></ol></li></ol><ol type="1" id="d37f0645-b509-4155-bd89-ac8da9249602" class="numbered-list" start="9"><li><a href="https://use-the-index-luke.com/sql/dml"><em>Insert, Delete and Update</em></a> — Indexing impacts on DML statements<ol type="a" id="7f1bb8d6-94e3-4bb8-9f5e-d95cd12a3556" class="numbered-list" start="1"><li><a href="https://use-the-index-luke.com/sql/dml/insert"><em>Insert</em></a> — cannot take direct benefit from indexes</li></ol><ol type="a" id="fd072df3-d6e9-4b0c-a4e4-6eb50b01689f" class="numbered-list" start="2"><li><a href="https://use-the-index-luke.com/sql/dml/delete"><em>Delete</em></a> — uses indexes for the <code>where</code> clause</li></ol><ol type="a" id="a99636d3-bafe-4521-a23e-84448a4bf60f" class="numbered-list" start="3"><li><a href="https://use-the-index-luke.com/sql/dml/update"><em>Update</em></a> — does not affect all indexes of the table</li></ol></li></ol><p id="54446d66-dff7-46b7-90a9-bb6819111ac7" class=""><em>You can’t learn everything in one day. Subscribe the newsletter via </em><a href="https://winand.us7.list-manage.com/subscribe?u=0144e9d4699c960039a90ad24&amp;id=a88100f1ab&amp;group%5B441%5D%5B256%5D=true"><em><strong>E-Mail</strong></em></a><em>, </em><a href="https://twitter.com/SQLPerfTips"><em><strong>Twitter</strong></em></a><em> or </em><a href="https://use-the-index-luke.com/blog/feed"><em><strong>RSS</strong></em></a><em> to gradually catch up. Have a look at </em><a href="https://modern-sql.com/"><em>modern-⁠sql.com</em></a><em> as well.</em></p><h2 id="8e4b65b8-dbfc-490f-b5d5-5edef4f737d8" class="">About the Author</h2><p id="34d5be31-342e-4fb0-849d-7fa6899fbfd9" class="">Markus Winand provides insights into SQL and shows how different systems support it at <a href="https://modern-sql.com/">modern-sql.com</a>. Previously he made <a href="https://use-the-index-luke.com/">use-the-index-luke.com</a>, which is still actively maintained. Markus can be hired as trainer, speaker and consultant via <a href="https://winand.at/">winand.at</a>.</p><h2 id="1b9eacfc-65eb-47b8-93f1-215f6299e870" class="">Buy the Book</h2></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

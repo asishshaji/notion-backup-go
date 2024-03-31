@@ -1,0 +1,676 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>The Architecture of Open Source Applications (Volume 2)nginx</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="1198ff03-38ed-47e3-b46f-83e13232474a" class="page sans"><header><h1 class="page-title">The Architecture of Open Source Applications (Volume 2)nginx</h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-url"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesUrl"><path d="M7.69922 10.8945L8.73828 9.84863C7.91797 9.77344 7.34375 9.51367 6.91992 9.08984C5.76465 7.93457 5.76465 6.29395 6.91309 5.14551L9.18262 2.87598C10.3379 1.7207 11.9717 1.7207 13.127 2.87598C14.2891 4.04492 14.2822 5.67188 13.1338 6.82031L11.958 7.99609C12.1768 8.49512 12.2451 9.10352 12.1289 9.62988L14.0908 7.6748C15.7725 6 15.7793 3.62109 14.084 1.92578C12.3887 0.223633 10.0098 0.237305 8.33496 1.91211L5.95605 4.29785C4.28125 5.97266 4.26758 8.35156 5.96289 10.0469C6.36621 10.4434 6.90625 10.7441 7.69922 10.8945ZM8.30078 5.13184L7.26855 6.17773C8.08203 6.25293 8.66309 6.51953 9.08008 6.93652C10.2422 8.09863 10.2422 9.73242 9.08691 10.8809L6.81738 13.1504C5.66211 14.3057 4.03516 14.3057 2.87305 13.1504C1.71094 11.9883 1.71777 10.3545 2.87305 9.20605L4.04199 8.03027C3.83008 7.53125 3.75488 6.92969 3.87109 6.39648L1.91602 8.35156C0.234375 10.0264 0.227539 12.4121 1.92285 14.1074C3.61816 15.8027 5.99707 15.7891 7.67188 14.1143L10.0439 11.7354C11.7256 10.0537 11.7324 7.6748 10.0371 5.98633C9.64062 5.58301 9.10059 5.28223 8.30078 5.13184Z"></path></svg></span>URL</th><td><a href="https://aosabook.org/en/v2/nginx.html" class="url-value">https://aosabook.org/en/v2/nginx.html</a></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesMultipleSelect"><path d="M1.91602 4.83789C2.44238 4.83789 2.87305 4.40723 2.87305 3.87402C2.87305 3.34766 2.44238 2.91699 1.91602 2.91699C1.38281 2.91699 0.952148 3.34766 0.952148 3.87402C0.952148 4.40723 1.38281 4.83789 1.91602 4.83789ZM5.1084 4.52344H14.3984C14.7607 4.52344 15.0479 4.23633 15.0479 3.87402C15.0479 3.51172 14.7607 3.22461 14.3984 3.22461H5.1084C4.74609 3.22461 4.45898 3.51172 4.45898 3.87402C4.45898 4.23633 4.74609 4.52344 5.1084 4.52344ZM1.91602 9.03516C2.44238 9.03516 2.87305 8.60449 2.87305 8.07129C2.87305 7.54492 2.44238 7.11426 1.91602 7.11426C1.38281 7.11426 0.952148 7.54492 0.952148 8.07129C0.952148 8.60449 1.38281 9.03516 1.91602 9.03516ZM5.1084 8.7207H14.3984C14.7607 8.7207 15.0479 8.43359 15.0479 8.07129C15.0479 7.70898 14.7607 7.42188 14.3984 7.42188H5.1084C4.74609 7.42188 4.45898 7.70898 4.45898 8.07129C4.45898 8.43359 4.74609 8.7207 5.1084 8.7207ZM1.91602 13.2324C2.44238 13.2324 2.87305 12.8018 2.87305 12.2686C2.87305 11.7422 2.44238 11.3115 1.91602 11.3115C1.38281 11.3115 0.952148 11.7422 0.952148 12.2686C0.952148 12.8018 1.38281 13.2324 1.91602 13.2324ZM5.1084 12.918H14.3984C14.7607 12.918 15.0479 12.6309 15.0479 12.2686C15.0479 11.9062 14.7607 11.6191 14.3984 11.6191H5.1084C4.74609 11.6191 4.45898 11.9062 4.45898 12.2686C4.45898 12.6309 4.74609 12.918 5.1084 12.918Z"></path></svg></span>Category</th><td><span class="selected-value select-value-color-default">Proxy</span></td></tr></tbody></table></header><div class="page-body"><p id="2c304be8-ff22-48b0-9709-cb8d80e462f9" class="">nginx (pronounced &quot;engine x&quot;) is a free open source web server written by Igor Sysoev, a Russian software engineer. Since its public launch in 2004, nginx has focused on high performance, high concurrency and low memory usage. Additional features on top of the web server functionality, like load balancing, caching, access and bandwidth control, and the ability to integrate efficiently with a variety of applications, have helped to make nginx a good choice for modern website architectures. Currently nginx is the second most popular open source web server on the Internet.</p><h2 id="57e3a4c8-3421-4ae5-938a-c80719804cd6" class="">14.1. Why Is High Concurrency Important?</h2><p id="8648c5de-e13b-4303-9cb1-1f7ea8bded44" class="">These days the Internet is so widespread and ubiquitous it&#x27;s hard to imagine it wasn&#x27;t exactly there, as we know it, a decade ago. It has greatly evolved, from simple HTML producing clickable text, based on NCSA and then on Apache web servers, to an always-on communication medium used by more than 2 billion users worldwide. With the proliferation of permanently connected PCs, mobile devices and recently tablets, the Internet landscape is rapidly changing and entire economies have become digitally wired. Online services have become much more elaborate with a clear bias towards instantly available live information and entertainment. Security aspects of running online business have also significantly changed. Accordingly, websites are now much more complex than before, and generally require a lot more engineering efforts to be robust and scalable.</p><p id="7de7c6ea-d5e2-4815-87b9-0e8b9f7646af" class="">One of the biggest challenges for a website architect has always been concurrency. Since the beginning of web services, the level of concurrency has been continuously growing. It&#x27;s not uncommon for a popular website to serve hundreds of thousands and even millions of simultaneous users. A decade ago, the major cause of concurrency was slow clients—users with ADSL or dial-up connections. Nowadays, concurrency is caused by a combination of mobile clients and newer application architectures which are typically based on maintaining a persistent connection that allows the client to be updated with news, tweets, friend feeds, and so on. Another important factor contributing to increased concurrency is the changed behavior of modern browsers, which open four to six simultaneous connections to a website to improve page load speed.</p><p id="63565ea7-34cd-48a9-a455-c9374126cbdb" class="">To illustrate the problem with slow clients, imagine a simple Apache-based web server which produces a relatively short 100 KB response—a web page with text or an image. It can be merely a fraction of a second to generate or retrieve this page, but it takes 10 seconds to transmit it to a client with a bandwidth of 80 kbps (10 KB/s). Essentially, the web server would relatively quickly pull 100 KB of content, and then it would be busy for 10 seconds slowly sending this content to the client before freeing its connection. Now imagine that you have 1,000 simultaneously connected clients who have requested similar content. If only 1 MB of additional memory is allocated per client, it would result in 1000 MB (about 1 GB) of extra memory devoted to serving just 1000 clients 100 KB of content. In reality, a typical web server based on Apache commonly allocates more than 1 MB of additional memory per connection, and regrettably tens of kbps is still often the effective speed of mobile communications. Although the situation with sending content to a slow client might be, to some extent, improved by increasing the size of operating system kernel socket buffers, it&#x27;s not a general solution to the problem and can have undesirable side effects.</p><p id="50381c10-d75f-4f37-be76-59bfbe114981" class="">With persistent connections the problem of handling concurrency is even more pronounced, because to avoid latency associated with establishing new HTTP connections, clients would stay connected, and for each connected client there&#x27;s a certain amount of memory allocated by the web server.</p><p id="f435f03d-5ba1-4e58-95ec-d30dd7a7277c" class="">Consequently, to handle the increased workloads associated with growing audiences and hence higher levels of concurrency—and to be able to continuously do so—a website should be based on a number of very efficient building blocks. While the other parts of the equation such as hardware (CPU, memory, disks), network capacity, application and data storage architectures are obviously important, it is in the web server software that client connections are accepted and processed. Thus, the web server should be able to scale nonlinearly with the growing number of simultaneous connections and requests per second.</p><h3 id="902e1c27-b742-49ba-b292-e85c11758dd2" class="">Isn&#x27;t Apache Suitable?</h3><p id="e3afa92c-c37a-4d2d-b30b-c08922c082e9" class="">Apache, the web server software that still largely dominates the Internet today, has its roots in the beginning of the 1990s. Originally, its architecture matched the then-existing operating systems and hardware, but also the state of the Internet, where a website was typically a standalone physical server running a single instance of Apache. By the beginning of the 2000s it was obvious that the standalone web server model could not be easily replicated to satisfy the needs of growing web services. Although Apache provided a solid foundation for future development, it was architected to spawn a copy of itself for each new connection, which was not suitable for nonlinear scalability of a website. Eventually Apache became a general purpose web server focusing on having many different features, a variety of third-party extensions, and universal applicability to practically any kind of web application development. However, nothing comes without a price and the downside to having such a rich and universal combination of tools in a single piece of software is less scalability because of increased CPU and memory usage per connection.</p><p id="24af87b7-3c60-4523-8466-3fc6bcaf1a6d" class="">Thus, when server hardware, operating systems and network resources ceased to be major constraints for website growth, web developers worldwide started to look around for a more efficient means of running web servers. Around ten years ago, Daniel Kegel, a prominent software engineer, <a href="http://www.kegel.com/c10k.html">proclaimed</a> that &quot;it&#x27;s time for web servers to handle ten thousand clients simultaneously&quot; and predicted what we now call Internet cloud services. Kegel&#x27;s C10K manifest spurred a number of attempts to solve the problem of web server optimization to handle a large number of clients at the same time, and nginx turned out to be one of the most successful ones.</p><p id="5df1b2c6-6376-4b6f-9976-28335a6a0b60" class="">Aimed at solving the C10K problem of 10,000 simultaneous connections, nginx was written with a different architecture in mind—one which is much more suitable for nonlinear scalability in both the number of simultaneous connections and requests per second. nginx is event-based, so it does not follow Apache&#x27;s style of spawning new processes or threads for each web page request. The end result is that even as load increases, memory and CPU usage remain manageable. nginx can now deliver tens of thousands of concurrent connections on a server with typical hardware.</p><p id="4aeb2a95-beca-40db-bb77-03c39dd8234b" class="">When the first version of nginx was released, it was meant to be deployed alongside Apache such that static content like HTML, CSS, JavaScript and images were handled by nginx to offload concurrency and latency processing from Apache-based application servers. Over the course of its development, nginx has added integration with applications through the use of FastCGI, uswgi or SCGI protocols, and with distributed memory object caching systems like <em>memcached</em>. Other useful functionality like reverse proxy with load balancing and caching was added as well. These additional features have shaped nginx into an efficient combination of tools to build a scalable web infrastructure upon.</p><p id="1b869a6e-44a1-4a4d-b485-3236b0492a2a" class="">In February 2012, the Apache 2.4.x branch was released to the public. Although this latest release of Apache has added new multi-processing core modules and new proxy modules aimed at enhancing scalability and performance, it&#x27;s too soon to tell if its performance, concurrency and resource utilization are now on par with, or better than, pure event-driven web servers. It would be very nice to see Apache application servers scale better with the new version, though, as it could potentially alleviate bottlenecks on the backend side which still often remain unsolved in typical nginx-plus-Apache web configurations.</p><h3 id="4172fe5c-e882-4b7d-8c32-955de7247245" class="">Are There More Advantages to Using nginx?</h3><p id="06bafc9e-15dc-4224-be0c-b7563b9ae284" class="">Handling high concurrency with high performance and efficiency has always been the key benefit of deploying nginx. However, there are now even more interesting benefits.</p><p id="4ca935f0-6860-4df7-8699-e91e69eb5cab" class="">In the last few years, web architects have embraced the idea of decoupling and separating their application infrastructure from the web server. However, what would previously exist in the form of a LAMP (Linux, Apache, MySQL, PHP, Python or Perl)-based website, might now become not merely a LEMP-based one (`E&#x27; standing for `Engine x&#x27;), but more and more often an exercise in pushing the web server to the edge of the infrastructure and integrating the same or a revamped set of applications and database tools around it in a different way.</p><p id="76d7cc85-bdd3-4eb8-a2a6-664cb70abc46" class="">nginx is very well suited for this, as it provides the key features necessary to conveniently offload concurrency, latency processing, SSL (secure sockets layer), static content, compression and caching, connections and requests throttling, and even HTTP media streaming from the application layer to a much more efficient edge web server layer. It also allows integrating directly with memcached/Redis or other &quot;NoSQL&quot; solutions, to boost performance when serving a large number of concurrent users.</p><p id="71702033-f9f2-4cc1-b245-4d4f995d8828" class="">With recent flavors of development kits and programming languages gaining wide use, more and more companies are changing their application development and deployment habits. nginx has become one of the most important components of these changing paradigms, and it has already helped many companies start and develop their web services quickly and within their budgets.</p><p id="d2426295-879a-47d2-81a1-6d3c5e02952f" class="">The first lines of nginx were written in 2002. In 2004 it was released to the public under the two-clause BSD license. The number of nginx users has been growing ever since, contributing ideas, and submitting bug reports, suggestions and observations that have been immensely helpful and beneficial for the entire community.</p><p id="d58b65a2-307d-4c49-bf18-d0f2f8e67e1b" class="">The nginx codebase is original and was written entirely from scratch in the C programming language. nginx has been ported to many architectures and operating systems, including Linux, FreeBSD, Solaris, Mac OS X, AIX and Microsoft Windows. nginx has its own libraries and with its standard modules does not use much beyond the system&#x27;s C library, except for zlib, PCRE and OpenSSL which can be optionally excluded from a build if not needed or because of potential license conflicts.</p><p id="eb323cd3-8e7f-4fd9-97d9-62c1c155ce30" class="">A few words about the Windows version of nginx. While nginx works in a Windows environment, the Windows version of nginx is more like a proof-of-concept rather than a fully functional port. There are certain limitations of the nginx and Windows kernel architectures that do not interact well at this time. The known issues of the nginx version for Windows include a much lower number of concurrent connections, decreased performance, no caching and no bandwidth policing. Future versions of nginx for Windows will match the mainstream functionality more closely.</p><h2 id="20bbe72f-1992-4497-b5d3-b6c27307a609" class="">14.2. Overview of nginx Architecture</h2><p id="13fc789e-0316-4618-94f2-662a5a85f77d" class="">Traditional process- or thread-based models of handling concurrent connections involve handling each connection with a separate process or thread, and blocking on network or input/output operations. Depending on the application, it can be very inefficient in terms of memory and CPU consumption. Spawning a separate process or thread requires preparation of a new runtime environment, including allocation of heap and stack memory, and the creation of a new execution context. Additional CPU time is also spent creating these items, which can eventually lead to poor performance due to thread thrashing on excessive context switching. All of these complications manifest themselves in older web server architectures like Apache&#x27;s. This is a tradeoff between offering a rich set of generally applicable features and optimized usage of server resources.</p><p id="8451acc8-3a42-46da-97a4-4d25f2630e40" class="">From the very beginning, nginx was meant to be a specialized tool to achieve more performance, density and economical use of server resources while enabling dynamic growth of a website, so it has followed a different model. It was actually inspired by the ongoing development of advanced event-based mechanisms in a variety of operating systems. What resulted is a modular, event-driven, asynchronous, single-threaded, non-blocking architecture which became the foundation of nginx code.</p><p id="915f0af3-0dc6-441c-b610-6b6b87da4a83" class="">nginx uses multiplexing and event notifications heavily, and dedicates specific tasks to separate processes. Connections are processed in a highly efficient run-loop in a limited number of single-threaded processes called <code>worker</code>s. Within each <code>worker</code> nginx can handle many thousands of concurrent connections and requests per second.</p><h3 id="f0b99fc8-93f8-4501-b4b6-cfc71cbbf6d3" class="">Code Structure</h3><p id="53726e88-e530-489c-aef7-6b5cb3c259ee" class="">The nginx <code>worker</code> code includes the core and the functional modules. The core of nginx is responsible for maintaining a tight run-loop and executing appropriate sections of modules&#x27; code on each stage of request processing. Modules constitute most of the presentation and application layer functionality. Modules read from and write to the network and storage, transform content, do outbound filtering, apply server-side include actions and pass the requests to the upstream servers when proxying is activated.</p><p id="90883372-e920-4d30-979a-8d1238dde557" class="">nginx&#x27;s modular architecture generally allows developers to extend the set of web server features without modifying the nginx core. nginx modules come in slightly different incarnations, namely core modules, event modules, phase handlers, protocols, variable handlers, filters, upstreams and load balancers. At this time, nginx doesn&#x27;t support dynamically loaded modules; i.e., modules are compiled along with the core at build stage. However, support for loadable modules and ABI is planned for the future major releases. More detailed information about the roles of different modules can be found in <a href="https://aosabook.org/en/v2/nginx.html#sec.nginx.internals">Section 14.4</a>.</p><p id="eba6f555-9da7-45c8-96f3-c5ef3f5da378" class="">While handling a variety of actions associated with accepting, processing and managing network connections and content retrieval, nginx uses event notification mechanisms and a number of disk I/O performance enhancements in Linux, Solaris and BSD-based operating systems, like <code>kqueue</code>, <code>epoll</code>, and <code>event ports</code>. The goal is to provide as many hints to the operating system as possible, in regards to obtaining timely asynchronous feedback for inbound and outbound traffic, disk operations, reading from or writing to sockets, timeouts and so on. The usage of different methods for multiplexing and advanced I/O operations is heavily optimized for every Unix-based operating system nginx runs on.</p><p id="edecfca0-7827-4128-8031-4862fa1091c3" class="">A high-level overview of nginx architecture is presented in <a href="https://aosabook.org/en/v2/nginx.html#fig.nginx.arch">Figure 14.1</a>.</p><figure id="0d12f706-7a83-46d5-bdf5-9eaa1b160b00" class="image"><a href="The%20Architecture%20of%20Open%20Source%20Applications%20(Volu%201198ff0338ed47e3b46f83e13232474a/architecture.png"><img style="width:700px" src="The%20Architecture%20of%20Open%20Source%20Applications%20(Volu%201198ff0338ed47e3b46f83e13232474a/architecture.png"/></a></figure><p id="64b6df35-86f4-412d-a476-882cd7b86a0f" class="">Figure 14.1: Diagram of nginx&#x27;s architecture</p><h3 id="63d4d697-fa02-4f65-ab86-ecaa8b43f9f2" class="">Workers Model</h3><p id="e8a92873-88ac-4515-a1a6-33fcee468ebd" class="">As previously mentioned, nginx doesn&#x27;t spawn a process or thread for every connection. Instead, <code>worker</code> processes accept new requests from a shared &quot;listen&quot; socket and execute a highly efficient run-loop inside each <code>worker</code> to process thousands of connections per <code>worker</code>. There&#x27;s no specialized arbitration or distribution of connections to the <code>worker</code>s in nginx; this work is done by the OS kernel mechanisms. Upon startup, an initial set of listening sockets is created. <code>worker</code>s then continuously accept, read from and write to the sockets while processing HTTP requests and responses.</p><p id="fc722d59-acd0-4e2c-8b9c-cc056a526748" class="">The run-loop is the most complicated part of the nginx <code>worker</code> code. It includes comprehensive inner calls and relies heavily on the idea of asynchronous task handling. Asynchronous operations are implemented through modularity, event notifications, extensive use of callback functions and fine-tuned timers. Overall, the key principle is to be as non-blocking as possible. The only situation where nginx can still block is when there&#x27;s not enough disk storage performance for a <code>worker</code> process.</p><p id="29a930b4-77d5-4c47-bb56-f01642dcee1b" class="">Because nginx does not fork a process or thread per connection, memory usage is very conservative and extremely efficient in the vast majority of cases. nginx conserves CPU cycles as well because there&#x27;s no ongoing create-destroy pattern for processes or threads. What nginx does is check the state of the network and storage, initialize new connections, add them to the run-loop, and process asynchronously until completion, at which point the connection is deallocated and removed from the run-loop. Combined with the careful use of <code>syscall</code>s and an accurate implementation of supporting interfaces like pool and slab memory allocators, nginx typically achieves moderate-to-low CPU usage even under extreme workloads.</p><p id="533c9b18-c078-488b-8363-68a28f507b7f" class="">Because nginx spawns several <code>worker</code>s to handle connections, it scales well across multiple cores. Generally, a separate <code>worker</code> per core allows full utilization of multicore architectures, and prevents thread thrashing and lock-ups. There&#x27;s no resource starvation and the resource controlling mechanisms are isolated within single-threaded <code>worker</code> processes. This model also allows more scalability across physical storage devices, facilitates more disk utilization and avoids blocking on disk I/O. As a result, server resources are utilized more efficiently with the workload shared across several workers.</p><p id="276b8ff0-c812-4b8a-96ef-48c76ce176dc" class="">With some disk use and CPU load patterns, the number of nginx <code>worker</code>s should be adjusted. The rules are somewhat basic here, and system administrators should try a couple of configurations for their workloads. General recommendations might be the following: if the load pattern is CPU intensive—for instance, handling a lot of TCP/IP, doing SSL, or compression—the number of nginx <code>worker</code>s should match the number of CPU cores; if the load is mostly disk I/O bound—for instance, serving different sets of content from storage, or heavy proxying—the number of <code>worker</code>s might be one and a half to two times the number of cores. Some engineers choose the number of <code>worker</code>s based on the number of individual storage units instead, though efficiency of this approach depends on the type and configuration of disk storage.</p><p id="fe836d65-03b4-417f-8a43-a3a64f30798d" class="">One major problem that the developers of nginx will be solving in upcoming versions is how to avoid most of the blocking on disk I/O. At the moment, if there&#x27;s not enough storage performance to serve disk operations generated by a particular <code>worker</code>, that <code>worker</code> may still block on reading/writing from disk. A number of mechanisms and configuration file directives exist to mitigate such disk I/O blocking scenarios. Most notably, combinations of options like sendfile and AIO typically produce a lot of headroom for disk performance. An nginx installation should be planned based on the data set, the amount of memory available for nginx, and the underlying storage architecture.</p><p id="42f64e23-705e-453d-b3a0-eae8dfd43f83" class="">Another problem with the existing <code>worker</code> model is related to limited support for embedded scripting. For one, with the standard nginx distribution, only embedding Perl scripts is supported. There is a simple explanation for that: the key problem is the possibility of an embedded script to block on any operation or exit unexpectedly. Both types of behavior would immediately lead to a situation where the worker is hung, affecting many thousands of connections at once. More work is planned to make embedded scripting with nginx simpler, more reliable and suitable for a broader range of applications.</p><h3 id="d106a55e-b740-4adc-9bba-b85867232e61" class="">nginx Process Roles</h3><p id="0e0635a9-570f-4134-bca7-f8532cc659d0" class="">nginx runs several processes in memory; there is a single master process and several <code>worker</code> processes. There are also a couple of special purpose processes, specifically a cache loader and cache manager. All processes are single-threaded in version 1.x of nginx. All processes primarily use shared-memory mechanisms for inter-process communication. The master process is run as the <code>root</code> user. The cache loader, cache manager and <code>worker</code>s run as an unprivileged user.</p><p id="307c4111-3a2e-4ba3-99d3-55b2198cff79" class="">The master process is responsible for the following tasks:</p><ul id="cd12bc89-352e-422d-aa56-9c52bc8b05aa" class="bulleted-list"><li style="list-style-type:disc">reading and validating configuration</li></ul><ul id="ab71bc71-2974-46f6-826a-6ad2a1b441d5" class="bulleted-list"><li style="list-style-type:disc">creating, binding and closing sockets</li></ul><ul id="369c18d0-8dc1-467d-871a-73ad7c0e7068" class="bulleted-list"><li style="list-style-type:disc">starting, terminating and maintaining the configured number of <code>worker</code> processes</li></ul><ul id="ded056d4-1360-4eb1-9704-d36613222f29" class="bulleted-list"><li style="list-style-type:disc">reconfiguring without service interruption</li></ul><ul id="0dd55da0-aaf3-48a4-b04d-30dd8967166b" class="bulleted-list"><li style="list-style-type:disc">controlling non-stop binary upgrades (starting new binary and rolling back if necessary)</li></ul><ul id="5a1dfdc7-4c80-4e21-80ef-fa4669529122" class="bulleted-list"><li style="list-style-type:disc">re-opening log files</li></ul><ul id="9052def2-047b-4d7a-a8e7-104a8bdbbb79" class="bulleted-list"><li style="list-style-type:disc">compiling embedded Perl scripts</li></ul><p id="8cfbbd71-8f00-4d87-afcd-dfa3ba33fc7f" class="">The <code>worker</code> processes accept, handle and process connections from clients, provide reverse proxying and filtering functionality and do almost everything else that nginx is capable of. In regards to monitoring the behavior of an nginx instance, a system administrator should keep an eye on <code>worker</code>s as they are the processes reflecting the actual day-to-day operations of a web server.</p><p id="761915d3-3ea2-4d06-a473-c774193b8066" class="">The cache loader process is responsible for checking the on-disk cache items and populating nginx&#x27;s in-memory database with cache metadata. Essentially, the cache loader prepares nginx instances to work with files already stored on disk in a specially allocated directory structure. It traverses the directories, checks cache content metadata, updates the relevant entries in shared memory and then exits when everything is clean and ready for use.</p><p id="c9df401e-017f-4a93-bc71-db4eb54044cc" class="">The cache manager is mostly responsible for cache expiration and invalidation. It stays in memory during normal nginx operation and it is restarted by the master process in the case of failure.</p><h3 id="d8c7123e-1544-4d71-8e10-25376db1a726" class="">Brief Overview of nginx Caching</h3><p id="fbcfe557-d953-4cae-aa5b-9db13a6158c7" class="">Caching in nginx is implemented in the form of hierarchical data storage on a filesystem. Cache keys are configurable, and different request-specific parameters can be used to control what gets into the cache. Cache keys and cache metadata are stored in the shared memory segments, which the cache loader, cache manager and <code>worker</code>s can access. Currently there is not any in-memory caching of files, other than optimizations implied by the operating system&#x27;s virtual filesystem mechanisms. Each cached response is placed in a different file on the filesystem. The hierarchy (levels and naming details) are controlled through nginx configuration directives. When a response is written to the cache directory structure, the path and the name of the file are derived from an MD5 hash of the proxy URL.</p><p id="7ac82262-ba2c-4f4d-be3a-cdcdbb334143" class="">The process for placing content in the cache is as follows: When nginx reads the response from an upstream server, the content is first written to a temporary file outside of the cache directory structure. When nginx finishes processing the request it renames the temporary file and moves it to the cache directory. If the temporary files directory for proxying is on another file system, the file will be copied, thus it&#x27;s recommended to keep both temporary and cache directories on the same file system. It is also quite safe to delete files from the cache directory structure when they need to be explicitly purged. There are third-party extensions for nginx which make it possible to control cached content remotely, and more work is planned to integrate this functionality in the main distribution.</p><h2 id="097ab87c-7b88-42f9-aeb0-507509b98ca9" class="">14.3. nginx Configuration</h2><p id="c9a313df-8f7a-45c7-bc38-4a33123d9449" class="">nginx&#x27;s configuration system was inspired by Igor Sysoev&#x27;s experiences with Apache. His main insight was that a scalable configuration system is essential for a web server. The main scaling problem was encountered when maintaining large complicated configurations with lots of virtual servers, directories, locations and datasets. In a relatively big web setup it can be a nightmare if not done properly both at the application level and by the system engineer himself.</p><p id="5483530e-395f-460c-886e-f410a1263c83" class="">As a result, nginx configuration was designed to simplify day-to-day operations and to provide an easy means for further expansion of web server configuration.</p><p id="c26e8c96-bfc1-4ee1-b3c3-2a7a55ac996a" class="">nginx configuration is kept in a number of plain text files which typically reside in <code>/usr/local/etc/nginx</code> or <code>/etc/nginx</code>. The main configuration file is usually called <code>nginx.conf</code>. To keep it uncluttered, parts of the configuration can be put in separate files which can be automatically included in the main one. However, it should be noted here that nginx does not currently support Apache-style distributed configurations (i.e., <code>.htaccess</code> files). All of the configuration relevant to nginx web server behavior should reside in a centralized set of configuration files.</p><p id="eec6e45e-fa5a-47a8-852a-58161995fe6d" class="">The configuration files are initially read and verified by the master process. A compiled read-only form of the nginx configuration is available to the <code>worker</code> processes as they are forked from the master process. Configuration structures are automatically shared by the usual virtual memory management mechanisms.</p><p id="28ae160d-ca16-4237-bbc1-c74b557bbcf5" class="">nginx configuration has several different contexts for <code>main</code>, <code>http</code>, <code>server</code>, <code>upstream</code>, <code>location</code> (and also <code>mail</code> for mail proxy) blocks of directives. Contexts never overlap. For instance, there is no such thing as putting a <code>location</code> block in the <code>main</code> block of directives. Also, to avoid unnecessary ambiguity there isn&#x27;t anything like a &quot;global web server&quot; configuration. nginx configuration is meant to be clean and logical, allowing users to maintain complicated configuration files that comprise thousands of directives. In a private conversation, Sysoev said, &quot;Locations, directories, and other blocks in the global server configuration are the features I never liked in Apache, so this is the reason why they were never implemented in nginx.&quot;</p><p id="b7f456f7-cd2d-45f8-af35-980379e8f052" class="">Configuration syntax, formatting and definitions follow a so-called C-style convention. This particular approach to making configuration files is already being used by a variety of open source and commercial software applications. By design, C-style configuration is well-suited for nested descriptions, being logical and easy to create, read and maintain, and liked by many engineers. C-style configuration of nginx can also be easily automated.</p><p id="618c45f9-be9e-4d57-87ec-1bd2bc611a6d" class="">While some of the nginx directives resemble certain parts of Apache configuration, setting up an nginx instance is quite a different experience. For instance, rewrite rules are supported by nginx, though it would require an administrator to manually adapt a legacy Apache rewrite configuration to match nginx style. The implementation of the rewrite engine differs too.</p><p id="f7ce61a8-0a85-4975-933a-d33035b0a1de" class="">In general, nginx settings also provide support for several original mechanisms that can be very useful as part of a lean web server configuration. It makes sense to briefly mention variables and the <code>try_files</code> directive, which are somewhat unique to nginx. Variables in nginx were developed to provide an additional even-more-powerful mechanism to control run-time configuration of a web server. Variables are optimized for quick evaluation and are internally pre-compiled to indices. Evaluation is done on demand; i.e., the value of a variable is typically calculated only once and cached for the lifetime of a particular request. Variables can be used with different configuration directives, providing additional flexibility for describing conditional request processing behavior.</p><p id="10ff493c-f676-47f5-badf-63e1ec93e22d" class="">The <code>try_files</code> directive was initially meant to gradually replace conditional <code>if</code> configuration statements in a more proper way, and it was designed to quickly and efficiently try/match against different URI-to-content mappings. Overall, the <code>try_files</code> directive works well and can be extremely efficient and useful. It is recommended that the reader thoroughly check the <a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#try_files"><code>try_files</code></a><a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#try_files"> directive</a> and adopt its use whenever applicable.</p><h2 id="587a06f2-7f79-497a-bb69-483345ec6e43" class="">14.4. nginx Internals</h2><p id="d851535f-d578-4a78-9cdb-9b03b4e8e99a" class="">As was mentioned before, the nginx codebase consists of a core and a number of modules. The core of nginx is responsible for providing the foundation of the web server, web and mail reverse proxy functionalities; it enables the use of underlying network protocols, builds the necessary run-time environment, and ensures seamless interaction between different modules. However, most of the protocol- and application-specific features are done by nginx modules, not the core.</p><p id="67d87669-06f4-41bb-95d7-e47938d3308c" class="">Internally, nginx processes connections through a pipeline, or chain, of modules. In other words, for every operation there&#x27;s a module which is doing the relevant work; e.g., compression, modifying content, executing server-side includes, communicating to the upstream application servers through FastCGI or uwsgi protocols, or talking to memcached.</p><p id="9dca73e4-c595-4482-a42d-11165429ff26" class="">There are a couple of nginx modules that sit somewhere between the core and the real &quot;functional&quot; modules. These modules are <code>http</code> and <code>mail</code>. These two modules provide an additional level of abstraction between the core and lower-level components. In these modules, the handling of the sequence of events associated with a respective application layer protocol like HTTP, SMTP or IMAP is implemented. In combination with the nginx core, these upper-level modules are responsible for maintaining the right order of calls to the respective functional modules. While the HTTP protocol is currently implemented as part of the <code>http</code> module, there are plans to separate it into a functional module in the future, due to the need to support other protocols like SPDY (see &quot;<a href="http://www.chromium.org/spdy/spdy-whitepaper">SPDY: An experimental protocol for a faster web</a>&quot;).</p><p id="cff4f85e-e35d-4827-8bca-3bf4dbc79c67" class="">The functional modules can be divided into event modules, phase handlers, output filters, variable handlers, protocols, upstreams and load balancers. Most of these modules complement the HTTP functionality of nginx, though event modules and protocols are also used for <code>mail</code>. Event modules provide a particular OS-dependent event notification mechanism like <code>kqueue</code> or <code>epoll</code>. The event module that nginx uses depends on the operating system capabilities and build configuration. Protocol modules allow nginx to communicate through HTTPS, TLS/SSL, SMTP, POP3 and IMAP.</p><p id="d85ab42e-3188-4110-b22f-d66db4c871c6" class="">A typical HTTP request processing cycle looks like the following.</p><ol type="1" id="726108fb-ab9e-4c8c-9f6c-8a652d1f0e3c" class="numbered-list" start="1"><li>Client sends HTTP request.</li></ol><ol type="1" id="4be2d2c4-d0fd-4d5d-8bc3-1eebf68b4530" class="numbered-list" start="2"><li>nginx core chooses the appropriate phase handler based on the configured location matching the request.</li></ol><ol type="1" id="72702b4e-48cf-47b2-9113-ae61ba93ac64" class="numbered-list" start="3"><li>If configured to do so, a load balancer picks an upstream server for proxying.</li></ol><ol type="1" id="fea7d634-64a5-4a9e-a03f-36d78661348d" class="numbered-list" start="4"><li>Phase handler does its job and passes each output buffer to the first filter.</li></ol><ol type="1" id="642601ba-e77c-4c33-b8e0-e31f0a872b24" class="numbered-list" start="5"><li>First filter passes the output to the second filter.</li></ol><ol type="1" id="542e2982-bd1c-4c97-b1e8-69d77d9abdfd" class="numbered-list" start="6"><li>Second filter passes the output to third (and so on).</li></ol><ol type="1" id="4d99daf4-e120-4844-82fa-94302b741132" class="numbered-list" start="7"><li>Final response is sent to the client.</li></ol><p id="71620bcd-43df-4179-95a6-5b695ae5a202" class="">nginx module invocation is extremely customizable. It is performed through a series of callbacks using pointers to the executable functions. However, the downside of this is that it may place a big burden on programmers who would like to write their own modules, because they must define exactly how and when the module should run. Both the nginx API and developers&#x27; documentation are being improved and made more available to alleviate this.</p><p id="fc2ed6f9-e029-4689-8ae8-0863e6cb8424" class="">Some examples of where a module can attach are:</p><ul id="dd734ca1-6b96-4b77-8775-2a7f2a4aef00" class="bulleted-list"><li style="list-style-type:disc">Before the configuration file is read and processed</li></ul><ul id="13e5db63-0946-42e7-af55-b1ce2fc2108c" class="bulleted-list"><li style="list-style-type:disc">For each configuration directive for the location and the server where it appears</li></ul><ul id="915439cf-af5b-4bc6-8233-0d2938a923c5" class="bulleted-list"><li style="list-style-type:disc">When the main configuration is initialized</li></ul><ul id="0588ccfc-2a40-4474-bcb3-4a6fc1a66e9d" class="bulleted-list"><li style="list-style-type:disc">When the server (i.e., host/port) is initialized</li></ul><ul id="21120c2f-994c-425f-98e6-4e11d510a460" class="bulleted-list"><li style="list-style-type:disc">When the server configuration is merged with the main configuration</li></ul><ul id="2e6ed025-d278-4cd4-8e4f-1312c037bf11" class="bulleted-list"><li style="list-style-type:disc">When the location configuration is initialized or merged with its parent server configuration</li></ul><ul id="6493ba20-1589-4840-bcea-c1e748169eb9" class="bulleted-list"><li style="list-style-type:disc">When the master process starts or exits</li></ul><ul id="d5d4aef8-1e9c-4e4b-a6dc-e24298ad5125" class="bulleted-list"><li style="list-style-type:disc">When a new worker process starts or exits</li></ul><ul id="442a677e-09a5-463a-83c8-140c6f3a9011" class="bulleted-list"><li style="list-style-type:disc">When handling a request</li></ul><ul id="c27dad8b-fbbf-437a-aa96-10609a0d6f05" class="bulleted-list"><li style="list-style-type:disc">When filtering the response header and the body</li></ul><ul id="ee9c16dd-7d20-4c7c-b87b-d55725170b19" class="bulleted-list"><li style="list-style-type:disc">When picking, initiating and re-initiating a request to an upstream server</li></ul><ul id="1e22d8fd-d985-4253-92b5-cb997ffd36b2" class="bulleted-list"><li style="list-style-type:disc">When processing the response from an upstream server</li></ul><ul id="b3df13c2-9ad4-45c4-9d77-32fa92b5942d" class="bulleted-list"><li style="list-style-type:disc">When finishing an interaction with an upstream server</li></ul><p id="806a6115-6507-49a8-a215-374048028bc4" class="">Inside a <code>worker</code>, the sequence of actions leading to the run-loop where the response is generated looks like the following:</p><ol type="1" id="183dcc93-6c76-4e47-a596-834bcbd807a3" class="numbered-list" start="1"><li>Begin <code>ngx_worker_process_cycle()</code>.</li></ol><ol type="1" id="390245e9-501d-4be2-a65c-40c553eeb243" class="numbered-list" start="2"><li>Process events with OS specific mechanisms (such as <code>epoll</code> or <code>kqueue</code>).</li></ol><ol type="1" id="61444f9f-dc5f-4b15-b627-cc3c58621350" class="numbered-list" start="3"><li>Accept events and dispatch the relevant actions.</li></ol><ol type="1" id="28ec2504-6beb-4e97-bcc8-6e0df9e4f1d6" class="numbered-list" start="4"><li>Process/proxy request header and body.</li></ol><ol type="1" id="61dd09eb-4605-481d-9e7e-72bfa0909187" class="numbered-list" start="5"><li>Generate response content (header, body) and stream it to the client.</li></ol><ol type="1" id="42370f84-69ac-41ec-a0b8-d4f5caabcb27" class="numbered-list" start="6"><li>Finalize request.</li></ol><ol type="1" id="6613fa51-f472-41c3-926a-9c6fb45af3dd" class="numbered-list" start="7"><li>Re-initialize timers and events.</li></ol><p id="4babb67b-088d-491c-bfb4-15b959089868" class="">The run-loop itself (steps 5 and 6) ensures incremental generation of a response and streaming it to the client.</p><p id="4d828484-199c-41d9-b09b-341c7fdd8011" class="">A more detailed view of processing an HTTP request might look like this:</p><ol type="1" id="23cbedd8-dd35-4f4d-a264-1ba90b9a4e05" class="numbered-list" start="1"><li>Initialize request processing.</li></ol><ol type="1" id="92613fd8-bc4d-4bfe-8e78-5ba47358f0d3" class="numbered-list" start="2"><li>Process header.</li></ol><ol type="1" id="a08fd002-5e24-4f25-820a-de83f25b3efd" class="numbered-list" start="3"><li>Process body.</li></ol><ol type="1" id="042c317d-871d-4e81-b7b7-c3de9d4bf894" class="numbered-list" start="4"><li>Call the associated handler.</li></ol><ol type="1" id="2770d8d8-293c-454c-8bf7-118e3e6fe0ad" class="numbered-list" start="5"><li>Run through the processing phases.</li></ol><p id="df36d870-c7cd-4d9b-b5d6-75cd8e416b37" class="">Which brings us to the phases. When nginx handles an HTTP request, it passes it through a number of processing phases. At each phase there are handlers to call. In general, phase handlers process a request and produce the relevant output. Phase handlers are attached to the locations defined in the configuration file.</p><p id="91d0c384-92e2-4d0f-a648-fac1290001bf" class="">Phase handlers typically do four things: get the location configuration, generate an appropriate response, send the header, and send the body. A handler has one argument: a specific structure describing the request. A request structure has a lot of useful information about the client request, such as the request method, URI, and header.</p><p id="1696282a-d87e-482d-add1-16176731494a" class="">When the HTTP request header is read, nginx does a lookup of the associated virtual server configuration. If the virtual server is found, the request goes through six phases:</p><ol type="1" id="7db04fca-f10a-4bfe-b2f7-aab366a02f80" class="numbered-list" start="1"><li>server rewrite phase</li></ol><ol type="1" id="8884d60a-1581-43e8-be2b-0ed175871227" class="numbered-list" start="2"><li>location phase</li></ol><ol type="1" id="63f07994-37dc-4aa7-a5a4-d9a5514e9f49" class="numbered-list" start="3"><li>location rewrite phase (which can bring the request back to the previous phase)</li></ol><ol type="1" id="aee4ae33-0602-481a-900f-d44b6d914098" class="numbered-list" start="4"><li>access control phase</li></ol><ol type="1" id="ab457c88-1702-4215-9656-9d48bdb6b0a5" class="numbered-list" start="5"><li>try_files phase</li></ol><ol type="1" id="bcffc1fc-0c42-4345-8210-bbc8443eeaff" class="numbered-list" start="6"><li>log phase</li></ol><p id="4e48d727-db19-407c-b6b9-917b01e9f1fe" class="">In an attempt to generate the necessary content in response to the request, nginx passes the request to a suitable content handler. Depending on the exact location configuration, nginx may try so-called unconditional handlers first, like <code>perl</code>, <code>proxy_pass</code>, <code>flv</code>, <code>mp4</code>, etc. If the request does not match any of the above content handlers, it is picked by one of the following handlers, in this exact order: <code>random index</code>, <code>index</code>, <code>autoindex</code>, <code>gzip_static</code>, <code>static</code>.</p><p id="57b491b8-5131-4cc5-9d06-f38f07fe3b50" class="">Indexing module details can be found in the nginx documentation, but these are the modules which handle requests with a trailing slash. If a specialized module like <code>mp4</code> or <code>autoindex</code> isn&#x27;t appropriate, the content is considered to be just a file or directory on disk (that is, static) and is served by the <code>static</code> content handler. For a directory it would automatically rewrite the URI so that the trailing slash is always there (and then issue an HTTP redirect).</p><p id="1df11810-4116-4329-b825-5932c9e4ed6c" class="">The content handlers&#x27; content is then passed to the filters. Filters are also attached to locations, and there can be several filters configured for a location. Filters do the task of manipulating the output produced by a handler. The order of filter execution is determined at compile time. For the out-of-the-box filters it&#x27;s predefined, and for a third-party filter it can be configured at the build stage. In the existing nginx implementation, filters can only do outbound changes and there is currently no mechanism to write and attach filters to do input content transformation. Input filtering will appear in future versions of nginx.</p><p id="075f47e2-6400-4913-80ef-515b1ad6af4b" class="">Filters follow a particular design pattern. A filter gets called, starts working, and calls the next filter until the final filter in the chain is called. After that, nginx finalizes the response. Filters don&#x27;t have to wait for the previous filter to finish. The next filter in a chain can start its own work as soon as the input from the previous one is available (functionally much like the Unix pipeline). In turn, the output response being generated can be passed to the client before the entire response from the upstream server is received.</p><p id="aa6e20fd-ec5e-4669-947d-4df17011782c" class="">There are header filters and body filters; nginx feeds the header and the body of the response to the associated filters separately.</p><p id="c59cb0bc-bf29-4d6b-b091-013f3ff32bf3" class="">A header filter consists of three basic steps:</p><ol type="1" id="b9b6d5b8-ee7a-4b9f-ab8a-7c1bc86e6d9b" class="numbered-list" start="1"><li>Decide whether to operate on this response.</li></ol><ol type="1" id="3f032636-9255-40ae-9f15-efc80e49b431" class="numbered-list" start="2"><li>Operate on the response.</li></ol><ol type="1" id="e5d9e9cf-0ab5-4b8a-a7e7-ce07d7abd423" class="numbered-list" start="3"><li>Call the next filter.</li></ol><p id="4efe6b4d-fd08-4981-a012-6ff97eae5c92" class="">Body filters transform the generated content. Examples of body filters include:</p><ul id="b540bbc9-b623-45c5-a4f9-02755a1ea878" class="bulleted-list"><li style="list-style-type:disc">server-side includes</li></ul><ul id="013a8859-78a1-4e0a-a45d-8e170218bea5" class="bulleted-list"><li style="list-style-type:disc">XSLT filtering</li></ul><ul id="facd3dd8-1b61-495b-af75-a797ffef597f" class="bulleted-list"><li style="list-style-type:disc">image filtering (for instance, resizing images on the fly)</li></ul><ul id="9c78b8fb-438c-45c6-a4bd-a5b48830f12d" class="bulleted-list"><li style="list-style-type:disc">charset modification</li></ul><ul id="490b0963-32d3-408f-a2af-45812551b00c" class="bulleted-list"><li style="list-style-type:disc"><code>gzip</code> compression</li></ul><ul id="a791debc-d058-4be7-a270-12a9361d50d5" class="bulleted-list"><li style="list-style-type:disc">chunked encoding</li></ul><p id="657e9564-eb99-40d2-b821-fb124f582c6a" class="">After the filter chain, the response is passed to the writer. Along with the writer there are a couple of additional special purpose filters, namely the <code>copy</code> filter, and the <code>postpone</code> filter. The <code>copy</code> filter is responsible for filling memory buffers with the relevant response content which might be stored in a proxy temporary directory. The <code>postpone</code> filter is used for subrequests.</p><p id="69a178ec-568e-4c7d-8b50-2dd0db191487" class="">Subrequests are a very important mechanism for request/response processing. Subrequests are also one of the most powerful aspects of nginx. With subrequests nginx can return the results from a different URL than the one the client originally requested. Some web frameworks call this an internal redirect. However, nginx goes further—not only can filters perform multiple subrequests and combine the outputs into a single response, but subrequests can also be nested and hierarchical. A subrequest can perform its own sub-subrequest, and a sub-subrequest can initiate sub-sub-subrequests. Subrequests can map to files on the hard disk, other handlers, or upstream servers. Subrequests are most useful for inserting additional content based on data from the original response. For example, the SSI (server-side include) module uses a filter to parse the contents of the returned document, and then replaces <code>include</code> directives with the contents of specified URLs. Or, it can be an example of making a filter that treats the entire contents of a document as a URL to be retrieved, and then appends the new document to the URL itself.</p><p id="fe0e5b95-43a2-468c-8036-07bf6e37c7bf" class="">Upstream and load balancers are also worth describing briefly. Upstreams are used to implement what can be identified as a content handler which is a reverse proxy (<code>proxy_pass</code> handler). Upstream modules mostly prepare the request to be sent to an upstream server (or &quot;backend&quot;) and receive the response from the upstream server. There are no calls to output filters here. What an upstream module does exactly is set callbacks to be invoked when the upstream server is ready to be written to and read from. Callbacks implementing the following functionality exist:</p><ul id="340dd988-c5e4-4e27-8f3a-bbe263f647e5" class="bulleted-list"><li style="list-style-type:disc">Crafting a request buffer (or a chain of them) to be sent to the upstream server</li></ul><ul id="cd911cd0-2b43-41a3-bbf7-cd4d6479c6cd" class="bulleted-list"><li style="list-style-type:disc">Re-initializing/resetting the connection to the upstream server (which happens right before creating the request again)</li></ul><ul id="b7a59603-be73-46ea-920d-2a779a75c8ca" class="bulleted-list"><li style="list-style-type:disc">Processing the first bits of an upstream response and saving pointers to the payload received from the upstream server</li></ul><ul id="69fa21c3-388f-4507-a071-102525829de7" class="bulleted-list"><li style="list-style-type:disc">Aborting requests (which happens when the client terminates prematurely)</li></ul><ul id="48100d1f-07ae-4ca9-bf1a-a558d445a175" class="bulleted-list"><li style="list-style-type:disc">Finalizing the request when nginx finishes reading from the upstream server</li></ul><ul id="0e20aa1f-6ee7-4bc1-b114-f3b57853ed7e" class="bulleted-list"><li style="list-style-type:disc">Trimming the response body (e.g. removing a trailer)</li></ul><p id="1327f46c-e027-4ec7-8cef-ae9e61e3bda1" class="">Load balancer modules attach to the <code>proxy_pass</code> handler to provide the ability to choose an upstream server when more than one upstream server is eligible. A load balancer registers an enabling configuration file directive, provides additional upstream initialization functions (to resolve upstream names in DNS, etc.), initializes the connection structures, decides where to route the requests, and updates stats information. Currently nginx supports two standard disciplines for load balancing to upstream servers: round-robin and ip-hash.</p><p id="379b697b-de8f-4e80-b5e3-fbd014de54d9" class="">Upstream and load balancing handling mechanisms include algorithms to detect failed upstream servers and to re-route new requests to the remaining ones—though a lot of additional work is planned to enhance this functionality. In general, more work on load balancers is planned, and in the next versions of nginx the mechanisms for distributing the load across different upstream servers as well as health checks will be greatly improved.</p><p id="414eb41b-8e1a-46b2-9844-87d8b135c7a1" class="">There are also a couple of other interesting modules which provide an additional set of variables for use in the configuration file. While the variables in nginx are created and updated across different modules, there are two modules that are entirely dedicated to variables: <code>geo</code> and <code>map</code>. The <code>geo</code> module is used to facilitate tracking of clients based on their IP addresses. This module can create arbitrary variables that depend on the client&#x27;s IP address. The other module, <code>map</code>, allows for the creation of variables from other variables, essentially providing the ability to do flexible mappings of hostnames and other run-time variables. This kind of module may be called the variable handler.</p><p id="b57de58c-0c25-45bd-8fc5-4105391fda2f" class="">Memory allocation mechanisms implemented inside a single nginx <code>worker</code> were, to some extent, inspired by Apache. A high-level description of nginx memory management would be the following: For each connection, the necessary memory buffers are dynamically allocated, linked, used for storing and manipulating the header and body of the request and the response, and then freed upon connection release. It is very important to note that nginx tries to avoid copying data in memory as much as possible and most of the data is passed along by pointer values, not by calling <code>memcpy</code>.</p><p id="319364bd-cb58-4fa4-9732-1be438823baa" class="">Going a bit deeper, when the response is generated by a module, the retrieved content is put in a memory buffer which is then added to a buffer chain link. Subsequent processing works with this buffer chain link as well. Buffer chains are quite complicated in nginx because there are several processing scenarios which differ depending on the module type. For instance, it can be quite tricky to manage the buffers precisely while implementing a body filter module. Such a module can only operate on one buffer (chain link) at a time and it must decide whether to overwrite the input buffer, replace the buffer with a newly allocated buffer, or insert a new buffer before or after the buffer in question. To complicate things, sometimes a module will receive several buffers so that it has an incomplete buffer chain that it must operate on. However, at this time nginx provides only a low-level API for manipulating buffer chains, so before doing any actual implementation a third-party module developer should become really fluent with this arcane part of nginx.</p><p id="6d301af3-e5a0-4435-857e-d7de6740b48a" class="">A note on the above approach is that there are memory buffers allocated for the entire life of a connection, thus for long-lived connections some extra memory is kept. At the same time, on an idle keepalive connection, nginx spends just 550 bytes of memory. A possible optimization for future releases of nginx would be to reuse and share memory buffers for long-lived connections.</p><p id="b1922751-2b35-48cd-a9ff-d5a890fd07a5" class="">The task of managing memory allocation is done by the nginx pool allocator. Shared memory areas are used to accept mutex, cache metadata, the SSL session cache and the information associated with bandwidth policing and management (limits). There is a slab allocator implemented in nginx to manage shared memory allocation. To allow simultaneous safe use of shared memory, a number of locking mechanisms are available (mutexes and semaphores). In order to organize complex data structures, nginx also provides a red-black tree implementation. Red-black trees are used to keep cache metadata in shared memory, track non-regex location definitions and for a couple of other tasks.</p><p id="dfae122a-6a06-499f-a569-aed2baf7a0bd" class="">Unfortunately, all of the above was never described in a consistent and simple manner, making the job of developing third-party extensions for nginx quite complicated. Although some good documents on nginx internals exist—for instance, those produced by Evan Miller—such documents required a huge reverse engineering effort, and the implementation of nginx modules is still a black art for many.</p><p id="6bc8babf-12a4-41db-8a1b-d83befd4f540" class="">Despite certain difficulties associated with third-party module development, the nginx user community recently saw a lot of useful third-party modules. There is, for instance, an embedded Lua interpreter module for nginx, additional modules for load balancing, full WebDAV support, advanced cache control and other interesting third-party work that the authors of this chapter encourage and will support in the future.</p><h2 id="3e57e822-bc14-4c90-a5ac-9b47b5b612fc" class="">14.5. Lessons Learned</h2><p id="910a8464-8951-4bdf-a5b0-5fd4c6d62fd7" class="">When Igor Sysoev started to write nginx, most of the software enabling the Internet already existed, and the architecture of such software typically followed definitions of legacy server and network hardware, operating systems, and old Internet architecture in general. However, this didn&#x27;t prevent Igor from thinking he might be able to improve things in the web servers area. So, while the first lesson might seem obvious, it is this: there is always room for improvement.</p><p id="0eb11d1c-93ce-4b99-899e-98892946cdd2" class="">With the idea of better web software in mind, Igor spent a lot of time developing the initial code structure and studying different ways of optimizing the code for a variety of operating systems. Ten years later he is developing a prototype of nginx version 2.0, taking into account the years of active development on version 1. It is clear that the initial prototype of a new architecture, and the initial code structure, are vitally important for the future of a software product.</p><p id="fb39ebec-65b8-4a72-a0e7-f791bb14e4bd" class="">Another point worth mentioning is that development should be focused. The Windows version of nginx is probably a good example of how it is worth avoiding the dilution of development efforts on something that is neither the developer&#x27;s core competence or the target application. It is equally applicable to the rewrite engine that appeared during several attempts to enhance nginx with more features for backward compatibility with the existing legacy setups.</p><p id="7b155b63-1ffa-4ee3-bdf6-558d97a94195" class="">Last but not least, it is worth mentioning that despite the fact that the nginx developer community is not very large, third-party modules and extensions for nginx have always been a very important part of its popularity. The work done by Evan Miller, Piotr Sikora, Valery Kholodkov, Zhang Yichun (agentzh) and other talented software engineers has been much appreciated by the nginx user community and its original developers.</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

@@ -1,0 +1,734 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Make resilient Go net/http servers using timeouts, deadlines and context cancellation</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="0b6ebddb-0ec8-4916-a3dd-f71eda7b20ef" class="page sans"><header><h1 class="page-title">Make resilient Go net/http servers using timeouts, deadlines and context cancellation</h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-url"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesUrl"><path d="M7.69922 10.8945L8.73828 9.84863C7.91797 9.77344 7.34375 9.51367 6.91992 9.08984C5.76465 7.93457 5.76465 6.29395 6.91309 5.14551L9.18262 2.87598C10.3379 1.7207 11.9717 1.7207 13.127 2.87598C14.2891 4.04492 14.2822 5.67188 13.1338 6.82031L11.958 7.99609C12.1768 8.49512 12.2451 9.10352 12.1289 9.62988L14.0908 7.6748C15.7725 6 15.7793 3.62109 14.084 1.92578C12.3887 0.223633 10.0098 0.237305 8.33496 1.91211L5.95605 4.29785C4.28125 5.97266 4.26758 8.35156 5.96289 10.0469C6.36621 10.4434 6.90625 10.7441 7.69922 10.8945ZM8.30078 5.13184L7.26855 6.17773C8.08203 6.25293 8.66309 6.51953 9.08008 6.93652C10.2422 8.09863 10.2422 9.73242 9.08691 10.8809L6.81738 13.1504C5.66211 14.3057 4.03516 14.3057 2.87305 13.1504C1.71094 11.9883 1.71777 10.3545 2.87305 9.20605L4.04199 8.03027C3.83008 7.53125 3.75488 6.92969 3.87109 6.39648L1.91602 8.35156C0.234375 10.0264 0.227539 12.4121 1.92285 14.1074C3.61816 15.8027 5.99707 15.7891 7.67188 14.1143L10.0439 11.7354C11.7256 10.0537 11.7324 7.6748 10.0371 5.98633C9.64062 5.58301 9.10059 5.28223 8.30078 5.13184Z"></path></svg></span>URL</th><td><a href="https://ieftimov.com/posts/make-resilient-golang-net-http-servers-using-timeouts-deadlines-context-cancellation/" class="url-value">https://ieftimov.com/posts/make-resilient-golang-net-http-servers-using-timeouts-deadlines-context-cancellation/</a></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesMultipleSelect"><path d="M1.91602 4.83789C2.44238 4.83789 2.87305 4.40723 2.87305 3.87402C2.87305 3.34766 2.44238 2.91699 1.91602 2.91699C1.38281 2.91699 0.952148 3.34766 0.952148 3.87402C0.952148 4.40723 1.38281 4.83789 1.91602 4.83789ZM5.1084 4.52344H14.3984C14.7607 4.52344 15.0479 4.23633 15.0479 3.87402C15.0479 3.51172 14.7607 3.22461 14.3984 3.22461H5.1084C4.74609 3.22461 4.45898 3.51172 4.45898 3.87402C4.45898 4.23633 4.74609 4.52344 5.1084 4.52344ZM1.91602 9.03516C2.44238 9.03516 2.87305 8.60449 2.87305 8.07129C2.87305 7.54492 2.44238 7.11426 1.91602 7.11426C1.38281 7.11426 0.952148 7.54492 0.952148 8.07129C0.952148 8.60449 1.38281 9.03516 1.91602 9.03516ZM5.1084 8.7207H14.3984C14.7607 8.7207 15.0479 8.43359 15.0479 8.07129C15.0479 7.70898 14.7607 7.42188 14.3984 7.42188H5.1084C4.74609 7.42188 4.45898 7.70898 4.45898 8.07129C4.45898 8.43359 4.74609 8.7207 5.1084 8.7207ZM1.91602 13.2324C2.44238 13.2324 2.87305 12.8018 2.87305 12.2686C2.87305 11.7422 2.44238 11.3115 1.91602 11.3115C1.38281 11.3115 0.952148 11.7422 0.952148 12.2686C0.952148 12.8018 1.38281 13.2324 1.91602 13.2324ZM5.1084 12.918H14.3984C14.7607 12.918 15.0479 12.6309 15.0479 12.2686C15.0479 11.9062 14.7607 11.6191 14.3984 11.6191H5.1084C4.74609 11.6191 4.45898 11.9062 4.45898 12.2686C4.45898 12.6309 4.74609 12.918 5.1084 12.918Z"></path></svg></span>Category</th><td><span class="selected-value select-value-color-blue">Golang</span><span class="selected-value select-value-color-default">Network</span></td></tr></tbody></table></header><div class="page-body"><figure id="622b8980-a93c-4651-b687-fc92008760c9" class="image"><a href="https://ieftimov.com/cards/make-resilient-golang-net-http-servers-using-timeouts-deadlines-context-cancellation.png"><img style="width:500px" src="https://ieftimov.com/cards/make-resilient-golang-net-http-servers-using-timeouts-deadlines-context-cancellation.png"/></a></figure><hr id="f57b62b9-1da1-4972-8d7e-99d22b5f7f4d"/><p id="ae5a2d34-006a-4131-bd1c-7fc9476978e5" class="">When it comes to timeouts, there are two types of people: those who know how tricky they can be, and those who are yet to find out.</p><p id="3eed7f49-3d1d-4292-a937-cf2b2d11ebbb" class="">As tricky as they are, timeouts are a reality in the connected world we live in. As I am writing this, on the other side of the table, two persons are typing on their smartphones, probably chatting to people very far from them. All made possible because of networks.</p><p id="1f568072-2174-48d2-9828-a860ef940cf5" class="">Networks and all their intricacies are here to stay, and we, who write servers for the web, have to know how to use them efficiently and guard against their deficiencies.</p><p id="345d389c-d703-4965-8aef-0de1ad40e9eb" class="">Without further ado, let’s look at timeouts and how they affect our <code>net/http</code> servers.</p><h2 id="8f9abdf0-681f-473e-b498-4d0808b36363" class="">Server timeouts - first principles</h2><p id="73931355-7f4e-4a96-b124-e69e4f06a2eb" class="">In web programming, the general classification of timeouts is client and server timeouts. What inspired me to dive into this topic was an interesting server timeout problem I found myself in. That’s why, in this article, we will focus on server-side timeouts.</p><p id="d77e250b-af91-429a-827b-76954cf29c22" class="">To get the basic terminology out of the way: timeout is a time interval (or limit) in which a specific action must complete. If the operation does not complete in the given time limit, a timeout occurs, and the operation is canceled.</p><p id="eac0ab76-e0b5-42d9-928d-e25f1ed10b55" class="">Initializing a <code>net/http</code> server in Golang reveals a few basic timeout configurations:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="8296bc3d-a1e6-487e-85a6-89c040091335" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">srv := &amp;http.Server{
+    ReadTimeout:       1 * time.Second,
+    WriteTimeout:      1 * time.Second,
+    IdleTimeout:       30 * time.Second,
+    ReadHeaderTimeout: 2 * time.Second,
+    TLSConfig:         tlsConfig,
+    Handler:           srvMux,
+}</code></pre><p id="db45bb19-5d0c-45a0-8c60-cd1d5d2118af" class="">This server of <code>http.Server</code> type can be initialized with four different timeouts:</p><ul id="6e28841b-aa89-4ef6-b883-f55f25af89d2" class="bulleted-list"><li style="list-style-type:disc"><code>ReadTimeout</code>: the maximum duration for reading the entire request, including the body</li></ul><ul id="934bcfb9-f28e-4920-9b8d-d480c6c5e296" class="bulleted-list"><li style="list-style-type:disc"><code>WriteTimeout</code>: the maximum duration before timing out writes of the response</li></ul><ul id="8a2cf6c5-ae13-4d71-aefc-8f4ec4fd7a1f" class="bulleted-list"><li style="list-style-type:disc"><code>IdleTimetout</code>: the maximum amount of time to wait for the next request when keep-alive is enabled</li></ul><ul id="9d9bdfcb-0580-4820-8989-5a25fd8d2f06" class="bulleted-list"><li style="list-style-type:disc"><code>ReadHeaderTimeout</code>: the amount of time allowed to read request headers</li></ul><p id="024dd3c4-8820-484a-800c-68b4688aa061" class="">A graphical representation of the above timeouts:</p><figure id="6c875a25-f992-417d-9d5a-f3b42521bf77" class="image"><a href="Make%20resilient%20Go%20net%20http%20servers%20using%20timeouts,%200b6ebddb0ec84916a3ddf71eda7b20ef/request-lifecycle-timeouts.png"><img style="width:700px" src="Make%20resilient%20Go%20net%20http%20servers%20using%20timeouts,%200b6ebddb0ec84916a3ddf71eda7b20ef/request-lifecycle-timeouts.png"/></a></figure><p id="bae4268c-bcb7-41b7-b7b4-a8544c899b84" class="">Before you start thinking that these are all the timeouts you need, tread carefully! There’s more than meets the eye here. These timeout values provide much more fine-grained control, and they are not going to help us to timeout our long-running HTTP handlers.</p><p id="9ec61a82-33f0-4493-a05e-485cfbf082e4" class="">Let me explain.</p><h2 id="6e9cbf7f-bda7-4985-af38-8517116defb0" class="">Timeouts and deadlines</h2><p id="9916e7d1-9bad-4a68-9c3b-59246e7ac9e0" class="">If we look at the source of <code>net/http</code>, in particular, the <a href="https://github.com/golang/go/blob/bbbc658/src/net/http/server.go#L248"><code>conn</code></a><a href="https://github.com/golang/go/blob/bbbc658/src/net/http/server.go#L248"> type</a>, we will notice that it uses <code>net.Conn</code> connection under the hood which represents the underlying network connection:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="0ae5e3e9-5b61-4ce5-b50c-52589a64415e" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">// Taken from: https://github.com/golang/go/blob/bbbc658/src/net/http/server.go#L247
+// A conn represents the server-side of an HTTP connection.
+type conn struct {
+    // server is the server on which the connection arrived.
+    // Immutable; never nil.
+    server *Server
+    // * Snipped *
+    // rwc is the underlying network connection.
+    // This is never wrapped by other types and is the value given out
+    // to CloseNotifier callers. It is usually of type *net.TCPConn or
+    // *tls.Conn.
+    rwc net.Conn
+    // * Snipped *
+}</code></pre><p id="1f0387e6-4e40-4803-b29e-318929a14fde" class="">In other words, it’s the actual TCP connection that our HTTP request travels on. From a type perspective, it’s a <code>*net.TCPConn</code> or <code>*tls.Conn</code> if it’s a TLS connection.</p><p id="a4ca465b-fefc-4ceb-ac17-997704a533ac" class="">The <code>serve</code> <a href="https://github.com/golang/go/blob/bbbc658/src/net/http/server.go#L1765">function</a>, calls the <code>readRequest</code> function <a href="https://github.com/golang/go/blob/bbbc658/src/net/http/server.go#L1822">for each incoming request</a>. <code>readRequest</code> <a href="https://github.com/golang/go/blob/bbbc658/src/net/http/server.go#L946-L958">uses the timeout values</a> that we set on the server to <strong>set deadlines on the TCP connection</strong>:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3dbed7d0-c64c-4d97-b52b-7a4d67dd7020" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">// Taken from: https://github.com/golang/go/blob/bbbc658/src/net/http/server.go#L936
+// Read next request from connection.
+func (c *conn) readRequest(ctx context.Context) (w *response, err error) {
+        // *Snipped*
+        t0 := time.Now()
+        if d := c.server.readHeaderTimeout(); d != 0 {
+                hdrDeadline = t0.Add(d)
+        }
+        if d := c.server.ReadTimeout; d != 0 {
+                wholeReqDeadline = t0.Add(d)
+        }
+        c.rwc.SetReadDeadline(hdrDeadline)
+        if d := c.server.WriteTimeout; d != 0 {
+                defer func() {
+                        c.rwc.SetWriteDeadline(time.Now().Add(d))
+                }()
+        }
+        // *Snipped*
+}</code></pre><p id="b86e1230-f555-4f50-8df1-b97f2a8aabfc" class="">From the snippet above, we can conclude that the timeout values set on the server end up as TCP connection deadlines instead of HTTP timeouts.</p><p id="89cbe0dc-8a1b-4956-8e0c-fcf7b091c35e" class="">So, what are deadlines then? How do they work? Will they timeout our connection if our request takes too long?</p><p id="ccba5951-09bf-47fe-a5aa-9b62fde0b7f2" class="">A simple way to think about deadlines is as a point in time at which restrictions on specific actions on the connection are enforced. For example, if we set a write deadline after the deadline time passes, any write actions on the connection will be forbidden.</p><p id="10b2745e-b703-4b16-9ad4-18c8d81799b5" class="">While we can create timeout-like behavior using deadlines, we cannot control the time it takes for our handlers to complete. Deadlines operate on the connection, so our server will fail to return a result only after the handlers try to access connection properties (such as writing to <code>http.ResponseWriter</code>).</p><p id="51c3d1a1-1d91-43a6-b21a-35ffc418a4ec" class="">To see this in action, let’s create a tiny handler that takes longer to complete relative to the timeouts we set on the server:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="47c3ff47-792a-4b69-8986-b69d5905a206" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">package main
+import (
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;net/http&quot;
+	&quot;time&quot;
+)
+func slowHandler(w http.ResponseWriter, req *http.Request) {
+	time.Sleep(2 * time.Second)
+	io.WriteString(w, &quot;I am slow!\n&quot;)
+}
+func main() {
+	srv := http.Server{
+		Addr:         &quot;:8888&quot;,
+		WriteTimeout: 1 * time.Second,
+		Handler:      http.HandlerFunc(slowHandler),
+	}
+	if err := srv.ListenAndServe(); err != nil {
+		fmt.Printf(&quot;Server failed: %s\n&quot;, err)
+	}
+}</code></pre><p id="ced3d3dc-a68f-4fde-af1d-b74dc765f806" class="">The server above has a single handler, which takes 2 seconds to complete. On the other hand, the <code>http.Server</code> has a <code>WriteTimeout</code> set to 1 second. Due to the configuration of the server, we expect the handler to be unable to write the response to the connection.</p><p id="781f5c34-b3c9-4457-ae2a-28e8070ecc0a" class="">We can start the server using <code>go run server.go</code>. To send a request we can <code>curl localhost:8888</code>:</p><p id="0ef5cae3-c170-4bea-b69c-1263f84650d2" class="">The request took 2 seconds to complete, and the response from the server was empty. While our server knows that we cannot write to our response after 1 second, the handler still took 100% more (2 seconds) to complete.</p><p id="4c020d92-a984-4072-a278-5c0a3d340ed7" class="">While this is a timeout-like behavior, it would be more useful to stop our server from further execution when it reaches the timeout, ending the request. In our example above, the handler proceeds to process the request until it completes, although it takes 100% longer (2 seconds) than the response write timeout time (1 second).</p><p id="b0c2e3b8-1263-4055-9a08-5cad73d3d31a" class="">The natural question is, how can we have efficient timeouts for our handlers?</p><h2 id="83f448d5-9753-4978-98ab-b40cf4855490" class="">Handler timeout</h2><p id="efe0f514-ea94-46d9-8d6f-275af610426e" class="">Our goal is to make sure our <code>slowHandler</code> does not take longer than 1 seconds to complete. If it does take longer, our server should stop its execution and return a proper timeout error.</p><p id="34b4b73c-23ea-4f17-9e48-b4c1bebb8520" class="">In Go, as with other programming languages, composition is very often the favored approach to writing and designing code. The <a href="https://golang.org/pkg/net/http"><code>net/http</code></a><a href="https://golang.org/pkg/net/http"> package</a> of the standard library is one of the places where having compatible components that one can put together with little effort is an obvious design choice.</p><p id="bbedc657-2a0d-41a4-aea6-1acd12e75b50" class="">In that light, the <code>net/http</code> packages provide <a href="https://golang.org/pkg/net/http/#TimeoutHandler">a </a><a href="https://golang.org/pkg/net/http/#TimeoutHandler"><code>TimeoutHandler</code></a> - it returns a handler that runs a handler within the given time limit.</p><p id="166fbacc-1f0e-4ee2-80ca-69279e1192f2" class="">Its signature is:</p><p id="7618840c-5c04-4662-b1b6-d3fa8426f774" class="">It takes a <code>Handler</code> as the first argument, a <code>time.Duration</code> as the second argument (the timeout time) and a <code>string</code>, the message returned when it hits the timeout.</p><p id="af6e58ae-f6b6-40d0-9f8e-31ee5ccb8fa6" class="">To wrap our <code>slowHandler</code> within a <code>TimeoutHandler</code>, all we have to do is:</p><p id="aa93747b-4960-45a4-8fa1-252a580c4e34" class="">The two notable changes are:</p><ul id="72cf0c9a-3b7c-4770-b6c4-29c26633a6fb" class="bulleted-list"><li style="list-style-type:disc">We wrap our <code>slowHanlder</code> in the <code>http.TimetoutHandler</code>, setting the timeout to 1 second and the timeout message to “Timeout!”.</li></ul><ul id="eb4142f8-3dd5-42d8-b2d0-acd0f087dd9a" class="bulleted-list"><li style="list-style-type:disc">We increase the <code>WriteTimeout</code> to 5 seconds, to give the <code>http.TimeoutHandler</code> time to kick in. If we don’t do this when the <code>TimeoutHandler</code> kicks in, the deadline will pass, and it won’t be able to write to the response.</li></ul><p id="94b2e945-11e0-4e4d-8710-138bad1fe758" class="">If we started the server again and hit the slow handler we’ll get the following output:</p><p id="01a75d3c-6ce9-4394-80a6-ed745d521a04" class="">After a second, our <code>TimeoutHandler</code> will kick in, stop processing the <code>slowHandler</code>, and return a plain “<code>Timeout!</code>” message. If the message we set is blank, then the handler will return the default timeout response, which is:</p><p id="6b6fded3-03c6-45be-9515-70376292afb2" class="">Regardless of the output, this is pretty neat, isn’t it? Our application now is protected from long-running handlers and specially crafted requests made to cause very long-running handlers, leading to a potential DoS (Denial of Service) attack.</p><p id="ee2e709b-c317-4a6c-ae8e-982af6dfa12a" class="">It’s worth noting that although setting timeouts is a great start, it’s still elementary protection. If you’re under threat of an imminent DoS attack, you should look into more advanced protection tools and techniques. (<a href="https://www.cloudflare.com/ddos/">Cloudflare</a> is a good start.)</p><p id="1b3ecc69-3b75-4299-bd75-4891cf01e72f" class="">Our <code>slowHandler</code> is a simple example-only handler. But, what if our application was much more complicated, making external calls to other services or resources? What if we had an outgoing request to a service such as S3 when our handler would time out?</p><p id="c17d98bd-cada-49dc-b71d-d1583cdddaa7" class="">What would happen then?</p><h2 id="4059abb0-c45a-4990-a9a2-c716b86cdaa7" class="">Unhandled timeouts and request cancellations</h2><p id="b0695bc2-6461-49b0-bcd4-e125fd868039" class="">Let’s expand our example a bit:</p><p id="922a753f-b684-4615-baad-9139d53fffe4" class="">Let’s imagine that initially we didn’t know that our <code>slowHandler</code> took so long to complete because it was sending a request to an API - using the <code>slowAPICall</code> function.</p><p id="fba11cfd-5386-4550-b900-2785c5d9ed87" class="">The <code>slowAPICall</code> function is straightforward: using <code>select</code> and a <code>time.After</code> it blocks between 0 and 5 seconds. Once that period passes, the <code>time.After</code> method sends a value through its channel and <code>&quot;foobar&quot;</code> will be returned.</p><p id="43f74ade-3599-4eda-8bf1-d0ae8bfcdff8" class="">(An alternative approach is to use <code>sleep(time.Duration(rand.Intn(5)) * time.Second)</code>, but we will stick to <code>select</code> because it will make our life simpler in the next example.)</p><p id="af06a8f6-bac2-4d86-954b-69f46daa9c2c" class="">If we run our server, we would expect the timeout handler to cut off the request processing after 1 second. Sending a request proves that:</p><p id="aea4a57d-8874-4a20-8cab-8adf4731f168" class="">By looking at the server output, we will notice that it prints the loglines after a few seconds instead of when the timeout handler kicks in:</p><p id="126139ff-9232-4321-b7e2-ae4a222f5c95" class="">Such behavior suggests that although the request timed out after 1 second, the server proceeded to process the request fully. That’s why it printed the logline after 4 seconds passed.</p><p id="1cdbc5cb-fa26-474c-b16c-81464473a418" class="">While this example is trivial and naive, such behavior in production servers can become a rather big problem. For example, imagine if the <code>slowAPICall</code> function spawned hundreds of goroutines, each of them processing some data. Or if it was issuing multiple API calls to various systems. Such long-running processes will eat up resources from your system, while the caller/client won’t ever use their result.</p><p id="fd4db54f-3fe3-4446-8d2c-bdc61d9239b3" class="">So, how can we guard our system from such unoptimized timeouts or request cancellations?</p><h2 id="220ad134-4099-4ef5-bfb7-29583937a2f7" class="">Context timeouts and cancellation</h2><p id="82364a95-1bbd-4699-9994-fdebac6fcaf7" class="">Go comes with a neat package for handling such scenarios called <a href="https://golang.org/pkg/context/"><code>context</code></a>.</p><p id="49c7c91d-8c66-46b4-9e34-50ab0fa6a14e" class="">The <code>context</code> package was promoted to the standard library as of Go 1.7. Previously it was part of the <a href="https://godoc.org/-/subrepo">Go Sub-repository Packages</a>, with the name <a href="https://godoc.org/golang.org/x/net/context"><code>golang.org/x/net/context</code></a></p><p id="39e9f84b-210e-4e20-ba97-96339547d7f1" class="">The package defines the <code>Context</code> type. It’s primary purpose is to carry deadlines, cancellation signals, and other request-scoped values across API boundaries and between processes. If you would like to learn more about the context package, I recommend reading “Go Concurrency Patterns: Context” on <a href="https://blog.golang.org/context">Golang’s blog</a>.</p><p id="811044de-c0bb-4aaf-b632-b3dbf432f8f7" class="">The <code>Request</code> type that is part of the <code>net/http</code> package already has a <code>context</code> attached to it. As of Go 1.7, <code>Request</code> has <a href="https://golang.org/pkg/net/http/#Request.Context">a </a><a href="https://golang.org/pkg/net/http/#Request.Context"><code>Context</code></a><a href="https://golang.org/pkg/net/http/#Request.Context"> function</a>, which returns the request’s context. For incoming server requests, the server cancels the context when the client’s connection closes, when the request is canceled (in HTTP/2), or when the <code>ServeHTTP</code> method returns.</p><p id="0dce43da-518c-41a9-8e24-e27be9a9275d" class="">The behavior we are looking for is to stop all further processing on the server-side when the client cancels the request (we hit <code>CTRL + C</code> on our <code>cURL</code>) or the <code>TimeoutHandler</code> steps in after some time and ends the request. That will effectively close all connections and free all other resources taken up by the running handler (and all of its children goroutines).</p><p id="b774b973-656e-410e-a778-7bfd21e57a03" class="">Let’s use the request Context to pass it to the <code>slowAPICall</code> function as an argument:</p><p id="ab69cb16-bf7d-4b1d-8d1c-ec48a50c38b6" class="">Now that we utilize the request context, how can we put it in action? <a href="https://golang.org/pkg/context/#Context">The </a><a href="https://golang.org/pkg/context/#Context"><code>Context</code></a><a href="https://golang.org/pkg/context/#Context"> type</a> has a <code>Done</code> attribute, which is of type <code>&lt;-chan struct{}</code>. <code>Done</code> closes when the work done on behalf of the context should be canceled, which is what we need in the example.</p><p id="9389ba9b-a353-42c4-9e2d-61de362706b4" class="">Let’s handle the <code>ctx.Done</code> channel in the <code>select</code> block in the <code>slowAPICall</code> function. When we receive an empty <code>struct</code> via the <code>Done</code> channel, this signifies the context cancellation, and we have to return a zero-value string from the <code>slowAPICall</code> function:</p><p id="820faa62-a958-492d-a29b-2b825f28383c" class="">(This is the reason we used a <code>select</code> block, instead of the <code>time.Sleep</code> - we can just handle the <code>Done</code> channel in the <code>select</code> here.)</p><p id="7d6e2632-b1d8-4afe-b21a-91dbf97ce5b0" class="">In our limited example, this does the trick – when we receive value through the <code>Done</code> channel, we log a line to STDOUT and return an empty string. In more complicated situations, such as sending real API requests, you might need to close down connections or clean up file descriptors.</p><p id="5ad9d968-ca61-45af-8f21-0850e3950ca4" class="">Let’s spin up the server again and send a <code>cURL</code> request:</p><p id="24b3c4a0-efca-41b8-941a-4ce971fc7dfc" class="">So check this out: we ran a <code>cURL</code> to the server, it took longer than 1 second, and our server canceled the <code>slowAPICall</code> function. And we didn’t need to write almost any code for it. The <code>TimeoutHandler</code> did this for us - when the handler took longer than expected, the <code>TimeoutHandler</code> stopped the execution of the handler and canceled the request context.</p><p id="f2601792-f388-43fa-9e2c-817a14af61e4" class="">The <code>TimeoutHandler</code> performs the context cancellation in <a href="https://github.com/golang/go/blob/bbbc658/src/net/http/server.go#L3217-L3263">the </a><a href="https://github.com/golang/go/blob/bbbc658/src/net/http/server.go#L3217-L3263"><code>timeoutHandler.ServeHTTP</code></a><a href="https://github.com/golang/go/blob/bbbc658/src/net/http/server.go#L3217-L3263"> method</a>:</p><p id="9cb8eac1-6b4b-4db3-8a75-07be491dcf70" class="">Above, we use the request context by invoking <code>context.WithTimeout</code> on it. The timeout value <code>h.dt</code>, which is the second argument received by the <code>TimeoutHandler</code>, is applied to the context. The returned context is a copy of the request context with a timeout attached. Right after, it’s set as the request’s context using the <code>r.WithContext(ctx)</code> invocation.</p><p id="d3a14cb0-12d4-4e74-b42f-e7fb7e461ad9" class="">The <code>context.WithTimeout</code> function makes the context cancellation. It returns a copy of the <code>Context</code> with a timeout set to the duration passed as an argument. Once it reaches the timeout, it cancels the context.</p><p id="e3433708-c027-48b0-a8bc-1d3edd3f7eba" class="">Here’s the code that does it:</p><p id="0baa795a-84fd-46ec-8259-97b1b98f6bb2" class="">Here we meet deadlines again. The <code>WithDeadline</code> function sets a function that executes after the duration <code>d</code> passes. Once the duration passes, it invokes the <code>cancel</code> method on the context, which will close the <code>done</code> channel of the context and will set the context’s <code>timer</code> attribute to <code>nil</code>.</p><p id="55a6d553-d9e1-4f16-b6f6-d497897a294d" class="">The closing of the <code>Done</code> channel effectively cancels the context, which allows our <code>slowAPICall</code> function to stop its execution. That’s how the <code>TimeoutHandler</code> timeouts long-running handlers.</p><p id="83f8f79c-0076-425d-8742-0f3ca14324d3" class="">(If you would like to read the code that does the above, you should see the <code>cancel</code> functions on <a href="https://github.com/golang/go/blob/bbbc6589dfbc05be2bfa59f51c20f9eaa8d0c531/src/context/context.go#L389-L416">the </a><a href="https://github.com/golang/go/blob/bbbc6589dfbc05be2bfa59f51c20f9eaa8d0c531/src/context/context.go#L389-L416"><code>cancelCtx</code></a><a href="https://github.com/golang/go/blob/bbbc6589dfbc05be2bfa59f51c20f9eaa8d0c531/src/context/context.go#L389-L416"> type</a> and <a href="https://github.com/golang/go/blob/bbbc6589dfbc05be2bfa59f51c20f9eaa8d0c531/src/context/context.go#L472-L484">the </a><a href="https://github.com/golang/go/blob/bbbc6589dfbc05be2bfa59f51c20f9eaa8d0c531/src/context/context.go#L472-L484"><code>timerCtx</code></a><a href="https://github.com/golang/go/blob/bbbc6589dfbc05be2bfa59f51c20f9eaa8d0c531/src/context/context.go#L472-L484"> type</a>.)</p><h2 id="2c5a8251-c370-4906-ad1f-4a37745d3083" class="">Resilient <code>net/http</code> servers</h2><p id="83c6017e-5c95-4b87-afdf-a561f93ca5a0" class="">Connection deadlines provide low-level fine-grained control. While their names contain “timeout” they do not have the behavior that folks commonly expect from timeouts. They are in fact very powerful, but they expect the programmer to know how to wield that weapon.</p><p id="8af5702b-babd-49f9-af1b-576eeb110019" class="">On the other hand, when working with HTTP handlers, the <code>TimeoutHandler</code> should be our go-to tool. The design chosen by the Go authors, of having composable handlers, provides flexibility, so much that we could even have different timeouts per handler if we decided to. <code>TimeoutHandler</code> provides execution control while maintaining the behavior that we commonly expect when thinking of timeouts.</p><p id="3e42aba4-7724-4bf1-93c0-c0d4e59b7777" class="">On top of that, the <code>TimeoutHandler</code> works well with the <code>context</code> package. While the <code>context</code> package is simple, it carries cancellation signals and request-scoped data, that we can use to make our applications adhere better to the intricacies of networks.</p><p id="a8e55f21-6606-4b37-9e73-7045f1b633ab" class="">Before we close, here are three suggestions on how to think of timeouts while writing your HTTP servers:</p><ol type="1" id="61f85e0e-eeb6-41b9-8912-fc4243810f9e" class="numbered-list" start="1"><li>Most-often, reach for <code>TimeoutHandler</code>. It does what we commonly expect of timeouts.</li></ol><ol type="1" id="ac831bd8-9006-491e-ad31-fe010649895a" class="numbered-list" start="2"><li>Never forget context cancellations. The <code>context</code> package is simple to use and can save your servers lots of processing resources. Especially againts bad actors or misbehaving networks.</li></ol><ol type="1" id="1ba603d9-ebeb-4587-ba84-67740af1d82a" class="numbered-list" start="3"><li>By all means, use deadlines. Just make sure you test thoroughly that they provide you the functionality that you want.</li></ol><p id="397ebdde-0f9c-4398-b50e-047992d934fd" class="">To read more on the topic:</p><ul id="bb07c471-d24c-43a0-800a-fe8bbb1bcd15" class="bulleted-list"><li style="list-style-type:disc">“The complete guide to Go net/http timeouts” on <a href="https://blog.cloudflare.com/the-complete-guide-to-golang-net-http-timeouts/">Cloudflare’s blog</a></li></ul><ul id="4d198c62-dfff-4712-a814-73549e752d42" class="bulleted-list"><li style="list-style-type:disc">“So you want to expose Go on the Internet” on <a href="https://blog.cloudflare.com/exposing-go-on-the-internet/">Cloudflare’s blog</a></li></ul><ul id="5bd631ce-4dff-476d-a83a-d97acc7e57ce" class="bulleted-list"><li style="list-style-type:disc">“Use http.TimeoutHandler or ReadTimeout/WriteTimeout?” on <a href="https://stackoverflow.com/questions/51258952/use-http-timeouthandler-or-readtimeout-writetimeout">Stackoverflow</a></li></ul><ul id="c3990e6a-eac8-4ccd-8c5d-a91f0e09b453" class="bulleted-list"><li style="list-style-type:disc">“Standard net/http config will break your production environment” on <a href="https://blog.simon-frey.eu/go-as-in-golang-standard-net-http-config-will-break-your-production">Simon Frey’s blog</a></li></ul></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

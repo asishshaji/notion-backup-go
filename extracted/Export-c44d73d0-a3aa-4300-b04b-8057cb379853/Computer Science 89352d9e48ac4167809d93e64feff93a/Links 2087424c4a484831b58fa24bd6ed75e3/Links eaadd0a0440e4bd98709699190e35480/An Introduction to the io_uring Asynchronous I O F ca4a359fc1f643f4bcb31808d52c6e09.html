@@ -1,0 +1,1017 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>An Introduction to the io_uring Asynchronous I/O Framework</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="ca4a359f-c1f6-43f4-bcb3-1808d52c6e09" class="page sans"><header><h1 class="page-title">An Introduction to the io_uring Asynchronous I/O Framework</h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-url"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesUrl"><path d="M7.69922 10.8945L8.73828 9.84863C7.91797 9.77344 7.34375 9.51367 6.91992 9.08984C5.76465 7.93457 5.76465 6.29395 6.91309 5.14551L9.18262 2.87598C10.3379 1.7207 11.9717 1.7207 13.127 2.87598C14.2891 4.04492 14.2822 5.67188 13.1338 6.82031L11.958 7.99609C12.1768 8.49512 12.2451 9.10352 12.1289 9.62988L14.0908 7.6748C15.7725 6 15.7793 3.62109 14.084 1.92578C12.3887 0.223633 10.0098 0.237305 8.33496 1.91211L5.95605 4.29785C4.28125 5.97266 4.26758 8.35156 5.96289 10.0469C6.36621 10.4434 6.90625 10.7441 7.69922 10.8945ZM8.30078 5.13184L7.26855 6.17773C8.08203 6.25293 8.66309 6.51953 9.08008 6.93652C10.2422 8.09863 10.2422 9.73242 9.08691 10.8809L6.81738 13.1504C5.66211 14.3057 4.03516 14.3057 2.87305 13.1504C1.71094 11.9883 1.71777 10.3545 2.87305 9.20605L4.04199 8.03027C3.83008 7.53125 3.75488 6.92969 3.87109 6.39648L1.91602 8.35156C0.234375 10.0264 0.227539 12.4121 1.92285 14.1074C3.61816 15.8027 5.99707 15.7891 7.67188 14.1143L10.0439 11.7354C11.7256 10.0537 11.7324 7.6748 10.0371 5.98633C9.64062 5.58301 9.10059 5.28223 8.30078 5.13184Z"></path></svg></span>URL</th><td><a href="https://medium.com/oracledevs/an-introduction-to-the-io-uring-asynchronous-i-o-framework-fad002d7dfc1" class="url-value">https://medium.com/oracledevs/an-introduction-to-the-io-uring-asynchronous-i-o-framework-fad002d7dfc1</a></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesMultipleSelect"><path d="M1.91602 4.83789C2.44238 4.83789 2.87305 4.40723 2.87305 3.87402C2.87305 3.34766 2.44238 2.91699 1.91602 2.91699C1.38281 2.91699 0.952148 3.34766 0.952148 3.87402C0.952148 4.40723 1.38281 4.83789 1.91602 4.83789ZM5.1084 4.52344H14.3984C14.7607 4.52344 15.0479 4.23633 15.0479 3.87402C15.0479 3.51172 14.7607 3.22461 14.3984 3.22461H5.1084C4.74609 3.22461 4.45898 3.51172 4.45898 3.87402C4.45898 4.23633 4.74609 4.52344 5.1084 4.52344ZM1.91602 9.03516C2.44238 9.03516 2.87305 8.60449 2.87305 8.07129C2.87305 7.54492 2.44238 7.11426 1.91602 7.11426C1.38281 7.11426 0.952148 7.54492 0.952148 8.07129C0.952148 8.60449 1.38281 9.03516 1.91602 9.03516ZM5.1084 8.7207H14.3984C14.7607 8.7207 15.0479 8.43359 15.0479 8.07129C15.0479 7.70898 14.7607 7.42188 14.3984 7.42188H5.1084C4.74609 7.42188 4.45898 7.70898 4.45898 8.07129C4.45898 8.43359 4.74609 8.7207 5.1084 8.7207ZM1.91602 13.2324C2.44238 13.2324 2.87305 12.8018 2.87305 12.2686C2.87305 11.7422 2.44238 11.3115 1.91602 11.3115C1.38281 11.3115 0.952148 11.7422 0.952148 12.2686C0.952148 12.8018 1.38281 13.2324 1.91602 13.2324ZM5.1084 12.918H14.3984C14.7607 12.918 15.0479 12.6309 15.0479 12.2686C15.0479 11.9062 14.7607 11.6191 14.3984 11.6191H5.1084C4.74609 11.6191 4.45898 11.9062 4.45898 12.2686C4.45898 12.6309 4.74609 12.918 5.1084 12.918Z"></path></svg></span>Category</th><td><span class="selected-value select-value-color-pink">Linux</span><span class="selected-value select-value-color-orange">Optimisation</span></td></tr></tbody></table></header><div class="page-body"><figure id="f6203151-92d2-4b5f-a4d8-6cb051847995" class="image"><a href="An%20Introduction%20to%20the%20io_uring%20Asynchronous%20I%20O%20F%20ca4a359fc1f643f4bcb31808d52c6e09/0TEuhyiZGjbXQ8zbD.png"><img style="width:700px" src="An%20Introduction%20to%20the%20io_uring%20Asynchronous%20I%20O%20F%20ca4a359fc1f643f4bcb31808d52c6e09/0TEuhyiZGjbXQ8zbD.png"/></a></figure><p id="755a568c-eefe-4830-bc35-afc75e2742d1" class=""><em>In this blog Oracle Linux kernel developer </em><em><strong>Bijan Mottahedeh</strong></em><em> talks about the io_uring asynchronous I/O framework included in the Unbreakable Enterprise Kernel 6.</em></p><h1 id="d4061884-6a01-4a47-9472-d82f61a33819" class="">Introduction</h1><p id="1524326a-a7e6-41bc-a17a-701ac71846e0" class="">This blog post is a brief introduction to the io_uring asynchronous I/O framework available in release 6 of the Unbreakable Enterprise Kernel (UEK). It highlights the motivations for introducing the new framework, describes its system call and library interfaces with the help of sample applications, and provides a list of references that describe the technology in further detail including more usage examples.</p><p id="164f0435-7469-4a9b-a52d-439526e973c3" class="">The io_uring Asynchronous I/O (AIO) framework is a new Linux I/O interface, first introduced in the upstream Linux kernel version 5.1 (March 2019). It provides a low-latency and feature-rich interface for applications that require AIO functionality but prefer the kernel to perform the I/O. This could be in order to exploit benefits running on top of a filesystem or to leverage features such as mirroring and block-level encryption. This is in contrast to SPDK applications for example, that explicitly do not want the kernel to perform I/O because they implement their own filesystem and features.</p><h1 id="dd90b615-be74-4c6e-8bf5-cab80f22a82b" class="">Motivation</h1><p id="9dd26d3b-9f93-4e74-bf0c-2c58505b8a07" class="">The native Linux AIO framework suffers from various limitations, which io_uring aims to overcome:</p><ul id="efb19cb5-3443-44a7-a55c-f999ae1ed66d" class="bulleted-list"><li style="list-style-type:disc">It does not support buffered I/O, only direct I/O is supported.</li></ul><ul id="3fa912ed-2b63-4bbe-963c-c0bcd10dea23" class="bulleted-list"><li style="list-style-type:disc">It has non-deterministic behavior which may block under various circumstances.</li></ul><ul id="e1389591-299d-40b6-8430-257a6713164f" class="bulleted-list"><li style="list-style-type:disc">It has a sub-optimal API, which requires at least two system calls per I/O, one to submit a request, and one to wait for its completion.</li></ul><h1 id="43268b9b-a816-4232-822a-823c94b56ac6" class="">Communication Channel</h1><p id="f88f6b49-4a48-4a49-8ac0-0ae60225427c" class="">An io_uring instance has two rings, a submission queue (SQ) and a completion queue (CQ), shared between the kernel and the application. The queues are single producer, single consumer, and power of two in size.</p><p id="c73070c3-bcae-4791-869b-cfaee57036c9" class="">The queues provide a lock-less access interface, coordinated with memory barriers.</p><p id="3ddaae20-f115-41f8-91f6-28e87c1f7918" class="">The application creates one or more SQ entries (SQE), and then updates the SQ tail. The kernel consumes the SQEs , and updates the SQ head.</p><p id="c1dff77d-8999-456d-ba33-ab46e753ea97" class="">The kernel creates CQ entries (CQE) for one or more completed requests, and updates the CQ tail. The application consumes the CQEs and updates the CQ head.</p><p id="9b691348-7350-446a-b2f7-6609697d7818" class="">Completion events may arrive in any order but they are always associated with specific SQEs.</p><h1 id="b183f087-916a-42f1-98ee-9db01d2a5fb5" class="">System call API</h1><p id="82914f64-7ae8-4380-8d86-b30cf117b6f1" class="">The io_uring API consists of three system calls: io_uring_setup(2), io_uring_register(2) and io_uring_enter(2), described in the following sections. The full manual pages for the system calls are available <a href="https://github.com/axboe/liburing/tree/master/man">here</a>.</p><h1 id="572653c3-8031-431c-936d-8843c8b79706" class="">io_uring_setup</h1><p id="5ac0b8a6-4352-4ec8-840f-88dcbbd6fa3f" class=""><em>set up a context for performing asynchronous I/O</em></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="88e3ebb1-5118-43c3-8533-e6e7e26b8131" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">int io_uring_setup(u32 entries, struct io_uring_params *p);</code></pre><p id="d036436a-e472-4c2f-8945-e93447f8944f" class="">The io_uring_setup() system call sets up a submission queue and completion queue with at least <em>entries</em> elements, and returns a file descriptor which can be used to perform subsequent operations on the io_uring instance. The submission and completion queues are shared between the application and the kernel, which eliminates the need to copy data when initiating and completing I/O.</p><p id="9d890cc8-573b-4edc-8fb7-c08b46d36cd9" class=""><em>params</em> is used by the application in order to configure the io_uring instance, and by the kernel to convey back information about the configured submission and completion ring buffers.</p><p id="515e9b21-dad0-4a86-9bb6-b1f9f43e8e91" class="">An io_uring instance can be configured in three main operating modes:</p><ul id="2e802377-d5ea-4785-8dcd-87379828e8d4" class="bulleted-list"><li style="list-style-type:disc"><strong>Interrupt driven</strong> — By default, the io_uring instance is setup for interrupt driven I/O. I/O may be submitted using io_uring_enter() and can be reaped by checking the completion queue directly.</li></ul><ul id="f370ac42-e94b-4470-8e13-40984150b9a4" class="bulleted-list"><li style="list-style-type:disc"><strong>Polled</strong> — Perform busy-waiting for an I/O completion, as opposed to getting notifications via an asynchronous IRQ (Interrupt Request). The file system (if any) and block device must support polling in order for this to work. Busy-waiting provides lower latency, but may consume more CPU resources than interrupt driven I/O. Currently, this feature is usable only on a file descriptor opened using the <em>O_DIRECT</em> flag. When a read or write is submitted to a polled context, the application must poll for completions on the CQ ring by calling io_uring_enter(). It is illegal to mix and match polled and non-polled I/O on an io_uring instance.</li></ul><ul id="c38be5fa-06b9-4ed8-8e22-588985d3c46b" class="bulleted-list"><li style="list-style-type:disc"><strong>Kernel polled</strong> — In this mode, a kernel thread is created to perform submission queue polling. An io_uring instance configured in this way enables an application to issue I/O without ever context switching into the kernel. By using the submission queue to fill in new submission queue entries and watching for completions on the completion queue, the application can submit and reap I/Os without doing a single system call. If the kernel thread is idle for more than a user configurable amount of time, it will go idle after notifying the application first. When this happens, the application must call io_uring_enter() to wake the kernel thread. If I/O is kept busy, the kernel thread will never sleep.</li></ul><p id="e3409e71-2782-4814-b099-463370eabbce" class="">io_uring_setup() returns a new file descriptor on success. The application may then provide the file descriptor in a subsequent mmap(2) call to map the submission and completion queues, or to the io_uring_register() or io_uring_enter() system calls.</p><h1 id="416e03e5-4e17-4504-88d2-5b555cad8861" class="">io_uring_register</h1><p id="a450402f-fdfd-45da-8906-55a1d4a42a00" class=""><em>register files or user buffers for asynchronous I/O</em></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="4e46a61e-1eed-4ac7-9752-2699a66f2c1a" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">int io_uring_register(unsigned int fd, unsigned int opcode, void *arg, unsigned int nr_args);</code></pre><p id="d5a414c8-fb48-431e-b4fe-2977aaa3081d" class="">The io_uring_register() system call registers user buffers or files for use in an io_uring instance referenced by <em>fd</em>. Registering files or user buffers allows the kernel to take long term references to internal kernel data structures associated with the files, or create long term mappings of application memory associated with the buffers, only once during registration as opposed to during processing of each I/O request, therefore reducing per-I/O overhead.</p><p id="b6d79aac-d1bd-4e1c-860e-980c396def99" class="">Registered buffers will be locked in memory and charged against the user’s <em>RLIMIT_MEMLOCK</em> resource limit. Additionally, there is a size limit of 1GiB per buffer. Currently, the buffers must be anonymous, non-file-backed memory, such as that returned by malloc(3) or mmap(2) with the <em>MAP_ANONYMOUS</em> flag set. Huge pages are supported as well. Note that the entire huge page will be pinned in the kernel, even if only a portion of it is used.</p><p id="d9287ba3-486c-481b-95a3-dc9e2a2c29d2" class="">It is perfectly valid to setup a large buffer and then only use part of it for an I/O, as long as the range is within the originally mapped region.</p><p id="349b77cd-fcb5-4ddc-b807-1969601ff4d2" class="">An application can increase or decrease the size or number of registered buffers by first unregistering the existing buffers, and then issuing a new call to io_uring_register() with the new buffers.</p><p id="cb7b8208-c2d2-4ca8-9ab3-646528a83e85" class="">An application can dynamically update the set of registered files without unregistering them first.</p><p id="24da7f73-ce0c-4044-8b0b-5162e349140c" class="">It is possible to use eventfd(2) to get notified of completion events on an io_uring instance. If this is desired, an eventfd file descriptor can be registered through this system call.</p><p id="700498b7-d2f8-459b-8539-aaac782a00a9" class="">The credentials of the running application can be registered with io_uring which returns an id associated with those credentials. Applications wishing to share a ring between separate users/processes can pass in this credential id in the SQE personality field. If set, that particular SQE will be issued with these credentials.</p><h1 id="c0a12484-f77b-44d3-a38c-7a57657d21a9" class="">io_uring_enter</h1><p id="f01050fc-da61-4760-b02a-db0e939177c6" class=""><em>initiate and/or complete asynchronous I/O</em></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="5863e411-326f-450c-8853-6b317dd8fc9c" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">int io_uring_enter(unsigned int fd, unsigned int to_submit, unsigned int min_complete, unsigned int flags, sigset_t *sig);</code></pre><p id="dfb70be3-8f06-4f0e-93dc-8d3bc04df5a1" class="">io_uring_enter() is used to initiate and complete I/O using the shared submission and completion queues setup by a call to io_uring_setup(). A single call can both submit new I/O and wait for completions of I/O initiated by this call or previous calls to io_uring_enter().</p><p id="a084112e-6206-4af7-8e45-dd98fa5d19ce" class=""><em>fd</em> is the file descriptor returned by io_uring_setup(). <em>to_submit</em> specifies the number of I/Os to submit from the submission queue. If so directed by the application, the system call will attempt to wait for <em>min_complete</em> event completions before returning. If the io_uring instance was configured for polling, then <em>min_complete</em> has a slightly different meaning. Passing a value of 0 instructs the kernel to return any events which are already complete, without blocking. If <em>min_complete</em> is a non-zero value, the kernel will still return immediately if any completion events are available. If no event completions are available, then the call will poll either until one or more completions become available, or until the process has exceeded its scheduler time slice.</p><p id="763b1da3-68a6-49d3-871d-727b96a6b9c7" class="">Note that for interrupt driven I/O, an application may check the completion queue for event completions without entering the kernel at all.</p><p id="e998b510-6ffa-4703-8c74-b9f8d6241689" class="">io_uring_enter() supports a wide variety of operations, including</p><ul id="9e37d461-4d77-41ad-a742-0212c07e4188" class="bulleted-list"><li style="list-style-type:disc">Open, close, and stat files</li></ul><ul id="9b195fc8-a95f-4557-b664-be3ca43726d8" class="bulleted-list"><li style="list-style-type:disc">Read and write into multiple buffers or pre-mapped buffers</li></ul><ul id="8407d44b-7812-4db7-9033-69f007a2b21d" class="bulleted-list"><li style="list-style-type:disc">Socket I/O operations</li></ul><ul id="edf928e5-da38-4ecd-a29b-1578e25f60cc" class="bulleted-list"><li style="list-style-type:disc">Synchronize file state</li></ul><ul id="1a323d91-21f7-463a-bb9f-8a618790354a" class="bulleted-list"><li style="list-style-type:disc">Asynchronously monitor a set of file descriptors</li></ul><ul id="e253015e-e38c-44b4-bb98-58b9bdbb4992" class="bulleted-list"><li style="list-style-type:disc">Create a timeout linked to a specific operation in the ring</li></ul><ul id="071db4e4-245f-45a5-b3c1-198d148f029e" class="bulleted-list"><li style="list-style-type:disc">Attempt to cancel an operation that is currently in flight</li></ul><ul id="38535d43-0185-4033-b3b2-7d1cc08dcf2f" class="bulleted-list"><li style="list-style-type:disc">Create I/O chains</li></ul><ul id="dee79bd0-8038-404b-8cbb-c42d37383432" class="bulleted-list"><li style="list-style-type:disc">Ordered execution within a chain</li></ul><ul id="262bf7de-f596-4d6c-a055-0da37064f07d" class="bulleted-list"><li style="list-style-type:disc">Parallel execution of multiple chains</li></ul><p id="709c1945-a82a-4ede-8a5f-7cb06b546a73" class="">When the system call returns that a certain amount of SQEs have been consumed and submitted, it’s safe to reuse SQE entries in the ring. This is true even if the actual IO submission had to be punted to async context, which means that the SQE may in fact not have been submitted yet. If the kernel requires later use of a particular SQE entry, it will have made a private copy of it.</p><h1 id="45a568d3-b676-4c7f-a871-c29879f333b2" class="">Liburing</h1><p id="d42e0fea-c623-4745-9a29-0a070ff64656" class="">Liburing provides a simple higher level API for basic use cases and allows applications to avoid having to deal with the full system call implementation details. The API also avoids duplicated code for operations such as setting up an io_uring instance.</p><p id="175d0e27-e217-48fc-a191-f52d070e74ad" class="">For example, after getting back a ring file descriptor from io_uring_setup(), an application must always call mmap() in order to map the submission and completion queues for access, as described in the io_uring_setup() manual page. The entire sequence is somewhat lengthy but can be accomplish with the following liburing call:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="6257c35c-1253-456d-aa8b-d5516ce68b81" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">int io_uring_queue_init(unsigned entries, struct io_uring *ring, unsigned flags);</code></pre><p id="a48945fa-06d8-4eb5-815f-9da26a437ae2" class="">The sample applications below are included in liburing source, and help illustrates these points.</p><p id="547cd4eb-6b09-4579-b8c4-094daf84f62e" class="">The source code for liburing sample applications is available <a href="https://github.com/axboe/liburing/tree/master/examples">here</a>.</p><p id="aacd5fbe-00f4-48b0-ad32-993e962dd82e" class="">There is no liburing API documentation currently available and the API is described in <a href="https://github.com/axboe/liburing/blob/master/src/include/liburing.h">liburing.h</a> header file.</p><h1 id="386d2418-779d-46c5-9886-1012b424abc9" class="">Sample application io_uring-test</h1><p id="cc3581a7-7a54-40a0-9aeb-ef69952804bc" class="">io_uring-test reads a maximum of 16KB from a user specified file using 4 SQEs. Each SQE is a request to read 4KB of data from a fixed file offset. io-uring then reaps each CQE and checks whether the full 4KB was read from the file as requested.</p><p id="5de1f607-5574-4c25-908f-49e36117e90d" class="">If the file is smaller than 16KB, all 4 SQEs are still submitted but some CQE results will indicate either a partial read, or zero bytes read, depending on the actual size of the file.</p><p id="d4ced6b3-9554-48b5-a36a-60ec436ddba4" class="">io-uring finally reports the number of SQEs and CQEs it has processed.</p><p id="437ddee2-e231-452c-a262-f668d9be2cb9" class="">The full source code is listed below followed by the description of the liburing calls.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="fd8f24db-79c6-4d96-90a5-4053c7fb1a62" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">/* SPDX-License-Identifier: MIT */
+/*
+ * Simple app that demonstrates how to setup an io_uring interface,
+ * submit and complete IO against it, and then tear it down.
+ *
+ * gcc -Wall -O2 -D_GNU_SOURCE -o io_uring-test io_uring-test.c -luring
+ */
+#include &lt;stdio.h&gt;
+#include &lt;fcntl.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+#include &quot;liburing.h&quot;
+
+#define QD  4
+
+int main(int argc, char *argv[])
+{
+    struct io_uring ring;
+    int i, fd, ret, pending, done;
+    struct io_uring_sqe *sqe;
+    struct io_uring_cqe *cqe;
+    struct iovec *iovecs;
+    off_t offset;
+    void *buf;
+
+    if (argc &lt; 2) {
+        printf(&quot;%s: file\n&quot;, argv[0]);
+        return 1;
+    }
+
+    ret = io_uring_queue_init(QD, &amp;ring, 0);
+    if (ret &lt; 0) {
+        fprintf(stderr, &quot;queue_init: %s\n&quot;, strerror(-ret));
+        return 1;
+    }
+
+    fd = open(argv[1], O_RDONLY | O_DIRECT);
+    if (fd &lt; 0) {
+        perror(&quot;open&quot;);
+        return 1;
+    }
+
+    iovecs = calloc(QD, sizeof(struct iovec));
+    for (i = 0; i &lt; QD; i++) {
+        if (posix_memalign(&amp;buf, 4096, 4096))
+            return 1;
+        iovecs[i].iov_base = buf;
+        iovecs[i].iov_len = 4096;
+    }
+
+    offset = 0;
+    i = 0;
+    do {
+        sqe = io_uring_get_sqe(&amp;ring);
+        if (!sqe)
+            break;
+        io_uring_prep_readv(sqe, fd, &amp;iovecs[i], 1, offset);
+        offset += iovecs[i].iov_len;
+        i++;
+    } while (1);
+
+    ret = io_uring_submit(&amp;ring);
+    if (ret &lt; 0) {
+        fprintf(stderr, &quot;io_uring_submit: %s\n&quot;, strerror(-ret));
+        return 1;
+    }
+
+    done = 0;
+    pending = ret;
+    for (i = 0; i &lt; pending; i++) {
+        ret = io_uring_wait_cqe(&amp;ring, &amp;cqe);
+        if (ret &lt; 0) {
+            fprintf(stderr, &quot;io_uring_wait_cqe: %s\n&quot;, strerror(-ret));
+            return 1;
+        }
+
+        done++;
+        ret = 0;
+        if (cqe-&gt;res != 4096) {
+            fprintf(stderr, &quot;ret=%d, wanted 4096\n&quot;, cqe-&gt;res);
+            ret = 1;
+        }
+        io_uring_cqe_seen(&amp;ring, cqe);
+        if (ret)
+            break;
+    }
+
+    printf(&quot;Submitted=%d, completed=%d\n&quot;, pending, done);
+    close(fd);
+    io_uring_queue_exit(&amp;ring);
+    return 0;
+}</code></pre><h1 id="17f26e7e-0fb2-443c-9c6e-3043a1ad7924" class="">Description</h1><p id="b7685b21-0c60-4c9a-bb50-c56f3e6e2070" class="">An io_uring instance is created in the default interrupt driven mode, specifying only the size of the ring.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="9a58d71e-4889-427b-9f0a-01d080ac9e5f" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">ret = io_uring_queue_init(QD, &amp;ring, 0);</code></pre><p id="b0a315b4-6a7a-4b59-9731-93e8d5ea1bcf" class="">All of the ring SQEs are next fetched and prepared for the IORING_OP_READV operation which provides an asynchronous interface to readv(2) system call. Liburing provides numerous helper functions to prepare io_uring operations.</p><p id="5c83cb9d-5ba2-4d79-85b9-2b6c043921a3" class="">Each SQE will point to an allocated buffer described by an iovec structure. The buffer will contain the result of the corresponding readv operation upon completion.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="700ad89c-168c-4ee5-a118-38ee715aa15d" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">sqe = io_uring_get_sqe(&amp;ring); io_uring_prep_readv(sqe, fd, &amp;iovecs[i], 1, offset);</code></pre><p id="d595f54d-f261-4708-be0e-617c563f3496" class="">The SQEs are submitted with a single call to io_uring_submit() which returns the number of submitted SQEs.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="465fc8fd-4b04-4d6e-a0ed-38c60dd37f10" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">ret = io_uring_submit(&amp;ring);</code></pre><p id="f4ecebad-b512-4044-88c5-2961b8651506" class="">The CQEs are reaped with repeated calls to io_uring_wait_cqe(), and the success of a given submission is verified with the cqe-&gt;res field; each matching call to io_uring_cqe_seen() informs the kernel that the given CQE has been consumed.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="aaad29ad-99c4-4da3-8f4d-e51f186cbbbd" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">ret = io_uring_wait_cqe(&amp;ring, &amp;cqe); io_uring_cqe_seen(&amp;ring, cqe);</code></pre><p id="7528b582-7602-4f7f-b3c3-2a6455a71f92" class="">The io_uring instance is finally dismantled.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="ecbfafd0-0570-4200-a91b-74a65711c48b" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">void io_uring_queue_exit(struct io_uring *ring)</code></pre><h1 id="49e4fda3-7cdd-4495-88f3-b61dd1b4049b" class="">Sample application link-cp</h1><p id="0289027d-886f-4e1a-a282-87c2326e1330" class="">link-cp copies a file using the io_uring SQE chaining feature.</p><p id="b92ce330-9024-495f-a281-1d5a6eafa326" class="">As noted before, io_uring supports the creation of I/O chains. The I/O operations within a chain are sequentially executed, and multiple I/O chains can execute in parallel.</p><p id="2a0ec2b9-0e48-412b-bb30-41be9072e121" class="">To copy the file, link-cp creates SQE chains of length two. The first SQE in the chain is a read request from the input file into a buffer. The second request, linked to the first, is a write request from the same buffer to the output file.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="e9d046d6-e393-41b1-bb20-9fe5254fe34c" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">/* SPDX-License-Identifier: MIT */
+/*
+ * Very basic proof-of-concept for doing a copy with linked SQEs. Needs a
+ * bit of error handling and short read love.
+ */
+#include &lt;stdio.h&gt;
+#include &lt;fcntl.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;assert.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;inttypes.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;sys/stat.h&gt;
+#include &lt;sys/ioctl.h&gt;
+#include &quot;liburing.h&quot;
+
+#define QD  64
+#define BS  (32*1024)
+
+struct io_data {
+    size_t offset;
+    int index;
+    struct iovec iov;
+};
+
+static int infd, outfd;
+static unsigned inflight;
+
+
+static int setup_context(unsigned entries, struct io_uring *ring)
+{
+    int ret;
+
+    ret = io_uring_queue_init(entries, ring, 0);
+    if (ret &lt; 0) {
+        fprintf(stderr, &quot;queue_init: %s\n&quot;, strerror(-ret));
+        return -1;
+    }
+
+    return 0;
+}
+
+static int get_file_size(int fd, off_t *size)
+{
+    struct stat st;
+
+    if (fstat(fd, &amp;st) &lt; 0)
+        return -1;
+    if (S_ISREG(st.st_mode)) {
+        *size = st.st_size;
+        return 0;
+    } else if (S_ISBLK(st.st_mode)) {
+        unsigned long long bytes;
+
+        if (ioctl(fd, BLKGETSIZE64, &amp;bytes) != 0)
+            return -1;
+
+        *size = bytes;
+        return 0;
+    }
+
+    return -1;
+}
+
+static void queue_rw_pair(struct io_uring *ring, off_t size, off_t offset)
+{
+    struct io_uring_sqe *sqe;
+    struct io_data *data;
+    void *ptr;
+
+    ptr = malloc(size + sizeof(*data));
+    data = ptr + size;
+    data-&gt;index = 0;
+    data-&gt;offset = offset;
+    data-&gt;iov.iov_base = ptr;
+    data-&gt;iov.iov_len = size;
+
+    sqe = io_uring_get_sqe(ring);
+    io_uring_prep_readv(sqe, infd, &amp;data-&gt;iov, 1, offset);
+    sqe-&gt;flags |= IOSQE_IO_LINK;
+    io_uring_sqe_set_data(sqe, data);
+
+    sqe = io_uring_get_sqe(ring);
+    io_uring_prep_writev(sqe, outfd, &amp;data-&gt;iov, 1, offset);
+    io_uring_sqe_set_data(sqe, data);
+}
+
+static int handle_cqe(struct io_uring *ring, struct io_uring_cqe *cqe)
+{
+    struct io_data *data = io_uring_cqe_get_data(cqe);
+    int ret = 0;
+
+    data-&gt;index++;
+
+    if (cqe-&gt;res &lt; 0) {
+        if (cqe-&gt;res == -ECANCELED) {
+            queue_rw_pair(ring, BS, data-&gt;offset);
+            inflight += 2;
+        } else {
+            printf(&quot;cqe error: %s\n&quot;, strerror(cqe-&gt;res));
+            ret = 1;
+        }
+    }
+
+    if (data-&gt;index == 2) {
+        void *ptr = (void *) data - data-&gt;iov.iov_len;
+
+        free(ptr);
+    }
+    io_uring_cqe_seen(ring, cqe);
+    return ret;
+}
+
+static int copy_file(struct io_uring *ring, off_t insize)
+{
+    struct io_uring_cqe *cqe;
+    size_t this_size;
+    off_t offset;
+
+    offset = 0;
+    while (insize) {
+        int has_inflight = inflight;
+        int depth;
+
+        while (insize &amp;&amp; inflight &lt; QD) {
+            this_size = BS;
+            if (this_size &gt; insize)
+                this_size = insize;
+            queue_rw_pair(ring, this_size, offset);
+            offset += this_size;
+            insize -= this_size;
+            inflight += 2;
+        }
+
+        if (has_inflight != inflight)
+            io_uring_submit(ring);
+
+        if (insize)
+            depth = QD;
+        else
+            depth = 1;
+        while (inflight &gt;= depth) {
+            int ret;
+
+            ret = io_uring_wait_cqe(ring, &amp;cqe);
+            if (ret &lt; 0) {
+                printf(&quot;wait cqe: %s\n&quot;, strerror(ret));
+                return 1;
+            }
+            if (handle_cqe(ring, cqe))
+                return 1;
+            inflight--;
+        }
+    }
+
+    return 0;
+}
+
+int main(int argc, char *argv[])
+{
+    struct io_uring ring;
+    off_t insize;
+    int ret;
+
+    if (argc &lt; 3) {
+        printf(&quot;%s: infile outfile\n&quot;, argv[0]);
+        return 1;
+    }
+
+    infd = open(argv[1], O_RDONLY);
+    if (infd &lt; 0) {
+        perror(&quot;open infile&quot;);
+        return 1;
+    }
+    outfd = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (outfd &lt; 0) {
+        perror(&quot;open outfile&quot;);
+        return 1;
+    }
+
+    if (setup_context(QD, &amp;ring))
+        return 1;
+    if (get_file_size(infd, &amp;insize))
+        return 1;
+
+    ret = copy_file(&amp;ring, insize);
+
+    close(infd);
+    close(outfd);
+    io_uring_queue_exit(&amp;ring);
+    return ret;
+}</code></pre><h1 id="a9084965-0bed-4dda-9741-bb8caf09f244" class="">Description</h1><p id="f4c73d86-7730-44c8-b488-549bfea3fe8e" class="">The three routines copy_file(), queue_rw_pair(), and handle_cqe(), implement the file copy.</p><p id="6258d59b-99e8-41fb-81c1-33d06dcb1868" class="">copy_file() implements the high level copy loop; it calls queue_rw_pair() to construct each SQE pair</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="7b767212-b6b2-425a-be3d-cdbb38a43eec" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">queue_rw_pair(ring, this_size, offset);</code></pre><p id="99335768-f277-4f29-84ab-95559700cbf3" class="">and submits all the constructed SQE pairs in each iteration with a single call to io_uring_submit().</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="83c2cc7e-f757-4fb8-84db-2b97d3a6c0ee" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">if (has_inflight != inflight) io_uring_submit(ring);</code></pre><p id="28460d11-88de-4391-8afd-b20e434d14f9" class="">copy_file() maintains up to QD SQEs inflight as long as data remains to be copied; it waits for and reaps all CQEs after the input file has been fully read.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="ce285b3d-4914-4830-97df-769cddb3b41f" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">ret = io_uring_wait_cqe(ring, &amp;cqe); if (handle_cqe(ring, cqe))</code></pre><p id="98124495-4752-4936-a87e-8b44d36c1196" class="">queue_rw_pair() constructs a read-write SQE pair. The IOSQE_IO_LINK flag is set for the read SQE which marks the start of the chain. The flag is not set for the write SQE which marks the end of the chain. The user data field is set for both SQEs to the same data descriptor for the pair, and will be used during completion handling.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="46d40609-4307-44ef-b15c-de60e5ecf28c" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">sqe = io_uring_get_sqe(ring); io_uring_prep_readv(sqe, infd, &amp;data-&gt;iov, 1, offset); sqe-&gt;flags |= IOSQE_IO_LINK; io_uring_sqe_set_data(sqe, data); sqe = io_uring_get_sqe(ring); io_uring_prep_writev(sqe, outfd, &amp;data-&gt;iov, 1, offset); io_uring_sqe_set_data(sqe, data);</code></pre><p id="0f98e0e8-01b8-4ff8-8e2d-3b165d0e0d30" class="">handle_cqe() retrieves from a CQE the data descriptor saved by queue_rw_pair() and records the retrieval in the descriptor.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="2d8cbddb-6784-425d-ac48-e1f4ff81ec56" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">struct io_data *data = io_uring_cqe_get_data(cqe); data-&gt;index++;</code></pre><p id="0ff770eb-d3e7-4a8b-9402-fe9df994d47a" class="">handle_cqe() resubmits the read-write pair if the request was canceled.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="0f5a533e-36ed-4c60-b178-b9d5ccbfd5e4" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">if (cqe-&gt;res == -ECANCELED) { queue_rw_pair(ring, BS, data-&gt;offset);</code></pre><p id="b006b5fb-7694-42c6-85af-f94858feb400" class="">The following excerpt from the io_uring_enter() manual page describes the behavior of chained requests in more detail:</p><h1 id="bd029de6-05df-4fb8-9e61-82c9203693bc" class=""><strong>IOSQE_IO_LINK</strong></h1><p id="62237e45-576d-4e4a-a016-82278ee8f26f" class="">When this flag is specified, it forms a link with the next SQE in the submission ring. That next SQE will not be started before this one completes. This, in effect, forms a chain of SQEs, which can be arbitrarily long. The tail of the chain is denoted by the first SQE that does not have this flag set. This flag has no effect on previous SQE submissions, nor does it impact SQEs that are outside of the chain tail. This means that multiple chains can be executing in parallel, or chains and individual SQEs. Only members inside the chain are serialized. A chain of SQEs will be broken, if any request in that chain ends in error. io_uring considers any unexpected result an error. This means that, eg, a short read will also terminate the remainder of the chain. If a chain of SQE links is broken, the remaining unstarted part of the chain will be terminated and completed with -ECANCELED as the error code.</p><p id="bf46f2e3-fe88-4680-acd0-688b49c1164c" class="">handle_cqe() frees the shared data descriptor after both members of a CQE pair have been processed.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="b4e66d41-d887-4e5d-8fc0-eebfb9af8656" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">if (data-&gt;index == 2) { void *ptr = (void *) data - data-&gt;iov.iov_len; free(ptr); }</code></pre><p id="1a7f0026-a268-40ee-af31-86d79a346456" class="">handle_cqe() finally informs the kernel that the given CQE has been consumed.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="935befc7-3e47-4a3d-83b9-187deb219712" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">io_uring_cqe_seen(ring, cqe);</code></pre><h1 id="ab725b5a-fb75-40b7-a0fe-d2eed3d289dc" class="">Liburing API</h1><p id="2bab5021-4c2d-45f7-b687-b0426a915442" class="">io_uring-test and link-cp use the following subset of the liburing API:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="60cd6138-8b30-412b-9c68-d25b61c81123" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">/*
+ * Returns -1 on error, or zero on success. On success, &#x27;ring&#x27;
+ * contains the necessary information to read/write to the rings.
+ */
+int io_uring_queue_init(unsigned entries, struct io_uring *ring, unsigned flags);
+
+/*
+ * Return an sqe to fill. Application must later call io_uring_submit()
+ * when it&#x27;s ready to tell the kernel about it. The caller may call this
+ * function multiple times before calling io_uring_submit().
+ *
+ * Returns a vacant sqe, or NULL if we&#x27;re full.
+ */
+struct io_uring_sqe *io_uring_get_sqe(struct io_uring *ring);
+
+/*
+ * Set the SQE user_data field.
+ */
+void io_uring_sqe_set_data(struct io_uring_sqe *sqe, void *data);
+
+/*
+ * Prepare a readv I/O operation.
+ */
+void io_uring_prep_readv(struct io_uring_sqe *sqe, int fd,
+                         const struct iovec *iovecs,
+                         unsigned nr_vecs, off_t offset);
+
+/*
+ * Prepare a writev I/O operation.
+ */
+void io_uring_prep_writev(struct io_uring_sqe *sqe, int fd,
+                          const struct iovec *iovecs,
+                          unsigned nr_vecs, off_t offset);
+
+/*
+ * Submit sqes acquired from io_uring_get_sqe() to the kernel.
+ *
+ * Returns number of sqes submitted
+ */
+int io_uring_submit(struct io_uring *ring);
+
+/*
+ * Return an IO completion, waiting for it if necessary. Returns 0 with
+ * cqe_ptr filled in on success, -errno on failure.
+ */
+int io_uring_wait_cqe(struct io_uring *ring,
+                      struct io_uring_cqe **cqe_ptr);
+
+/*
+ * Must be called after io_uring_{peek,wait}_cqe() after the cqe has
+ * been processed by the application.
+ */
+static inline void io_uring_cqe_seen(struct io_uring *ring,
+                                     struct io_uring_cqe *cqe);
+
+void io_uring_queue_exit(struct io_uring *ring);</code></pre><h1 id="d4e69acf-4a84-4a36-977c-fdb43bcde4be" class="">References</h1><ul id="26696f37-0d4e-44c4-80f0-cdc05095f54a" class="bulleted-list"><li style="list-style-type:disc"><a href="https://kernel.dk/io_uring.pdf">Efficient IO with io_uring</a></li></ul><ul id="8a6abc85-1577-4388-9e0b-67e90f22b8eb" class="bulleted-list"><li style="list-style-type:disc"><a href="https://lwn.net/Articles/776703/">Ringing in a new asynchronous I/O API</a></li></ul><ul id="1e988686-13ae-44de-b727-f8024abe9fe9" class="bulleted-list"><li style="list-style-type:disc"><a href="https://lwn.net/Articles/810414/">The rapid growth of io_uring</a></li></ul><ul id="14abf309-6750-432e-b5ed-6324038f4940" class="bulleted-list"><li style="list-style-type:disc"><a href="https://www.youtube.com/watch?v=-5T4Cjw46ys">Faster I/O through io_uring</a></li></ul><ul id="d399a89d-ac18-446f-8e2d-0d6ceea997ed" class="bulleted-list"><li style="list-style-type:disc"><a href="https://github.com/axboe/liburing/tree/master/man">System call API</a></li></ul><ul id="7a4abcbf-1f9a-4663-bedb-6b35e3b37964" class="bulleted-list"><li style="list-style-type:disc"><a href="https://github.com/axboe/liburing/blob/master/src/include/liburing.h">Liburing API</a></li></ul><ul id="cd7fa1bb-c4c8-4b7b-8fb1-c9df6a49701b" class="bulleted-list"><li style="list-style-type:disc"><a href="https://github.com/axboe/liburing/tree/master/examples">Examples</a></li></ul><ul id="6d7147d0-87d5-4e64-9212-f87345df0550" class="bulleted-list"><li style="list-style-type:disc"><a href="https://github.com/axboe/liburing">Liburing repository</a></li></ul><p id="d03e79f9-0751-476d-a4fb-344b6733b1eb" class=""><em>Originally published at </em><a href="https://blogs.oracle.com/linux/an-introduction-to-the-io_uring-asynchronous-io-framework"><em>https://blogs.oracle.com</em></a><em>.</em></p><p id="9212d4a5-4580-46fa-a15c-47794b920669" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

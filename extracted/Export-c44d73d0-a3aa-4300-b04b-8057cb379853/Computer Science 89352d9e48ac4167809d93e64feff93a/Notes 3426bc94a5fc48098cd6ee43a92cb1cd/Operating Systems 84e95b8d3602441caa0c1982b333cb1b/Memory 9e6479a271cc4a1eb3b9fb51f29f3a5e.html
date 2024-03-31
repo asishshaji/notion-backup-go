@@ -1,0 +1,772 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Memory</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="9e6479a2-71cc-4a1e-b3b9-fb51f29f3a5e" class="page mono"><header><h1 class="page-title">Memory</h1><p class="page-description"></p></header><div class="page-body"><p id="2d58bc25-a03a-40c5-b496-0dd734150198" class="">RAM = static (SRAM) and dynamic (DRAM)</p><p id="e2f5f13c-02cc-49b2-b8c6-867422679d8d" class="">SRAM is faster and more expensive. DRAM is used for the main memory plus the frame buffer of a graphics system. SRAM stores each bit in a bistable memory cell. Each cell is implemented with a <a href="https://www.iue.tuwien.ac.at/phd/entner/node34.html">6-transistor circuit</a>. This circuit can stay indefinitely in either of two voltage configurations, or states as long as power is supplied. This is in contrast to DRAM where periodic refreshes are necessary.</p><p id="b06230b9-d23a-4d9b-b3b9-5a5f1796cf01" class="">SRAM provides higher performance benefits because SRAM does not require periodic refreshments like DRAM. Due to the bistable nature of SRAM. Even when a disturbance, such as electrical noise, perturbs the voltages, the circuit will return to the stable value when the disturbance is removed.</p><p id="a9c6c9cd-84e4-4e78-a52c-f6c1bead4691" class="">DRAM = Dynamic RAM</p><p id="c895aa82-fe17-48b4-b075-7ee0f478f996" class="">DRAM cell consist of a single capactor and a transistor which stores one bit as charge(30 * 10^-15 farads). Unlike SRAM, DRAM is very senstive to disturbances. When the capacitor voltage is disturbed, it will never recover. Exposure to light rays will change the voltages of the capacitor. Sensors of digital cameras are essentially an array of DRAM cells.</p><div id="5b2a4e85-3cba-4cea-af1b-aa68f4d9ef14" class="column-list"><div id="c5c851be-a404-413a-bc64-5a8ee9ed6ec6" style="width:50%" class="column"><figure id="782d8711-75f9-41a4-8397-5118f42336dd" class="image"><a href="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled.png"><img style="width:528px" src="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled.png"/></a></figure><figure id="d9c3a486-6098-4fad-a0ef-cbf850041d93" class="image"><a href="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%201.png"><img style="width:432px" src="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%201.png"/></a></figure></div><div id="93bc3e2d-e851-4869-8110-0db463722d29" style="width:50%" class="column"><figure id="aa86cc85-f3db-4f28-8ec5-89e2c58c665f" class="image"><a href="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%202.png"><img style="width:384px" src="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%202.png"/></a></figure><p id="70e41a7f-0afd-49fd-9c02-d2763f712358" class=""><div class="indented"><p id="fcf658db-d831-4547-ae2d-b2af632a75cc" class="">The wordline is connected to the transistors gate and bitline is connected to the channel of the transistor.</p><p id="d782e584-9f43-42e8-be42-c06f6d771ab4" class="">Applying a voltage to the wordline turns on the transistor, while it’s on electron can flow through the channel, thus connecting the capacitor to the bitline. This can allow us to either charge or discharge the capacitor.</p><p id="69a4d593-e3c8-4e39-a896-18dd84918b58" class="">When the voltage applied to wordline is disconnected, the gate is closed, thus the capcitor can store the data.</p><p id="77931e5e-010f-4627-8ee0-b88098e5bc97" class="">One thing to note is the transistor is very small, and thus electrons will escape through the transistor. That’s why DRAM requires refresh periodically.</p><p id="bee6b702-c964-4117-b568-92a89983e73d" class="">
+</p></div></p></div></div><p id="9f9800b6-2952-4233-97f0-920e0e015440" class="">
+</p><p id="0b325e91-a28f-46e2-bc56-f9a206681b7f" class="">Various current leakages cause the capacitor to lose its memory(10 to 100 ms, this retention time is actually good), so the memory system must periodically refresh every bit by reading it and rewriting it.</p><p id="d7a7370e-32af-4fd1-9d2c-518b2c4cc636" class="">In conclusion SRAM will persist the memory, DRAM needs to refresh the memory periodically.</p><figure id="db045abd-7d1b-4e48-8f46-44ada4d28b97" class="image"><a href="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/image-1696132593125.jpg8138106242047248259.jpg"><img style="width:1056px" src="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/image-1696132593125.jpg8138106242047248259.jpg"/></a></figure><h2 id="d53a5ef0-124b-4a0f-954c-c8329569bd45" class="">Conventional DRAMs</h2><p id="66dc9593-3c63-4076-86c0-fafa2e40d1b2" class="">The cells in a DRAM chip are partitioned into d supercells, each with the ability to store w bits. So DRAM stores d * w bits of information. The supercells are organised into 2-d array with r rows and c columns, (r,c) = d. Each supercell has an address of the form (i,j).</p><figure id="b5a16825-2ce9-46b2-8e2d-266c6a979870" class="image"><a href="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%203.png"><img style="width:624px" src="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%203.png"/></a></figure><p id="1ff4a44e-c2b1-4026-a5bb-1e80015f8467" class="">Here d = 16, w = 8</p><p id="8b7c883e-0e28-4a7d-adde-4a2e67cab925" class="">There total of 16 supercells, each supercell have a capacity of 8 bits.</p><p id="594a6e71-75d0-4423-b566-e70282d1d809" class="">Information from and to the chip flows through the 2 pins, one 2 bit and the other 8 bit. 2 bit pin is used for sending the address of the supercell the memory controller wants to access to the DRAM. 8 bit pin is used to read and write data into the supercell.</p><p id="2316a519-2335-497a-a617-7f82c6fac860" class="">The memory controller first sends the row number (row access strobe) to the chip, the chip then copies the contents of that row to the interal row buffer. Then the mem controller sends the column number (column access strobe). DRAM responds by copying the supercell data of supercell (i,j) from the internal row buffer and sends to the memory controller.</p><div id="8c002137-04e8-4676-bece-60c57a33ca2a" class="column-list"><div id="70e146b0-4495-40ed-a1e5-295eb40a80a1" style="width:50%" class="column"><figure id="677c4785-4fcd-4945-823f-03b0433d68b8" class="image"><a href="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%204.png"><img style="width:432px" src="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%204.png"/></a></figure></div><div id="e7128f77-77b1-414d-8424-01187267e03f" style="width:50%" class="column"><figure id="f5ddeef4-c6f5-4099-b560-d1a7120615e4" class="image"><a href="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%205.png"><img style="width:432px" src="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%205.png"/></a></figure></div></div><p id="ba1e793d-a3ca-4b49-b150-36ae2a88fd75" class="">One reason to keep DRAMs as 2-d array is to reduce the number of address pins. If our 128 bit DRAM was organized as linear array, addresses from 0 - 15, we will need 4 pins.</p><p id="35b31826-76be-4a43-b693-c53d3699d014" class="">Only disadvantage is the access time is increased, you send i, then a copy to the internal row buffer, then you send the column number and then atlast you get the data.</p><p id="e840f292-ae78-4cac-bdb8-995377fa7e16" class="">
+</p><figure id="e6fea056-8b72-4e17-b79d-bbe91ce41a86"><a href="https://www.youtube.com/watch?v=7J7X7aZvMXQ" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">How does Computer Memory Work? 💻🛠</div><div class="bookmark-description">Check out Crucial NVMe SSDs Here: https://crucial.gg/BranchEducation_P5
+Have you ever wondered why it takes time for computers to load programs or video games?  Also, ever wonder why your computer uses both DRAM as well as SSDs when they both are used to store data?  
+Well, most of that time is spent moving data from a hard drive or SSD into DRAM or Dynamic Random Access Memory, which is the working memory inside your computer.  In this video, we&#x27;re going to take a very deep dive into DRAM.  We&#x27;ll see how it connects to other parts of your computer, and then we&#x27;ll explore how DRAM can store gigabytes of data in nanoscopic capacitors.  After that, we&#x27;ll cover the three main operations of DRAM: Reading, Writing, and Refreshing.  And finally, we&#x27;ll dive deep into some more complex aspects of DRAM that make it so amazingly fast such as folded DRAM architecture.  We&#x27;ll also learn what burst buffers are, and why there are so many banks of DRAM memory cells. 
+
+Do you want to support in-depth engineering and technology education? 
+Support us at:  https://www.patreon.com/brancheducation
+
+Website: https://www.branch.education
+On Facebook: https://www.facebook.com/BranchEducation/
+On Twitter: https://twitter.com/TeddyTablante
+On Insta: https://www.instagram.com/brancheducation/
+
+Thanks to Nathan, Peter, and Jacob for helping research and review this video!  They&#x27;re doctoral students at the Florida Institute for Cybersecurity Research, and you can learn more about their program here:  https://fics.institute.ufl.edu/
+
+Table of Contents:
+00:00 - Intro to Computer Memory
+00:47 - DRAM vs SSD
+02:23 - Loading a Video Game
+03:25 - Parts of this Video
+04:07 - Notes
+06:10 - Intro to DRAM, DIMMs &amp; Memory Channels
+10:43 - Crucial Sponsorship
+12:09 - Inside a DRAM Memory Cell
+15:28 - An Small Array of Memory Cells
+17:41 - Reading from DRAM
+19:38 - Writing to DRAM
+21:55 - Refreshing DRAM
+23:16 - Why DRAM Speed is Critical
+25:06 - Complicated DRAM Topics: Row Hits
+26:21 - DRAM Timing Parameters
+27:51 - Why 32 DRAM Banks?
+29:17 - DRAM Burst Buffers
+30:58 - Subarrays
+32:02 - Inside DRAM Sense Amplifiers
+34:24 - Outro to DRAM
+
+Key Branches from this video are: How do Solid State Drives Work?
+
+Erratum:  
+At 10m 08s : Cicruit ||  Should be Circuit
+At 21m 54s : 32 Bank Groups || Should be 32 Banks. 
+
+Script, Modeling, Animation: Teddy Tablante
+Twitter: @teddytablante
+Animation: Mike Radjabov
+Modeling: Prakash Kakadiya
+Voice Over: Phil Lee
+Sound Design:  www.drilu.mx
+Music Editing:  Luis Zuleta
+Sound Effects: Paulo de los Cobos
+Supervising Sound Editor and Mixer: Luis Huesca
+
+Animation built using Blender 3.1.2 https://www.blender.org/
+Post with Adobe Premiere Pro
+
+References:
+
+DDR5 SDRAM. JEDEC Standard. JESD79-5 July 2020
+
+Dr. Cutress, Ian.  &quot;Insights into DDR5 Sub-Timings and Latencies&quot;.  Oct 6th, 2020.
+
+Dr. El-Maleh, Aiman. &quot;Functions and Functional Blocks: Digital Logic Design&quot; College of Computer Sciences and Engineering.  King Fahd University of Petroleum and Minerals.
+
+Hajimiri, Ali. Et al. &quot;Design Issues in Cross-Coupled inverter Sense Amplifier&quot;.  IEEE. Stanford University 1998 
+
+IBM.  Understanding DRAM Operation. IBM 1996.
+
+Jacob, Bruce. NG, Spencer W. Wang, David T.  &quot;Memory Systems: Cache, DRAM, Disk.&quot;  Elsevier Inc. 2008
+
+Keeth, Brent. Baker, R Jacob. Johnson, Brian. Lin, Feng.  &quot;DRAM Circuit Design: Fundamental and High-Speed Topics.&quot; IEE Press 2008.
+
+Kim, Yoongu et. Al. &quot;A Case for Exploiting Subarray-Level Parallelism in DRAM&quot;. Carnegie Mellon University
+
+Lee, Donghuk et.al. &quot;Tiered-Latency DRAM: A Low Latency and Low Cost DRAM Architecture.  Carnegie Mellon University
+
+Micron. &quot;DDR4 SDRAM. MT40A4G4. MT40A2G8. MT40A1G16. 16Gb: x4, x8, x16 DDR4 SDRAM Features&quot; Micron Technologies 2018
+
+Micron. &quot;DDR5 SDRAM Product Core Data Sheet DDR5SDRAM Features.&quot;  Micron Technologies 2020
+
+Ryan, Kevin J. Morzano, Christopher K. Li, Wen.  &quot;Write Data Masking for Higher Speed DRAMS&quot; US Patent 6532180 B2 Mar. 11 2003.
+
+Shilov, Anton. &quot;SK Hynix Details DDR5-6400&quot;.  ANANDTECH. Feb 26th, 2019.
+
+Sunami, Hideo. &quot;Dimension Increase in Metal-Oxide Semiconductor Memories and Transistors&quot;.  From intechopen.com.  From &quot;Advances in Solid State Circuit Technologies&quot;. Apr 2010. 
+
+Wikipedia contributors.   &quot;CAS Latency&quot;. &quot;DDR5 SDRAM&quot;. &quot;Dynamics Random-Access Memory&quot;. &quot;Memory Timing&quot;. &quot;Synchronous Dynamic Random-Access Memory&quot;.   Wikipedia, The Free Encyclopedia. Wikipedia, The Free Encyclopedia, Visited Nov  2022
+
+#DRAM #CPU #Computer</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/0c0555f3/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=7J7X7aZvMXQ</div></div><img src="https://i.ytimg.com/vi/7J7X7aZvMXQ/maxresdefault.jpg" class="bookmark-image"/></a></figure><p id="28823ddb-df85-42ae-bd9e-5563bd8af49f" class="">
+</p><h2 id="fdf3bdb9-0a9e-4aec-931d-b786b2853925" class="">Memory Modules</h2><p id="090fa6b1-fc93-48cb-8079-73ccf135a769" class="">DRAM chips are packaged into memory modules, they are plugged into memory slots on the motherboard. A stick of a RAM is called Dual Inline Memory Module (DIMM).</p><figure id="5aae2217-f3de-4e79-956b-24046f621317" class="image"><a href="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%206.png"><img style="width:672px" src="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%206.png"/></a></figure><h2 id="4ba95d27-20a6-4c1d-9a03-d12ba8fe9ab3" class="">Memory Read Transaction</h2><div id="e9e84b8e-6ddc-450a-93e1-ba28a8fc63a9" class="column-list"><div id="49262e00-7f48-4c59-9703-1fdf7ae57746" style="width:33.333333333333336%" class="column"><figure id="47f7f1b9-cc54-4c14-b167-130486912b44" class="image"><a href="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%207.png"><img style="width:720px" src="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%207.png"/></a></figure></div><div id="27c11f24-bf42-4aa9-bcbd-e2d0c3bc69a7" style="width:33.333333333333336%" class="column"><figure id="bba93d11-b315-493e-8de8-4c71d9cb4f7f" class="image"><a href="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%208.png"><img style="width:624px" src="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%208.png"/></a></figure></div><div id="f1eb0d5f-c5ad-4d44-8586-006652033f12" style="width:33.33333333333333%" class="column"><figure id="55bb8e9e-3380-4dbf-b53d-5e7bdcdb1078" class="image"><a href="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%209.png"><img style="width:432px" src="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%209.png"/></a></figure></div></div><p id="759facd5-a24c-4d6f-a6ee-6c4ffa6716fe" class="">IO bridge acts as an interface between system bus and memory bus. It converts system bus electrical signals into memory bus electrical signals.</p><p id="b4549cde-a2f5-4369-82b2-b4bf426d8597" class="">I/O bridge is also connected to various I/O devices.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="a7a27466-d626-479b-8564-312ac1f8cb41" class="code"><code class="language-Assembly">movq A, %rax</code></pre><p id="e77e9bd5-baed-4ade-a0eb-f750b1d8360e" class="">Circuitry on the CPU chip called bus interface initiates a read transaction on the bus. First the CPU places the address A on the system bus. The I/O bridge passes the signal along to the memory bus. Main memory reads the address A from the bus, retrivies the data from the DRAM, and writes the data into the memory bus.</p><p id="8c5ae0cf-de1d-45e2-9c0e-bf3de85e0741" class="">
+</p><h2 id="8fe4a357-9f67-4fdb-9e31-e4ef898919c1" class="">Locality</h2><p id="8a64c8f9-a243-437a-9657-31ea519f9980" class="">Programs with good locality tend to reference data items that are near other recently referenced data items or that were recently referenced themselves. </p><p id="d08d933f-7142-489b-b725-c24ee9174b13" class=""><em><em><em><em><em><em><em><em><em><em><em><em><em><em><em><em><em>Temporal Locality:</em></em></em></em></em></em></em></em></em></em></em></em></em></em></em></em></em> memory location that is referenced once is likely to be referenced again multiple times in the near future.</p><p id="e2915be5-91a0-4510-9638-35e3463e9e81" class=""><em><em><em><em><em><em><em><em><em><em><em><em><em><em><em><em><em><em>Spatial Locality: </em></em></em></em></em></em></em></em></em></em></em></em></em></em></em></em></em></em>If a memory location is referenced once, then the program is likely to reference a nearby memory location in the near by future.</p><p id="3dfb44f6-58ae-43f5-a66b-67629d09f630" class="">
+</p><p id="71a7c259-a935-4dd4-a1a4-1de1fc08cf15" class="">Programs with good locality run faster than programs with poor locality.</p><p id="dd87d495-f88e-4ba2-bf21-c4969c69e0c4" class="">
+</p><ul id="14a8bafb-e897-4516-91f0-87f607b304a4" class="bulleted-list"><li style="list-style-type:disc">Programs that repeatedly reference the same variables enjoy good temporal locality.</li></ul><ul id="c98dffd6-9aab-4320-8690-f8c307fc8cc1" class="bulleted-list"><li style="list-style-type:disc">For programs with stride-k reference patterns, the smaller the stride, the better the spatial locality. Programs with stride-1 reference patterns have good spatial locality. Programs that hop around memory with large strides have poor spatial locality.</li></ul><figure id="e34aebbe-ae60-4a46-b7ec-dfadfd994cb3" class="image"><a href="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%2010.png"><img style="width:288px" src="Memory%209e6479a271cc4a1eb3b9fb51f29f3a5e/Untitled%2010.png"/></a></figure><ul id="60c1a425-c678-459d-be89-095f17a69939" class="bulleted-list"><li style="list-style-type:disc">Loops have good temporal and spatial locality with respect to instruction feteches. The smaller the loop body and the greater the number of loop iterations, the better the locality.</li></ul><p id="9cedff7b-1991-4adc-aefc-990acff5d316" class="">
+</p><p id="e3ffd49d-7fd7-49ad-be34-1ad655d9cff0" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

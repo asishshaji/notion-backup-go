@@ -1,0 +1,785 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>OSI Model (Open Systems Interconnection)</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="508ed37a-5806-493d-81e4-114eb52fc76d" class="page mono"><header><img class="page-cover-image" src="https://www.notion.so/images/page-cover/webb2.jpg" style="object-position:center 70%"/><h1 class="page-title">OSI Model (Open Systems Interconnection)</h1><p class="page-description"></p></header><div class="page-body"><figure id="cb1e6480-680e-4244-8bb9-33a94e342c29"><a href="https://www.practicalnetworking.net/series/packet-traveling/osi-model/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">OSI Model – Practical Networking .net</div><div class="bookmark-description">The OSI Model is the reason the Internet is not owned by one company. Each layer of the model serves an individual purpose to network communication.</div></div><div class="bookmark-href"><img src="https://www.practicalnetworking.net/wp-content/uploads/2018/07/cropped-Logo-PN-square-192x192.png" class="icon bookmark-icon"/>https://www.practicalnetworking.net/series/packet-traveling/osi-model/</div></div><img src="https://www.practicalnetworking.net/wp-content/uploads/2016/01/packtrav-osi-layers.png" class="bookmark-image"/></a></figure><p id="601daba2-4d39-48c5-b8c4-b5ef1829f80f" class="">Why do we need a communication model?</p><p id="78a78643-29b0-4cdd-a725-1fb48d2175b4" class="">Without a standard model, your application must have knowledge of the underlying network medium. In short both your client and server have to essentially speak the same language. </p><p id="e14b276c-165c-46f6-804a-9bc6f06d925c" class="">Imagine building different versions of your application so that it works on wifi vs ethernet vs LTE vs fibre. That will be a disaster. </p><p id="dae4d7ce-22c8-44fe-ae46-d9f5b7d9014f" class="">So we needed a standard that works globally, so thus OSI model was created. OSI is everywhere. </p><p id="500553e8-06e4-4ea9-b23f-34dd769fb50d" class="">Without a standard model, different devices may not be able to talk to each other.</p><p id="a70be5de-678c-40f3-9126-9dd0e7dbf9b2" class="">Innovations can be done in each layer separately without affecting the rest of the models. </p><p id="a16f49c7-0e4a-4830-9a85-3ded63a51152" class="">
+</p><p id="145441e8-6cae-4483-8ae8-ad0c76f697bb" class="">7 layers each describe a specific networking component.</p><figure id="02a7c8c2-5688-46da-b823-993ba4454c54" class="image" style="text-align:left"><a href="OSI%20Model%20(Open%20Systems%20Interconnection)%20508ed37a5806493d81e4114eb52fc76d/Untitled.png"><img style="width:649px" src="OSI%20Model%20(Open%20Systems%20Interconnection)%20508ed37a5806493d81e4114eb52fc76d/Untitled.png"/></a></figure><p id="215246f6-a0ce-48ef-99e1-ff91474d53ed" class="">Backend developers live in layers 7 and 4. </p><h2 id="71687f9a-3c5d-4f83-bb8c-2b58801c3c9c" class="">OSI Layers. </h2><h3 id="e27c53fe-8f4b-4721-993d-e25655f53a61" class="">POV Sender</h3><ul id="2dadc860-86e7-4619-8829-f3b288bc28b6" class="bulleted-list"><li style="list-style-type:disc">L7 - Application<ul id="769dbc00-65e4-4dad-9181-9eaff0c232a9" class="bulleted-list"><li style="list-style-type:circle">POST request with JSON data to HTTPS server</li></ul></li></ul><ul id="d26b554c-c434-4f0b-9878-36b6cba55269" class="bulleted-list"><li style="list-style-type:disc">L6 - Presentation<ul id="0d9226a8-f295-4521-b76e-1a7b1f2ac402" class="bulleted-list"><li style="list-style-type:circle">Serialize JSON to flat byte strings (for HTTP server, converted to plain string)</li></ul></li></ul><ul id="6ca74220-031a-4927-af0e-f0769c6be6db" class="bulleted-list"><li style="list-style-type:disc">L5 - Session<ul id="9a2c9e84-8271-4e97-a71b-aedd488881c9" class="bulleted-list"><li style="list-style-type:circle">Request to establish TCP connection</li></ul></li></ul><ul id="2bedbbbf-e6be-41e7-a8f3-fe2a8c93719b" class="bulleted-list"><li style="list-style-type:disc">L4 - Transport<ul id="9b193693-491c-443f-b54f-a4023a721c39" class="bulleted-list"><li style="list-style-type:circle">Sends SYN request to target port 443</li></ul></li></ul><ul id="de7873ac-62d3-4572-82b4-7e9fc66c6913" class="bulleted-list"><li style="list-style-type:disc">L3 - Network<ul id="cc4f0800-023c-4c05-a8c0-809e36d9fbfa" class="bulleted-list"><li style="list-style-type:circle">SYN is placed on an IP packet(s) and adds the source and dest IPs</li></ul></li></ul><ul id="776f8cad-f0a6-48b7-b8d0-9a8f327a195e" class="bulleted-list"><li style="list-style-type:disc">L2 - Datalink<ul id="1131878d-2805-43d3-b49f-1143a6daa7fb" class="bulleted-list"><li style="list-style-type:circle">Each packet goes into a single frame and adds the source and dest MAC</li></ul></li></ul><ul id="d38bd87c-def0-4b2a-8925-633f29be341b" class="bulleted-list"><li style="list-style-type:disc">L1 - Physical<ul id="4fce648c-9506-452f-a3d2-31ad6353dceb" class="bulleted-list"><li style="list-style-type:circle">Each frame becomes strings of bits which is converted into either a radio signal (wifi), electric signal (ethernet) or light (fibre)</li></ul></li></ul><p id="1df3a9c8-cc14-4d11-ada3-07965f618b56" class=""> </p><h3 id="3e325d23-dca3-458c-ae0a-3eb05517d462" class="">POV Receiver</h3><ul id="a766a408-c846-4366-a828-4c01b39114e1" class="bulleted-list"><li style="list-style-type:disc">L1 - Physical<ul id="42cf5edc-65e6-4fb2-b016-919d1abbe3f8" class="bulleted-list"><li style="list-style-type:circle">Radio, electric or light is received and converted into digital bits</li></ul></li></ul><ul id="db2e7fde-0ba3-4ad6-b472-3438fbe93e5d" class="bulleted-list"><li style="list-style-type:disc">L2 - Datalink<ul id="d53d1d55-51ce-4f4a-b467-a344f55997db" class="bulleted-list"><li style="list-style-type:circle">The bits from L1 are assembled into frames</li></ul></li></ul><ul id="58f69f09-4d55-49ad-bd58-d3116c21932d" class="bulleted-list"><li style="list-style-type:disc">L3 - Network<ul id="7aa51725-2924-4cac-af6d-2ee7a2af218f" class="bulleted-list"><li style="list-style-type:circle">The frames are assembled into IP packets</li></ul></li></ul><ul id="fde86c82-35ed-4078-9e9a-c173c3bdf3ad" class="bulleted-list"><li style="list-style-type:disc">L4 - Transport<ul id="48b2e2f1-cc48-4695-8bef-93f3e66c6fae" class="bulleted-list"><li style="list-style-type:circle">IP packets are assembled into TCP segments</li></ul></li></ul><ul id="9559f884-97a3-42e9-acc3-0f6db9a579ff" class="bulleted-list"><li style="list-style-type:disc">L5 - Session<ul id="c43e5bf3-994e-405f-9f9e-370437c9616b" class="bulleted-list"><li style="list-style-type:circle">A connection session is established or identified</li></ul><ul id="a276951f-9964-47ba-a063-008799987104" class="bulleted-list"><li style="list-style-type:circle">We only arrive at this layer when necessary (when three-way handshake is done)</li></ul></li></ul><ul id="812f7e88-1149-4f48-8909-5773edb84832" class="bulleted-list"><li style="list-style-type:disc">L6 - Presentation<ul id="d30fc67d-c450-4473-b21a-309f94de67b0" class="bulleted-list"><li style="list-style-type:circle">Deserialise flat byte strings back to JSON for the app to consume</li></ul></li></ul><ul id="9a0ee153-df84-466b-96e2-c0f3cc45b9ef" class="bulleted-list"><li style="list-style-type:disc">L7 - Application<ul id="aaa9956c-c90b-44b8-a165-df13584ee085" class="bulleted-list"><li style="list-style-type:circle">The application understands the JSON request and your server request receive event is triggered.</li></ul><p id="24232fb6-7b03-4e34-93cc-10bea9cb3244" class="">
+</p><p id="9554ef17-3ab0-454b-bcc4-21921d047d92" class="">The below pictures represent the flow of the request from client to server. </p></li></ul><figure id="38bce918-4a91-4f80-bb9e-87a483f05969" class="image" style="text-align:left"><a href="OSI%20Model%20(Open%20Systems%20Interconnection)%20508ed37a5806493d81e4114eb52fc76d/Untitled%201.png"><img style="width:768px" src="OSI%20Model%20(Open%20Systems%20Interconnection)%20508ed37a5806493d81e4114eb52fc76d/Untitled%201.png"/></a></figure><figure id="e2d2aa04-a5dd-4c90-8ff7-a6ea1332727e" class="image" style="text-align:left"><a href="OSI%20Model%20(Open%20Systems%20Interconnection)%20508ed37a5806493d81e4114eb52fc76d/Untitled%202.png"><img style="width:768px" src="OSI%20Model%20(Open%20Systems%20Interconnection)%20508ed37a5806493d81e4114eb52fc76d/Untitled%202.png"/></a></figure><p id="1c66c5b6-ce35-4aa5-a503-5e7f7efc8545" class="">
+</p><h2 id="0c5065ff-1a39-4e40-88c9-2d2df70239a8" class="">What are the shortcomings </h2><ul id="270f0da4-04f7-4b03-83aa-931be7a8da39" class="bulleted-list"><li style="list-style-type:disc">OSI model has too many layers which can be hard to comprehend.</li></ul><ul id="237e2fec-9ebf-4f1d-9859-818d61931436" class="bulleted-list"><li style="list-style-type:disc">Hard to argue about which layer does what</li></ul><ul id="f3400691-e1c3-42d8-8f82-d59d0e96d490" class="bulleted-list"><li style="list-style-type:disc">Simpler to deal with Layers 5-6-7 as just one layer</li></ul><ul id="05c174fb-afb0-4a3a-9fb5-83f5fd5e13ef" class="bulleted-list"><li style="list-style-type:disc">TCP/IP model does just that. </li></ul><figure id="0eb7a23b-9782-4c50-8835-d1f48f4760c1" class="image" style="text-align:left"><a href="OSI%20Model%20(Open%20Systems%20Interconnection)%20508ed37a5806493d81e4114eb52fc76d/Untitled%203.png"><img style="width:384px" src="OSI%20Model%20(Open%20Systems%20Interconnection)%20508ed37a5806493d81e4114eb52fc76d/Untitled%203.png"/></a></figure><p id="e1299841-3c8e-45c1-890f-1c18348bf788" class="">
+</p><h2 id="44a7daa2-68cf-486c-bfe9-6f4856240fff" class="">How the OSI model works on Youtube?</h2><figure id="f2913f2c-2e91-47df-b9b6-9edc13fe3834"><a href="https://www.youtube.com/watch?v=oIRkXulqJA4" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">how the OSI model works on YouTube (Application and Transport Layers) // FREE CCNA // EP 5</div><div class="bookmark-description">When you watch a YouTube video....is it using TCP? UDP? What happens in the network?  //  CCNA Course 200-301 - GET READY FOR THE TEST: https://bit.ly/bosonexsimccna (affiliate)
+
+**Sponsored by Boson Software
+
+👊👊👊support the mission, join thisisIT: https://bit.ly/thisisitio
+
+☕☕OFFICIAL NetworkChuck Coffee: https://NetworkChuck.coffee ☕☕
+
+Watch the whole course: https://bit.ly/nc-ccna
+
+Join the Discord server: http://bit.ly/nc-discord
+
+0:00   ⏩  Intro
+0:40   ⏩  OSI Model Recap
+2:02   ⏩  the Application Layer
+2:42   ⏩  the Presentation Layer
+4:22   ⏩  the Session Layer
+6:14   ⏩  the Transport Layer
+7:20   ⏩  TCP vs UDP
+12:46 ⏩  what are Ports?
+18:34 ⏩  QUIZ TIME!!!
+
+
+
+
+
+🔥🔥Get your CCNA with BOSON🔥🔥
+-CCNA Lab: https://bit.ly/bosonccna2020 (Boson NetSim) (affiliate)
+-CCNA Practice Exam: https://bit.ly/bosonexsimccna (Boson ExSim) (affiliate)
+-CCNP Lab: https://bit.ly/encornetsim (Boson NetSim) (affiliate)
+-CCNP Practice Exam: https://bit.ly/encorexsim (Boson ExSim) (affiliate)
+
+➡️Support NetworkChuck: https://bit.ly/join_networkchuck
+☕or buy me a coffee: https://ko-fi.com/networkchuck ☕
+
+other FANTASTIC CCNA training resources:
+FULL CCNA course: http://bit.ly/2BJazQG ( @David Bombal  )
+ITProTV: https://bit.ly/itprotvnetchuck
+
+
+🔥Learn Python🔥
+Codecademy: http://bit.ly/2Me22NH
+
+
+(GEAR I USE...STUFF I RECOMMEND)
+
+My network gear: https://geni.us/L6wyIUj
+
+Amazon Affiliate Store: https://www.amazon.com/shop/networkchuck
+
+Buy a Raspberry Pi: https://geni.us/aBeqAL
+
+#ccna #ccna200301 #freeccna</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/80237066/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=oIRkXulqJA4</div></div><img src="https://i.ytimg.com/vi/oIRkXulqJA4/maxresdefault.jpg" class="bookmark-image"/></a></figure><figure id="0b45887e-d260-4d51-8400-c7084504f63f"><a href="https://www.youtube.com/watch?v=3kfO61Mensg" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">REAL LIFE example!! (TCP/IP and OSI layers) // FREE CCNA // EP 4</div><div class="bookmark-description">Let&#x27;s follow a packet through the layers of the TCP/IP and OSI model!!  //  CCNA Course 200-301 - sponsored by the Boson Software: https://bit.ly/bosonexsimccna (affiliate)
+
+👊👊👊support the mission, join thisisIT: https://bit.ly/thisisitio
+
+☕☕OFFICIAL NetworkChuck Coffee: https://NetworkChuck.coffee ☕☕
+
+Watch the whole course: https://bit.ly/nc-ccna
+
+Join the Discord server: http://bit.ly/nc-discord
+
+Install Packet Tracer: https://bit.ly/packtracer
+CCNA Episode 3 Packet Tracer Lab: https://bit.ly/ccnaep2pt
+
+0:40   ⏩  starting the journey
+2:03   ⏩  the Application Layer (7)
+3:54   ⏩  the Transport Layer (4)
+4:57   ⏩  ENCAPSULATION!!!!
+5:57   ⏩  the Network Layer (3)
+7:07   ⏩  the Data Link Layer (2)
+8:49   ⏩  DE-encapsulation
+10:41 ⏩  MORE de-encapsulation
+12:30 ⏩  QUIZ TIME!!!
+
+
+
+
+
+🔥🔥Get your CCNA with BOSON🔥🔥
+-CCNA Lab: https://bit.ly/bosonccna2020 (Boson NetSim) (affiliate)
+-CCNA Practice Exam: https://bit.ly/bosonexsimccna (Boson ExSim) (affiliate)
+-CCNP Lab: https://bit.ly/encornetsim (Boson NetSim) (affiliate)
+-CCNP Practice Exam: https://bit.ly/encorexsim (Boson ExSim) (affiliate)
+
+➡️Support NetworkChuck: https://bit.ly/join_networkchuck
+☕or buy me a coffee: https://ko-fi.com/networkchuck ☕
+
+other FANTASTIC CCNA training resources:
+FULL CCNA course: http://bit.ly/2BJazQG ( @David Bombal  )
+ITProTV: https://bit.ly/itprotvnetchuck
+
+
+🔥Learn Python🔥
+Codecademy: http://bit.ly/2Me22NH
+
+
+(GEAR I USE...STUFF I RECOMMEND)
+
+My network gear: https://geni.us/L6wyIUj
+
+Amazon Affiliate Store: https://www.amazon.com/shop/networkchuck
+
+Buy a Raspberry Pi: https://geni.us/aBeqAL
+
+#ccna #ccna200301 #freeccna</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/80237066/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=3kfO61Mensg</div></div><img src="https://i.ytimg.com/vi/3kfO61Mensg/maxresdefault.jpg" class="bookmark-image"/></a></figure></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

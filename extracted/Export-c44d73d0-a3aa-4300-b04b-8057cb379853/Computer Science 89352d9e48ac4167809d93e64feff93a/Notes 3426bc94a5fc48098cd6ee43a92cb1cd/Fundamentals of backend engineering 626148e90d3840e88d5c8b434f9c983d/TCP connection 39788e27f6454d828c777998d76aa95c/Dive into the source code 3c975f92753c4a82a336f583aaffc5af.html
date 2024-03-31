@@ -1,0 +1,681 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Dive into the source code</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="3c975f92-753c-4a82-a336-f583aaffc5af" class="page mono"><header><h1 class="page-title">Dive into the source code</h1><p class="page-description"></p></header><div class="page-body"><h2 id="25fd967e-830b-4f8d-af05-148bb1f0326c" class="">Server receives a syn packet</h2><p id="d605ce33-0c47-4b61-a305-36681faac7ec" class="">
+</p><p id="468c377a-b07f-4720-9867-5530fb5bb409" class="">The handler for tcp_protocol is tcp_v4_rcv</p><div id="159a3d0c-71f6-4d7a-9fca-3a38b706caf6" class="column-list"><div id="747281c5-acd8-41ea-abbc-ec87c277e691" style="width:43.75%" class="column"><figure id="bfdd6fc9-451c-491e-8a61-6f9c866187ab" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled.png"><img style="width:672px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled.png"/></a></figure></div><div id="20a33a95-a005-4547-b4ad-c4a9a3c4e749" style="width:56.25%" class="column"><figure id="d982799a-2f5b-4568-bca1-e419f5873cb1" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%201.png"><img style="width:384px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%201.png"/></a></figure></div></div><p id="fc4ce015-274f-44f6-bcb7-2280a38f9c7e" class="">sk_buff is the socket buffer, sk_buff is a metadata structure and does not hold any packet data. All the data is held in associated buffers.</p><p id="9ab5a0a6-ab1a-4b48-a13d-fd432f6123d9" class="">Lookup skbuff.h</p><p id="a2a7fb8b-9915-4ea0-9321-b9bb88f5163d" class="">When a request is received, the listening socket is looked up. </p><div><figure id="be2b3a1b-45fb-4eab-9dca-10da3eb77d33" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%202.png"><img style="width:672px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%202.png"/></a></figure></div><p id="03b505b6-9db1-4591-b68a-a4e6285e2533" class="">The socket must be in a listening state, ie waiting for new connections</p><p id="6f3986ca-90f6-4227-b09e-ee72334ba44d" class=""><a href="https://documentation.help/Microchip-TCP.IP-Stack/TCP_STATE.html">https://documentation.help/Microchip-TCP.IP-Stack/TCP_STATE.html</a></p><figure id="25fc665b-1b66-4123-8144-09d88bf65a5b" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%203.png"><img style="width:502px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%203.png"/></a></figure><figure id="26169e5f-98ec-4469-ac19-c78524194d2a" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%204.png"><img style="width:448px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%204.png"/></a></figure><figure id="839a0481-ba11-4360-ba5c-050537a1396d" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%205.png"><img style="width:960px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%205.png"/></a></figure><p id="99d7c4d3-0801-42f6-87cc-320601c11014" class="">
+</p><p id="9302cdb1-524e-4af3-989f-565ff47cd88e" class="">You reach tcp_rcv_state_process.</p><figure id="562b86c0-6140-43c7-bfe5-8059004aa996" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%206.png"><img style="width:624px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%206.png"/></a></figure><p id="9af24be7-10a2-4fd2-836e-56e50e67fb4a" class="">This procedure is effectively a state machine applied to a socket that processes a current packet, it first checks a socket state, then runs some logic based on it, and advances the state accordingly.</p><div id="4e064901-6fc3-4a94-a46a-800ac1da8c98" class="column-list"><div id="80f404c7-100c-4e62-aab5-f0fdcfb993cb" style="width:50.000000000000014%" class="column"><figure id="0fc101fa-1938-4097-bf0b-fc2382bbc6a2" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%207.png"><img style="width:768px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%207.png"/></a></figure></div><div id="a34a5958-9337-48ad-a4f6-b4d943cccb31" style="width:50%" class="column"><figure id="3fbd1447-4fd8-42d3-9ce4-35c479084b6f" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%208.png"><img style="width:576px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%208.png"/></a></figure></div></div><p id="f8ebc80b-9a84-4c04-96c5-bff8dd6266f7" class="">It looks at the state and then runs some logic</p><div id="74322220-76c4-4bbe-b6d3-ba350360e1a5" class="column-list"><div id="56ac20d2-f67b-4c80-9501-03331fa40d1b" style="width:37.5%" class="column"><figure id="f4fabc69-144f-4999-a3f3-80c272e18843" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%209.png"><img style="width:624px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%209.png"/></a></figure></div><div id="cb792e8c-f9d5-45e8-9370-8895fcf08285" style="width:62.5%" class="column"><figure id="78c9166f-96c6-44e2-a629-14d8d6fc3370" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2010.png"><img style="width:816px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2010.png"/></a></figure><p id="510fd172-b40e-47e6-a266-ad1baaf2f891" class="">Here it checks if the packet is syn, if so it calls conn_request, which is tcp_v4_conn_request</p><figure id="b17789ba-a4e9-4520-a147-c0ef6877a44f" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2011.png"><img style="width:480px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2011.png"/></a></figure></div></div><div id="0ed1f400-a60e-4ba3-9e9b-b3478638b0d6" class="column-list"><div id="b4e7d676-7a19-44bd-99c7-46c33dfdee78" style="width:31.25%" class="column"><figure id="e6a5021e-83a0-4cdc-a63b-7870b1fcfc28" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2012.png"><img style="width:480px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2012.png"/></a></figure></div><div id="b7475d3e-7431-4734-8147-fc29c48745c9" style="width:68.75%" class="column"><figure id="1a8457d7-d91b-47df-84c9-c12b65a59352" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2013.png"><img style="width:672px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2013.png"/></a></figure></div></div><p id="661feb3a-832e-4e52-aed9-05579ddec762" class="">tcp_v4_conn_request calls tcp_conn_request. </p><p id="f0a97561-b4f2-405d-a4c3-3bd7356e980c" class="">We want a scenario where syncookies are not used. </p><figure id="225c6719-a1fa-4ab4-b93d-0076dffb3953" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2014.png"><img style="width:768px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2014.png"/></a></figure><p id="0095905d-312f-45c3-b949-e8d0dcc55c0e" class="">If syncookies is 2, then syncookies is enabled. It also checks the receive queue is full</p><figure id="f70d7e39-b215-4a36-b5d4-b664fdb792d0" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2015.png"><img style="width:816px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2015.png"/></a></figure><p id="bd8e9365-376e-491b-8da4-86c2f36a599a" class="">A request socket is created, the request socket is not a full-blown connection socket used for data exchange, it’s a connection request or a mini socket.</p><figure id="5efb5f0a-a3d4-433d-9814-ce3cbf2fac89" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2016.png"><img style="width:480px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2016.png"/></a></figure><p id="e542bdb9-5ff0-40e2-a319-460cbf92159d" class="">The ireq_state is TCP_NEW_SYN_RECV, and a listener socket is attached to it and syn packet is saved. tcp_reqsk_record_syn</p><div id="11cdeb99-6a64-45d2-9fad-7f5f55e4502e" class="column-list"><div id="8c7e53a5-8704-4ffd-84ee-803e5605092c" style="width:43.75%" class="column"><figure id="88b378b3-cf95-4fa6-8bf8-1e89e7c00f42" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2017.png"><img style="width:624px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2017.png"/></a></figure><p id="4b5e8309-a09c-4c39-affa-183d72a6eb69" class="">
+</p></div><div id="fbe3b226-d1d4-48d2-83a2-2f091a0b1dea" style="width:56.25%" class="column"><figure id="f1d2fd46-d8f8-4ef0-998c-2b23fd5ebac1" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2018.png"><img style="width:576px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2018.png"/></a></figure></div></div><div id="171b2a59-6dc5-4187-9c8f-09940012ddae" class="column-list"><div id="981b7a35-3784-4638-9e54-8f57e2ee10b2" style="width:31.25%" class="column"><figure id="28c9c89a-bcc1-4d85-8ce8-b0788478f4a2" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2019.png"><img style="width:432px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2019.png"/></a></figure></div><div id="39b5917e-7b1f-4147-8f00-682f8f30a4f6" style="width:68.75%" class="column"><figure id="94c6efb1-f37a-4734-93c1-a24c7c4c8a1d" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2020.png"><img style="width:528px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2020.png"/></a></figure></div></div><div id="65e9ac38-7a42-432a-b823-95f119947916" class="column-list"><div id="d05c1c12-215c-4b39-846a-111598039a6c" style="width:37.5%" class="column"><figure id="ad1cfd2e-40c5-4f6e-8a4c-fcbe9460da9d" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2021.png"><img style="width:576px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2021.png"/></a></figure></div><div id="118a022c-e3c7-4ab8-9dd5-83a9793f0d48" style="width:62.5%" class="column"><figure id="69d2b42c-6cc8-4cae-bf27-07a42b99ed98" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2022.png"><img style="width:831px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2022.png"/></a></figure></div></div><p id="eb944313-441b-423f-8d19-1d4678d23039" class="">The request sock is cast to a sock struct and is added to a queue. The length of the queue is also increased.</p><div id="0e00ddf2-9d39-4e8f-9d6e-9ff071da18ce" class="column-list"><div id="d2aff1aa-e049-4258-825a-0efdf5ed4997" style="width:50%" class="column"><figure id="4b55d024-2c84-48ce-8614-c6a8a9285b58" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2023.png"><img style="width:720px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2023.png"/></a></figure><p id="04ef7290-1165-400f-af13-2847ccd1afe0" class="">At the end, a synack segment is sent.</p></div><div id="af0d4f01-5885-448e-80ff-8c6a1dff3a17" style="width:50%" class="column"><figure id="cd3cbad9-dbb8-4bdd-9358-6e0db2faf31a" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2024.png"><img style="width:624px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2024.png"/></a></figure></div></div><figure id="a3da140d-81e8-4a29-8f9f-734f35efd64d" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2025.png"><img style="width:960px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2025.png"/></a></figure><p id="6a8c124c-e9f1-470c-bc75-3147736653d8" class="">As of now no socket is created, only a mini socket is created, which is request_sock disguised as a normal socket.</p><p id="1933eb31-4203-49a7-b5ea-10a4840d9ed0" class="">
+</p><h2 id="10455680-f17c-48a6-a371-fb3967ffedef" class="">Server receives an ack packet </h2><p id="dd3f4415-2289-402a-9e86-079f30aae6b8" class="">We are looking at tcp_v4_rcv function because it’s the handler for an TCP requests.</p><p id="6bb407fa-bad6-45ce-88e8-9bf477a5ded6" class="">During the syn packet processing step, a socket is looked up. It looks up a socket in an ehash.</p><p id="59eb57ba-ffb8-4adb-8638-04aad8d1e98d" class=""> </p><figure id="6868940c-6d30-4133-9d58-ba586187419f" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2026.png"><img style="width:432px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2026.png"/></a></figure><p id="8ff6c6fa-0116-46c0-9d05-c3e8b7e52b74" class="">We already have a socket, a temporary request_socket cast to a sock struct which was added during the syn packet processing stage.</p><p id="5f9a6de9-8d86-4366-b07b-9a8166011909" class="">Its state is still in TCP_NEW_SYN_RECV  </p><p id="802a4727-801e-4d6e-9277-d1758d550e48" class="">So inside the tcp_v4_rcv it goes inside the if condition </p><figure id="e1c40878-4ccb-42b5-8320-3b2ce6c77188" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2027.png"><img style="width:816px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2027.png"/></a></figure><figure id="4a7a4e33-9b29-41f1-aca9-0a35d401d6a1" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2028.png"><img style="width:816px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2028.png"/></a></figure><p id="fa37f452-d7b6-4df4-9e1c-592bad7b90b1" class="">tcp_check_req is called.</p><figure id="f90ac651-5c1b-49ef-a5ef-edede38f73b3" class="image"><a href="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2029.png"><img style="width:720px" src="Dive%20into%20the%20source%20code%203c975f92753c4a82a336f583aaffc5af/Untitled%2029.png"/></a></figure><p id="d18a4a8a-cf36-44c1-9a4c-96adcef3c8c9" class="">Inside that function, this sort of creates a full-blown socket by cloning a listening socket.</p><p id="397d3757-a7e8-4389-814a-fe27e67cacb5" class="">Right after the normal socket is added, the mini socket(request socket) is removed. Right after that in the return, some function called hashdance is called.</p><p id="b195e8ca-bca4-481e-9809-9f051703d265" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

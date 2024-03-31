@@ -1,0 +1,774 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Mutex and Lock Internals in Golang</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2229edcf-b326-4fe4-a5ac-25d2a78bdcba" class="page sans"><header><h1 class="page-title">Mutex and Lock Internals in Golang</h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-url"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesUrl"><path d="M7.69922 10.8945L8.73828 9.84863C7.91797 9.77344 7.34375 9.51367 6.91992 9.08984C5.76465 7.93457 5.76465 6.29395 6.91309 5.14551L9.18262 2.87598C10.3379 1.7207 11.9717 1.7207 13.127 2.87598C14.2891 4.04492 14.2822 5.67188 13.1338 6.82031L11.958 7.99609C12.1768 8.49512 12.2451 9.10352 12.1289 9.62988L14.0908 7.6748C15.7725 6 15.7793 3.62109 14.084 1.92578C12.3887 0.223633 10.0098 0.237305 8.33496 1.91211L5.95605 4.29785C4.28125 5.97266 4.26758 8.35156 5.96289 10.0469C6.36621 10.4434 6.90625 10.7441 7.69922 10.8945ZM8.30078 5.13184L7.26855 6.17773C8.08203 6.25293 8.66309 6.51953 9.08008 6.93652C10.2422 8.09863 10.2422 9.73242 9.08691 10.8809L6.81738 13.1504C5.66211 14.3057 4.03516 14.3057 2.87305 13.1504C1.71094 11.9883 1.71777 10.3545 2.87305 9.20605L4.04199 8.03027C3.83008 7.53125 3.75488 6.92969 3.87109 6.39648L1.91602 8.35156C0.234375 10.0264 0.227539 12.4121 1.92285 14.1074C3.61816 15.8027 5.99707 15.7891 7.67188 14.1143L10.0439 11.7354C11.7256 10.0537 11.7324 7.6748 10.0371 5.98633C9.64062 5.58301 9.10059 5.28223 8.30078 5.13184Z"></path></svg></span>URL</th><td><a href="https://blog.stackademic.com/mutex-internals-in-golang-1624749f35a6" class="url-value">https://blog.stackademic.com/mutex-internals-in-golang-1624749f35a6</a></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesMultipleSelect"><path d="M1.91602 4.83789C2.44238 4.83789 2.87305 4.40723 2.87305 3.87402C2.87305 3.34766 2.44238 2.91699 1.91602 2.91699C1.38281 2.91699 0.952148 3.34766 0.952148 3.87402C0.952148 4.40723 1.38281 4.83789 1.91602 4.83789ZM5.1084 4.52344H14.3984C14.7607 4.52344 15.0479 4.23633 15.0479 3.87402C15.0479 3.51172 14.7607 3.22461 14.3984 3.22461H5.1084C4.74609 3.22461 4.45898 3.51172 4.45898 3.87402C4.45898 4.23633 4.74609 4.52344 5.1084 4.52344ZM1.91602 9.03516C2.44238 9.03516 2.87305 8.60449 2.87305 8.07129C2.87305 7.54492 2.44238 7.11426 1.91602 7.11426C1.38281 7.11426 0.952148 7.54492 0.952148 8.07129C0.952148 8.60449 1.38281 9.03516 1.91602 9.03516ZM5.1084 8.7207H14.3984C14.7607 8.7207 15.0479 8.43359 15.0479 8.07129C15.0479 7.70898 14.7607 7.42188 14.3984 7.42188H5.1084C4.74609 7.42188 4.45898 7.70898 4.45898 8.07129C4.45898 8.43359 4.74609 8.7207 5.1084 8.7207ZM1.91602 13.2324C2.44238 13.2324 2.87305 12.8018 2.87305 12.2686C2.87305 11.7422 2.44238 11.3115 1.91602 11.3115C1.38281 11.3115 0.952148 11.7422 0.952148 12.2686C0.952148 12.8018 1.38281 13.2324 1.91602 13.2324ZM5.1084 12.918H14.3984C14.7607 12.918 15.0479 12.6309 15.0479 12.2686C15.0479 11.9062 14.7607 11.6191 14.3984 11.6191H5.1084C4.74609 11.6191 4.45898 11.9062 4.45898 12.2686C4.45898 12.6309 4.74609 12.918 5.1084 12.918Z"></path></svg></span>Category</th><td><span class="selected-value select-value-color-blue">Golang</span></td></tr></tbody></table></header><div class="page-body"><figure id="5da2aa84-61a2-4fd8-aa82-f75dbf1b134b" class="image"><a href="https://miro.medium.com/v2/resize:fit:1152/1*J3nG_zYNaeBVsu6LRPZlMQ.png"><img style="width:452px" src="https://miro.medium.com/v2/resize:fit:1152/1*J3nG_zYNaeBVsu6LRPZlMQ.png"/></a></figure><hr id="b1b6fd4e-c116-4c00-88de-e81d05bac3bd"/><p id="3654ed85-b927-4005-ab25-69497634f4f4" class="">Photo by <a href="https://unsplash.com/@geekgunda?utm_source=medium&amp;utm_medium=referral">Chinmay B</a> on <a href="https://unsplash.com/?utm_source=medium&amp;utm_medium=referral">Unsplash</a></p><figure id="520067b9-7347-46cf-8202-053b31273c6b" class="image"><a href="Mutex%20and%20Lock%20Internals%20in%20Golang%202229edcfb3264fe4a5ac25d2a78bdcba/0DYOSsNufwc3INAr8"><img style="width:700px" src="Mutex%20and%20Lock%20Internals%20in%20Golang%202229edcfb3264fe4a5ac25d2a78bdcba/0DYOSsNufwc3INAr8"/></a></figure><p id="cc397019-6a29-4081-99e1-fe4d8256a633" class="">In modern software development, the concept of concurrency pertains to a program’s ability to execute multiple tasks or operations simultaneously. This enables efficient utilization of system resources and enhanced performance. A standout feature of the Go programming language (Golang) is its exceptional support for concurrency. However, concurrent systems introduce challenges that require careful handling. One such challenge arises when multiple resources attempt to access and modify shared resources concurrently, leading to unpredictable and erroneous behavior.</p><h2 id="b8eb4c01-d706-478f-8592-3b84e77d3cbe" class="">How to safeguard critical sections:</h2><p id="c6f0640d-249b-476a-8158-645cbdb069ab" class="">To tackle this issue, the concept of locks was introduced. Locks are used to safeguard critical sections of code where shared resources are accessed. They ensure that only one thread can access the protected resource at any given time.</p><p id="7618b447-16fc-4133-b6a2-d52f4c7fa257" class="">In Golang, we leverage goroutines, which are lightweight threads. The scheduling of these goroutines is managed by the Go runtime scheduler. While delving deeply into the intricacies of the Go runtime scheduler is beyond the scope of this article, you can refer to <a href="https://medium.com/@ravikumar19997/exploring-concurrency-threads-and-goroutines-88edbf3422df"><em><strong>this</strong></em></a> article for a more depth understanding of the Go runtime scheduler.</p><p id="ac6982fc-6897-4726-a0db-96e6101f2886" class="">In this article, we’ll start by exploring the fundamentals of locks. We’ll discuss how to create locks when needed. After that, we’ll delve into various locking strategies. Finally, we’ll take a deep dive into the Go mutex. I kindly ask you all to stay with me until the end of the article.</p><p id="89fcdfca-0c03-480b-8d9d-baf6feff0e1e" class=""><strong>Lock In Golang:</strong></p><p id="22894c7c-69ea-4ab0-ad66-f3af6caaf164" class="">In Go the unit of concurrency is goroutine, and goroutines are conceptually very similar to regular threads. You use them just like you use threads in a language like Java or C++, but the big difference is that they are user space. They are run and managed entirely by the Go runtime and not by the operating system. They’re created and scheduled by the runtime.</p><p id="01612630-1186-4e99-b9b9-e461cc767efd" class="">Like with regular threads, when you have two goroutines accessing a shared memory location, that access needs to be synchronized. You can synchronize it using Go’s lock implementation, the implementation we’ll be looking at today, the <em><strong>sync.Mutex</strong></em>. The Mutex is a blocking non-recursive lock, so, there are no try acquire semantics. If a goroutine tries to acquire a lock and it can’t get it, it will block.</p><p id="a4b3744d-9c5e-4a61-afaa-9ad7f00cc251" class="">Goroutines Accessing the same shared resource</p><figure id="49da9e5c-8ee2-41d2-842d-b6138d263ab5" class="image"><a href="Mutex%20and%20Lock%20Internals%20in%20Golang%202229edcfb3264fe4a5ac25d2a78bdcba/1J3nG_zYNaeBVsu6LRPZlMQ.png"><img style="width:700px" src="Mutex%20and%20Lock%20Internals%20in%20Golang%202229edcfb3264fe4a5ac25d2a78bdcba/1J3nG_zYNaeBVsu6LRPZlMQ.png"/></a></figure><p id="692488bd-2f76-44e1-937c-1d7c5f4964a3" class="">Enough of discussion if we have to build a lock from the ground up, let’s explore the essential steps involved in crafting an effective locking mechanism.</p><h2 id="fa9664f7-d0fb-49ca-8c31-f6a5aef736d5" class="">Lock Internals and Locking Mechanism</h2><p id="38af91f2-654e-4598-afc2-3cb76141ee10" class="">Let’s think we have two processes in which: T1 is a reader retrieving tasks from a queue and T2 is a writer adding tasks to the queue. To prevent simultaneous access, a locking mechanism is essential. Below is the code for both of these processes:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="ca4dafb4-5998-49ec-ac84-462ca93cbc10" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">// Thread 1 which is reading the tasks
+func reader() {
+ //read a task
+ t := tasks.get()
+ //Do something with the tasks
+}
+
+// Thread 2 which is writing the tasks
+func writer() {
+ //write to tasks
+ tasks.put(t)
+}</code></pre><p id="737c2bd6-042f-4c20-b3da-891e8d97979f" class="">Let’s build a locking mechanism that ensures T1 and T2 never access the tasks queue at the same time.</p><p id="dcb8e0e1-5543-4e9f-ba10-8c554931229c" class=""><strong>Initial Attempt: Using a Flag</strong></p><p id="707462e1-42ff-405e-82af-584991fb9f8e" class="">An initial approach involves <em><strong>using a flag</strong></em> to indicate whether the task queue is in use or free. When a thread accesses the queue, it sets the flag and proceeds. Code for this approach looks like:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="9fb513b9-ab93-400b-8876-ab0e960ad122" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">var flag int
+var tasks Tasks
+
+func reader() {
+ for {
+  if flag == 0 {
+   //Set flag which indicates flag is being set so some thread already processing.
+   flag++
+   t := tasks.get()
+   //Unset flag which means tasks is not accessed by any thread
+   flag --
+   return
+  }
+  //else keep looping
+ }
+}
+
+
+func writer() {
+ for {
+  if flag == 0 {
+   //Set flag which indicates flag is being set so some thread already processing.
+   flag++
+   tasks.put(t)
+   //Unset flag which means tasks is not accessed by any thread
+   flag --
+   return
+  }
+  //else keep looping
+ }
+}</code></pre><p id="418a0bf7-2746-4ea1-846e-fc9ff6c16736" class=""><strong>How do we do this?</strong></p><p id="d41e9ef8-6779-4033-9648-c6556889a12a" class="">We use a flag to keep track of whether the task queue is available (free) or being used. If it’s available, the flag is set to 0. If it’s being used, the flag is set to 1.</p><p id="97b366b8-7e1e-4e4e-b683-180e9bb1ca44" class="">How does the reader and writer code look like:</p><ol type="1" id="255e3852-8498-459e-a404-32c89712a755" class="numbered-list" start="1"><li>Check if the flag is 0 (task queue is free) and if not keep looping.</li></ol><ol type="1" id="de026213-956e-4a3f-b52f-c3fa918e4ce0" class="numbered-list" start="2"><li>If it’s 0, set the flag to 1 to indicate the queue is being used.</li></ol><ol type="1" id="8635d4bd-bf92-41c7-b541-dd4eac247fe1" class="numbered-list" start="3"><li>Do the necessary task.</li></ol><ol type="1" id="91efa209-1555-47b6-8d42-99706cf3e264" class="numbered-list" start="4"><li>Set the flag back to 0 when done.</li></ol><p id="31bf7cc3-a6fb-446f-87cf-d143b438e5b8" class=""><em>Is this method effective? Can we finish and leave?</em></p><p id="9ab4b9f8-af7a-4bc1-b604-6936696a0aaa" class="">No, this wouldn’t work. The first problem is with this line, <em><strong>this flag++.</strong></em> This is a read-modify-write instruction, so, the variable is read from memory into a local CPU register, it’s modified, here it’s incremented, and then it’s written back to memory.</p><p id="d407e56e-de8b-46bb-83a6-cc8876459b21" class="">Our one instruction actually leads to two memory accesses. Why is this an issue? The problem is that these memory accesses from different threads can get mixed up. Even if <em><strong>Thread 1’s “flag++”</strong></em> starts before Thread 2’s read, it’s possible that Thread 2 still sees the old value of the flag. So, Thread 2 might see the flag as 0, which is a problem.</p><p id="4efcfc96-2548-4dd4-a2b9-68493c60a1d1" class="">This situation is called a “non-atomic operation.” It means that other processors can see the changes it’s making before it’s finished. Operations become non-atomic when they involve multiple small steps behind the scenes, like working with big data or using multiple memory accesses. They can also be non-atomic when they appear as one step but actually involve several memory actions, as we saw in the earlier example.</p><p id="cbbacdda-d463-482d-940d-a1eaa4a12d69" class="">Our flag is not going to work because it’s not atomic fine why cannot we build something which is atomic? This sounds useful. Can we use this to solve our conundrum? Yes, we can.</p><p id="168f4ec7-1746-431f-9eb1-8fb0a0149348" class=""><strong>Second Attempt: Using Atomic operation</strong></p><p id="84931b61-688a-444b-b9c6-db7f436acd0b" class="">We’ve found the solution: the atomic compare-and-swap instruction. It does what we need. This instruction updates a variable under certain conditions — it changes it only if it’s already a specific value. Importantly, this read-modify-write process happens all at once, which is exactly what we require.</p><p id="c4486a25-c426-4553-825f-fce7a69711b9" class="">Let’s apply this atomic compare-and-swap to build our lock. Code for this approach looks like:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="aa8288b4-7ef5-4f02-806e-c9545748ce19" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">var flag int
+var tasks Tasks
+
+func reader() {
+ for {
+  if atomic.CompareAndSwap(&amp;flag, 0, 1) { //Set flag to 1 succeeded
+   t := tasks.get()
+   atomic.Store(&amp;flag, 0) //Unset flag to 0
+   return
+  }
+  //else keep looping
+ }
+}
+
+func writer() {
+ for {
+  if atomic.CompareAndSwap(&amp;flag, 0, 1) { //Set flag to 1 succeeded
+   tasks.put(t)
+   atomic.Store(&amp;flag, 0) //Unset flag to 0
+   return
+  }
+  //else keep looping
+ }
+}</code></pre><p id="2f95a6de-b00b-41a3-b1c0-4114f6c47fdf" class="">How does our reader and writer code look like:</p><ol type="1" id="5306b7ce-79e1-4bd8-a427-e7eb740fccaf" class="numbered-list" start="1"><li>Try to CAS flag from 0 to 1. So, if the flag is indeed zero, it will set the flag to one in a single, uninterrupted step.</li></ol><ol type="1" id="9d8c128a-bc07-4f37-b025-05d55454c211" class="numbered-list" start="2"><li>If CAS instruction fails to set the flag (maybe because another process changed it before we could), we won’t give up. We’ll simply try again. We’ll keep looping until we successfully set the flag to one</li></ol><ol type="1" id="a9874ec3-4266-41b6-96d3-698f62969df2" class="numbered-list" start="3"><li>Do the necessary task.</li></ol><ol type="1" id="9dcba465-3487-4c67-904b-ee27d13d861e" class="numbered-list" start="4"><li>Atomically restored flag value to 0.</li></ol><p id="2c352e3c-3509-4ed2-86eb-ddba913dd69e" class=""><em>It makes sense, does this work? Actually, it does work.</em></p><p id="538f672e-2507-4df6-ab9f-6f287241f8ef" class="">This is a simplified implementation of a spinlock, and the spinlocks are used extensively all through the Linux kernel.</p><p id="75d00172-397d-40ca-9fbe-23e420044521" class=""><em><strong>Should we ship it?</strong></em></p><p id="0f014859-823f-4501-a971-9f0b81e359da" class="">No. There is one big problem, and the big problem is that we have this thread just spinning, just busy waiting. This is wasteful, it burns CPU cycles, and it takes precious CPU time away from other threads that could be running.</p><p id="29fc7f71-812a-4e87-b806-6cf0bbf9873d" class="">It would be really nice if, when our thread did this compare-and-swap and it failed, <em><strong>rather than spinning, we could just put it away.</strong></em> If we could just put it to sleep and resume it when the value flag has changed and it can try again, that sounds nice. Lucky for us, the operating system gives us a way to do just that.</p><p id="51693e88-992a-425c-8289-d3ce7af62564" class=""><em><strong>How to do this to put our thread to sleep and wake up when needed:</strong></em></p><p id="f7f23957-bfe0-4032-adac-52300646dfee" class="">In Linux, you have these <a href="https://man7.org/linux/man-pages/man2/futex.2.html">futexes</a>, and futexes provide both an interface and a mechanism for user space, for programs to request the kernel to sleep and wake threads. The interface piece of this is the futex system call, and the mechanism is kernel-managed wait queues.</p><p id="8b6fc00e-7ace-4667-8dce-a1beb3d6f0be" class=""><strong>How Futexes Work:</strong></p><p id="9f809dd7-feec-4a18-ae9a-49173c86ce12" class=""><a href="Lock%20on%20Linux%20-%20A%20Deep%20Dive%20eae787a11ae041f68e7d6876e2bd3167.html">Lock on Linux - A Deep Dive</a> </p><p id="31fc7dca-ad2f-4a05-acaa-afcfa4328068" class="">Now we are going to extend our flag variable instead of having only two values. It will start storing three values:</p><p id="adea8fa0-b89f-49b8-94d4-245d03a79c03" class="">The “flag” variable can be <em><strong>0 (free), 1 (locked), or 2 (waiter present).</strong></em></p><p id="65621646-1561-4fc9-a055-14fea514a1cb" class="">So how does our reader and writer processor function extend:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="3944fecf-2cf7-4f1c-8bf4-966459c6c282" class="code"><code class="language-Go" style="white-space:pre-wrap;word-break:break-all">func reader() {
+ for {
+  if atomic.CompareAndSwap(&amp;flag, 0, 1) { //Set flag to 1 succeeded
+   t := tasks.get()
+   atomic.Store(&amp;flag, 0) //Unset flag to 0
+   return
+  }
+  // CAS failed, set flag to sleeping set flag to 2 (there’s a waiter)
+  v := atomic.Xchg(&amp;flag, 2)
+  // and go to sleep.
+  futex(&amp;flag, FUTEX_WAIT, ...)
+ }
+}</code></pre><p id="5b9251c2-08e1-4601-8f33-3569e99c844c" class="">Above code is performing below operations:</p><ul id="a4d54ce8-0f52-4d3a-8d92-00a16ff86dbe" class="bulleted-list"><li style="list-style-type:disc">It tries an atomic action to switch flag from 0 to 1.</li></ul><ul id="68783895-0aaa-4ec0-9964-c60dc429a8c6" class="bulleted-list"><li style="list-style-type:disc">If successful perform the operation and store backs flag to 0 and then check if there is any waiters trigger that waiter.</li></ul><ul id="f69b6f5c-7f97-4649-97fd-4e4fbbd6b2e4" class="bulleted-list"><li style="list-style-type:disc">If unsuccessful (another thread set it to 1), it marks itself as a waiter (flag = 2).</li></ul><ul id="8f0bcbe8-19ce-401d-b903-267d4bcdc788" class="bulleted-list"><li style="list-style-type:disc">It then uses the futex system call to tell the kernel to put it to sleep until the flag changes.</li></ul><ul id="3fa596d2-0a50-4b2b-a21f-fd00daecb6a1" class="bulleted-list"><li style="list-style-type:disc">When woken, it retries the atomic action.</li></ul><p id="dd4cf189-9b9e-425b-b5e6-a4458691a86c" class="">Switching to kernel land, let’s see what the kernel does. The kernel needs to do two things:</p><ul id="6240f126-ae42-476f-a3a9-ee6e80b563a6" class="bulleted-list"><li style="list-style-type:disc">The kernel stores information about the waiting thread — To store this information kernel maintains the user-space address. This is stored away in a wait queue entry that stores the thread and the key.</li></ul><ul id="1671cfc6-1b44-4035-91d9-1aea748793c6" class="bulleted-list"><li style="list-style-type:disc">The thread is put to sleep.</li></ul><ul id="2b6cc755-97f6-44ed-9156-d4eea2a60e9f" class="bulleted-list"><li style="list-style-type:disc">When a thread finishes and sets the flag to 0, it uses a futex call to wake up waiting for threads.</li></ul><ul id="d58f124d-ceb2-4959-9c06-391fe8123f3d" class="bulleted-list"><li style="list-style-type:disc">The kernel identifies the right waiting threads and schedules them to run.</li></ul><p id="15345b0c-aec8-46de-a414-d736c85f607c" class="">How Kernel Maintains Waiting Queue</p><p id="a787235d-7ae0-4dfe-bb54-b499ceaa4938" class="">This is pretty nice, this is really convenient. This implementation we saw was an extremely simplified Futex implementation. What they give us is this nice, lightweight primitive to build synchronization constructs like locks. <em><strong>In fact, the pthread Mutex that you use in C and Java, they all use variants of this futex.</strong></em></p><p id="4d81ffa0-34b5-4bf6-8e0d-93d5da73c854" class="">At this point, it’s worth asking, <em><strong>if it makes sense to sleep rather than spin. Really, it comes down to an amortized cost argument.</strong></em> It makes sense to spin if the lock duration, the time for which we’re going to hold a lock is going to be short, but the trade-off is, while spinning, we’re not doing any useful work, we’re burning CPU cycles. At some point, it makes sense to pay the cost of that thread contact switch, to put the thread to sleep and run other threads so we can do useful work.</p><p id="a4bbbbbe-0da7-4243-afe9-ed28196fc4a3" class="">So, we need to build something which spins for some iteration before going to sleep and this is the same implementation provided by hybrid futexes.</p><p id="825f34ce-c669-4dec-ab97-b4f1330f1710" class=""><em><strong>Hybrid futexes</strong></em> introduce a clever approach to thread synchronization. When a thread tries to lock using a compare-and-swap operation and fails, it doesn’t immediately go to sleep. Instead, it first spins a small number of times to see if the situation changes. Only if the spinning doesn’t result in acquiring the lock does the thread then resort to suspending itself using a futex-like mechanism. This approach combines the efficiency of spinning with the effectiveness of sleeping.</p><p id="5f7aedc0-ba60-4cb8-a018-2f9e1407c7a4" class=""><em><strong>At this point, we’ve evolved from spinlocks to futexes to hybrid futexes. Are we done now?</strong></em></p><p id="032c32cd-b24d-453c-9e63-e5fb87730787" class="">Well, we could be. If we were talking about a language like Java or C++ that has a native threading model, we would be.</p><p id="d1edabc0-babb-4198-bfe9-dc9518793378" class="">What about a language that uses user-space threads like Go with its goroutines? Can we do even better? Let’s see how locks/mutexes being implemented in golang.</p><h2 id="d4c2567b-305f-4a23-a112-2cb39b9e11eb" class="">Golang Mutex Implementation</h2><p id="bb7bee85-63f1-4e87-9d51-55ad05a7dcde" class="">As discussed in the previous section we were blocking the kernel thread and putting them in to wait queue due to which OS has to put the extra cost of thread switching.</p><p id="d3c6bf40-c1f0-4446-9568-f73299863f6b" class="">But Golang has goroutines which provide us with an opportunity to do something clever. This gives us an opportunity to block the goroutine rather than the underlying operating system thread. If a goroutine tries to acquire a Mutex and it can’t, we can totally put the goroutine to sleep without putting the underlying thread to sleep so we don’t have to pay that expensive thread-switching cost. This is clever and this is exactly what the Go runtime does.</p><p id="d4dc669c-ba74-4970-b804-d320b6f32e77" class="">Let’s see how this works. In our program, when the compare-and-swap fails, the Go runtime is going to add the goroutine to a wait queue, except, in this case, the wait queue is managed in user space. The wait queue looks very similar to the futex wait queue. We have a hash table and we have a wait queue per hash bucket. Once the goroutine has been added to the wait queue, the Go runtime reschedules the goroutine by calling into the Go scheduler. The goroutine is suspended, but the underlying thread keeps running, and the underlying thread just picks up other goroutines to run instead. When the writer comes along, it finishes its thing, The Go runtime walks the wait queue, finds the first goroutine to run that was waiting on the flag variable, and then reschedules it onto an operating system thread so the goroutine can run.</p><p id="dc2f859e-3773-4a8f-b8f6-691c6fa7c9ce" class="">This is clever, we’ve found a way to avoid that heavy thread context switch cost. At this point, we could almost be done, but we’re not, and we’re not for a couple of reasons. There are a couple of problems with this implementation, and they both come down to this — they come down to the fact that once a goroutine is woken up, so a goroutine tries to acquire a lock, it failed, it was put on a wait queue. Once it’s resumed, it has to compete, it has to do that compare and swap, it has to compete with other incoming goroutines that are also trying to do the compare and swap. It’s totally possible it’s going to lose again, and it’s going to be put to sleep again. In fact, not only is it possible, it’s very likely this will happen because the other goroutines, the incoming goroutines, they’re already scheduled onto threads, they’re already running on the CPU, versus the goroutine that we just woke up, there’s a scheduling delay before it’s put onto a thread and run. It’s likely that it will lose.</p><p id="6de47e56-f95b-4ac0-975a-1df60227e1f7" class="">To avoid the above problem goroutines operate in two modes:</p><ol type="1" id="42059300-db55-4bf5-8230-c5d87f0aa629" class="numbered-list" start="1"><li>Normal Mode</li></ol><ol type="1" id="d9a975a8-f498-41fb-9513-2a1e41120ff8" class="numbered-list" start="2"><li>Starvation Mode</li></ol><p id="5332f24b-8ad7-423d-ae69-c7ca5ff815ce" class="">Let’s think a scenario in which two goroutines trying to acquire a lock:</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="69858ec8-8617-475f-8239-123fa55a987c" class="code"><code class="language-Plain Text" style="white-space:pre-wrap;word-break:break-all">func main() {
+ var mutex sync.Mutex
+ var data int
+
+//Writer goroutines -- G1
+ go func() {
+  mutex.Lock()
+  data = 42
+  mutex.Unlock()
+ }()
+
+ // Reader goroutines -- G2
+ for i := 0; i &lt; 3; i++ {
+  go func() {
+   mutex.Lock()
+   fmt.Println(&quot;Reader: Data read:&quot;, data)
+   mutex.Unlock()
+  }()
+ }
+
+ // Allow time for the goroutines to complete
+ time.Sleep(time.Second)
+}</code></pre><p id="c84352c6-6b9f-46c5-a18c-7558c2e92da1" class=""><strong>Normal Mode:</strong></p><p id="4f461754-5888-48d3-9201-1a5d82628285" class="">In this mode, waiting goroutines form a line, like in a queue. However, when a waiting goroutine gets the signal to proceed, it doesn’t immediately own the lock. Instead, it competes with new goroutines trying to get the lock. But new goroutines have a head start as they are already on the CPU, so the waiting one often loses. To give waiting goroutines a chance, when they wake up, they’re moved to the front of the line. If a waiting goroutine fails to get the lock multiple times and it takes more than 1 millisecond, the system switches to a different mode.</p><p id="a523e53a-848e-4606-bd04-1732ce78fc80" class=""><strong>Lock acquiring in normal mode:</strong></p><p id="cac27e74-96d5-4e46-838b-53901962a997" class=""><strong>Lock release in normal mode:</strong></p><p id="294cb761-6333-49f5-bb00-61e28a722e94" class="">Once it releases the lock so at that time there could be some waiting goroutines and some goroutines are already trying to acquire lock. So, once lock gets released all goroutines compete each other for lock acquiring.</p><p id="cde75704-0b5d-459b-880b-9ccd8a744082" class="">Now the problem with normal mode there is always competition between waiting goroutines and running goroutines for lock acquiring and waiting goroutines has a fair chance of losing. So our lock switches from normal mode to starvation mode after spinning goroutines for 1ms.</p><p id="3bac5ede-47ce-442e-bb95-8fba6b5ae011" class="">For this with the <em><strong>mutexLocked flag</strong></em>, we are maintaining mode also <em><strong>mutexStarving</strong></em> which specify in which mode our mutex is running</p><p id="81d8d8ca-b710-408f-8740-317ae143b9e4" class=""><strong>Starvation Mode:</strong></p><p id="72ff01a7-406e-49d0-a685-74cb1df4e7d2" class="">In this mode, the lock is directly given from the one releasing it to the waiting goroutine at the front of the line. New goroutines don’t spin or try to grab the lock. Instead, they patiently join the end of the line.</p><p id="cb53c7e2-f7a6-4252-b279-3a78837622b1" class="">Lock acquired in starvation mode:</p><p id="b5629167-a6df-4ef2-b0b8-4fab4153f83f" class="">Park Goroutines in FIFO order in waiting queue.</p><p id="3c1cb43e-04da-41f0-9258-dcaab579f84e" class="">Lock release in starvation mode:</p><p id="b9802514-d931-4d0c-82dd-4dc8a982be99" class="">While releasing the lock and we are operating in starvation mode we see for processing goroutine if it’s the last one in line or if it waited for less than 1 millisecond, the system goes back to Normal Mode.</p><p id="8f4bbd4e-2849-4a1a-ad5f-574688deabaa" class=""><em><strong>Why the Two Modes?</strong></em></p><p id="2555f8c8-00fc-40b8-b1ce-43a99c9634ae" class="">Normal Mode is usually faster, allowing a goroutine to get the lock multiple times quickly. Starvation Mode helps avoid extreme cases where a goroutine is stuck waiting forever. So, the combination of these modes ensures that things stay both efficient and fair.</p><p id="d0a68fc1-b867-468e-84be-66b73c04780a" class="">We’ve discussed how locks work and how other languages approach them. With Go, things get smarter. Go uses its own way of managing threads, called goroutines. This makes locks more efficient. Instead of blocking the whole thread, only the part that needs it waits, and the system switches different modes to make it more efficient and effective.</p><p id="d2d9d9ac-1237-43e4-86ab-a143230e5066" class="">More information about mutex can be explored at the <em><strong>sync</strong></em> package in <em><strong>mutex.go</strong></em> file.</p><p id="bc49f19d-fec0-498e-8856-d110a79c3fb3" class="">We haven’t covered the types of mutexes in Go and when to use them. If you’d like to delve into that topic, please comment below, and I’ll be happy to provide an explanation of the different types of mutexes in Go and the scenarios in which each type is most appropriate to use.</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

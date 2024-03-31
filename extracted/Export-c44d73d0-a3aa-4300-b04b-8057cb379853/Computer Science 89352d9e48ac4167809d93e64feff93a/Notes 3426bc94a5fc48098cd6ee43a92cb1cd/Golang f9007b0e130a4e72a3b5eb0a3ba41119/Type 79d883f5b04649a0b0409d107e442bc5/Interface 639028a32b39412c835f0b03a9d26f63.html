@@ -1,0 +1,760 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Interface</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="639028a3-2b39-412c-835f-0b03a9d26f63" class="page mono"><header><h1 class="page-title">Interface</h1><p class="page-description"></p></header><div class="page-body"><figure id="fb215309-264f-4404-b3fd-e95acfaf40b3"><a href="https://www.sobyte.net/post/2022-03/go-interface/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Golang interface Principle - Type Conversion</div><div class="bookmark-description">In this article, I’ll take a look at the interface from the internal degree assignment + assembly perspective, to understand how the interface works. This article will focus on type conversions and related error-prone areas. eface 1 2 3 4 5 6 func main() { var ti interface{} var a int = 100 ti = a fmt.Println(ti) } This most common code now raises some questions. How to see if ti is eface or iface ?</div></div><div class="bookmark-href"><img src="https://www.sobyte.net/favicon.ico" class="icon bookmark-icon"/>https://www.sobyte.net/post/2022-03/go-interface/</div></div><img src="https://www.sobyte.net/android-chrome-192x192.png" class="bookmark-image"/></a></figure><figure id="32ad0df1-2767-431c-8d41-ac2d240138b6" class="link-to-page"><a href="Interface%20639028a32b39412c835f0b03a9d26f63/More%20Info%2032ad0df12767431c8d41ac2d240138b6.html">More Info</a></figure><figure id="1d5e0a17-82db-447a-bf1a-d89b91db137f"><a href="https://research.swtch.com/interfaces" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">research!rsc: Go Data Structures: Interfaces</div></div><div class="bookmark-href"><img src="https://research.swtch.com/favicon.ico" class="icon bookmark-icon"/>https://research.swtch.com/interfaces</div></div></a></figure><figure id="077aaafa-8f45-4a19-afb7-4c909ca83694"><a href="https://cmc.gitbook.io/go-internals/chapter-ii-interfaces" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Chapter II: Interfaces</div></div><div class="bookmark-href"><img src="https://3075155593-files.gitbook.io/~/files/v0/b/gitbook-legacy-files/o/spaces%2F-LA4112QONbzVTFTV_Y-%2Favatar.png?generation=1523724079780797&amp;alt=media" class="icon bookmark-icon"/>https://cmc.gitbook.io/go-internals/chapter-ii-interfaces</div></div><img src="https://app.gitbook.com/share/space/thumbnail/-LA4112QONbzVTFTV_Y-/page/-LA8UiurC02yuRf07w1S.png?color=%2314bcdc&amp;logo=https%3A%2F%2F3075155593-files.gitbook.io%2F~%2Ffiles%2Fv0%2Fb%2Fgitbook-legacy-files%2Fo%2Fspaces%252F-LA4112QONbzVTFTV_Y-%252Favatar.png%3Fgeneration%3D1523724079780797%26alt%3Dmedia&amp;theme=default" class="bookmark-image"/></a></figure><p id="facb3fdf-6e2d-4032-9225-118f27716fb5" class="">Interfaces are implemented as a two-word structure. One for storing type and the other for a pointer to the interface contents.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="fa954754-c6df-4c06-8342-a9e9437fbfaa" class="code"><code class="language-Go">type iface struct { // 16 bytes on a 64bit arch
+    tab  *itab
+    data unsafe.Pointer
+}</code></pre><p id="2ea83329-17ee-4ae4-aae0-332757551b64" class="">An interface is thus a very simple structure that maintains 2 pointers:</p><ul id="15e5d3b8-79a1-47cc-abb3-b3f0c4ae76b9" class="bulleted-list"><li style="list-style-type:disc"><code>tab</code> holds the address of an <code>itab</code> object, which embeds the data structures that describe both the type of interface as well as the type of data it points to.</li></ul><ul id="afd2ec84-dd93-4ae3-a606-cb74779b8b7e" class="bulleted-list"><li style="list-style-type:disc"><code>data</code> is a raw (i.e. <code>unsafe</code>) pointer to the value held by the interface.</li></ul><p id="d1c96bdc-a549-43a3-ae74-f15386c9b9a2" class="">Go’s interface enables <a href="https://en.wikipedia.org/wiki/Duck_typing">duck typing</a> (An object is of a given type if it has all methods and properties required by that type).</p><p id="2e3968d7-c6c9-4fa4-b7d1-7ad6f794b6e8" class=""><em><strong>Interface values are represented as a two-word pair giving a pointer to information about the type stored in the interface and a pointer to the associated data. </strong></em></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="4ed913a4-2b0d-452f-8fe2-243bd84679b9" class="code"><code class="language-Go">
+type Stringer interface {
+    String() string
+}
+
+func ToString(any interface{}) string {
+    if v, ok := any.(Stringer); ok {
+        return v.String()
+    }
+    switch v := any.(type) {
+    case int:
+        return strconv.Itoa(v)
+    case float:
+        return strconv.Ftoa(v, &#x27;g&#x27;, -1)
+    }
+    return &quot;???&quot;
+}
+
+type Binary uint64
+
+func (i Binary) String() string {
+    return strconv.Uitob64(i.Get(), 2)
+}
+
+func (i Binary) Get() uint64 {
+    return uint64(i)
+}</code></pre><p id="fdf173cc-f884-4f73-9005-8843fce1dff6" class="">A value of binary can now be passed to <code>ToString</code>, which will format it using the String method.</p><h2 id="1084986f-fdee-435f-bf0d-962ad8b1c24a" class="">Interface Values</h2><p id="a90cb261-8866-451b-b2e7-baacdd26cd31" class="">Languages with methods typically fall into one of two camps</p><ul id="730de3f8-7313-4d59-ac81-e4e21eae614f" class="bulleted-list"><li style="list-style-type:disc">Prepare a table for all method calls statically (C++, Java)</li></ul><ul id="f3bbe8cb-3e95-4042-8b9b-e0b3377e0a5d" class="bulleted-list"><li style="list-style-type:disc">Do a method lookup at each call(Smalltalk, Python, Javascript), and add fancy caching to make that call efficient </li></ul><p id="97a31ca7-b17a-4881-b787-d1e7a29a7d6f" class="">Go sits halfway between the two: it has method tables but computes them at run time. </p><p id="03f00326-5ab0-453b-a1fc-7ee2bbc285e9" class=""><em><strong>The following explanations are based on the assumption that we are dealing with a </strong></em><mark class="highlight-red"><em><strong>32-bit machine</strong></em></mark><em><strong>.</strong></em></p><p id="f23cb714-6169-42f4-9514-894156dee521" class=""><code>Binary</code> is a 64-bit integer made up of two words (two 32-bit words).</p><figure id="c6a5ab58-92c7-462b-953d-307ad635991a" class="image" style="text-align:left"><a href="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled.png"><img style="width:192px" src="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled.png"/></a></figure><p id="3e46824b-d140-46ca-ac03-4ef070de1261" class=""><em><strong>Interface values are represented as a two-word pair giving a pointer to information about the type stored in the interface and a pointer to the associated data. </strong></em></p><p id="ccca0e7c-033f-4e10-a696-ecd96ee92495" class="">Assigning <code>b</code> to an interface value of type <code>Stringer</code> sets both words of the interface value.</p><figure id="290dc8a2-de3b-43aa-b983-23c0a4a10f4c" class="image" style="text-align:left"><a href="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled%201.png"><img style="width:486px" src="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled%201.png"/></a></figure><p id="52db5d1c-b65e-4b71-bfac-d3b4561c6614" class="">The <em><strong>first word</strong></em> in the interface value points to something called itable. The i-table begins with some metadata about the types involved and then a list of function pointers. Itable corresponds to the interface type, not the dynamic type. (interface type, concrete type) pairs. In our example, the itable for Stringer holding type Binary lists the methods used to satisfy Stringer, which is just String: Binary’s other methods(Get) make no appearance in the itable. </p><figure id="15d2c61a-1c7d-4ef0-929f-fc4777dec98b" class="image" style="text-align:left"><a href="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled%202.png"><img style="width:960px" src="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled%202.png"/></a></figure><details open=""><summary style="font-weight:600;font-size:1.25em;line-height:1.3;margin:0">Expanded Code</summary><div class="indented"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="4eb4fff5-7807-403a-bafd-6d1a46c63a16" class="code"><code class="language-Go">type iface struct { // `iface`
+    tab *struct { // `itab`
+        inter *struct { // `interfacetype`, a wrapper around type, describes the type of Interface
+            typ struct { // `_type`
+                size       uintptr
+                ptrdata    uintptr
+                hash       uint32
+                tflag      tflag
+                align      uint8
+                fieldalign uint8
+                kind       uint8
+                alg        *typeAlg
+                gcdata     *byte
+                str        nameOff
+                ptrToThis  typeOff
+            }
+            pkgpath name
+            mhdr    []struct { // `imethod`
+                name nameOff
+                ityp typeOff
+            }
+        }
+        _type *struct { // `_type`, internal representation of any GO type within the runtime
+            size       uintptr
+            ptrdata    uintptr
+            hash       uint32
+            tflag      tflag
+            align      uint8
+            fieldalign uint8
+            kind       uint8
+            alg        *typeAlg
+            gcdata     *byte
+            str        nameOff
+            ptrToThis  typeOff
+        }
+        hash uint32
+        _    [4]byte
+        fun  [1]uintptr
+    }
+    data unsafe.Pointer
+}</code></pre></div></details><p id="0c8557c4-2ee4-4197-847c-c0b215aa25b6" class="">The <strong><strong><strong><strong><strong><strong><strong>second word</strong></strong></strong></strong></strong></strong></strong><em><em><em> </em></em></em>in the interface value points to the actual data, in this case, a copy of b. </p><p id="7c3d07a5-e7c2-44da-a736-83741b0c1add" class="">Values stored in interfaces might be arbitrarily large, but only one word is dedicated to holding the value in the interface structure, so the assignment allocates a chunk of memory on the heap and records the pointer in the one-word slot.</p><p id="4c60e0aa-ccdd-45c0-8b72-4e61302fd278" class="">To check whether an interface value holds a particular type, the Go compiler generates code equivalent to the C expression <code>s.tab-&gt;type</code> to obtain the type pointer and check against the desired type. If the types match, the value can be copied by dereferencing <code>s.data</code>.</p><p id="122ad739-ad9d-4005-9ad3-4928410f5ed5" class="">
+</p><p id="bf623b1d-85f1-4816-9a46-18fcb4d24798" class="">To call <code>s.String()</code> Go compiler generates code that does the equivalent of C expression <code>s.tab-&gt;func[0](s.data)</code>. In general, the interface call site doesn&#x27;t know the meaning of the second word nor how much data it points at. </p><p id="5e13f3ac-35b6-49e5-b42b-74bb9376ea7a" class="">Instead, the interface code arranges that the function pointers in the itable expect the 32-bit representation stored in the interface values. Thus the function pointer in this example is <code>(*Binary)String</code> not <code>(Binary)String</code>.</p><h3 id="010ea8cc-f580-4857-96be-d9dab7c068a6" class="">Computing the Itable</h3><p id="34c3dde3-de9a-4438-abe8-7948e61035a4" class="">Now we know what the itables look like, but where do they come from? Go&#x27;s dynamic type conversions mean that it isn&#x27;t reasonable for the compiler or linker to precompute all possible itables: there are too many (interface type, concrete type) pairs, and most won&#x27;t be needed. Instead, the compiler generates a type description structure for each concrete type like <code>Binary</code> or <code>int</code> or <code>func(map[int]string)</code>. Among other metadata, the type description structure contains a list of the methods implemented by that type. Similarly, the compiler generates a (different) type description structure for each interface type like <code>Stringer</code>; it also contains a method list. The interface runtime computes the itable by looking for each method listed in the interface type&#x27;s method table in the concrete type&#x27;s <strong>method table</strong>. The runtime caches the itable after generating it so that this correspondence needs only be computed once.</p><p id="db4e4ff2-cc8d-4228-b2d7-767cc84f8ecd" class="">In our simple example, the method table for <code>Stringer</code> has one method, while the table for <code>Binary</code> has two methods. In general, there might be <em>ni</em> methods for the interface type and <em>nt</em> methods for the concrete type. The obvious search to find the mapping from interface methods to concrete methods would take <em>O</em>(<em>ni</em> × <em>nt</em>) time, but we can do better. By sorting the two method tables and walking them simultaneously, we can <a href="http://code.google.com/p/go/source/browse/src/pkg/runtime/iface.c#98">build the mapping</a> in <em>O</em>(<em>ni</em> + <em>nt</em>) time instead.</p><h2 id="59fd6593-2ad0-4b69-883e-ab717fa35318" class="">Memory Optimizations</h2><h3 id="40ac5aa7-a04e-4570-8e67-3b6173eded50" class="">Optimization 1 </h3><p id="c2f01695-e003-4875-b9e1-1af603dc1378" class="">If the interface type involved is empty, it has no methods, then itable serves no purpose except to hold the pointer to the original type. In this case, the itable can be dropped and the value can point at the type directly. </p><figure id="9abb55ce-546d-4147-bc15-72d6f79aabce" class="image"><a href="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled%203.png"><img style="width:317px" src="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled%203.png"/></a></figure><h3 id="02942cfd-a01d-4e35-a1ac-8d3f92ec42eb" class="">Optimization 2</h3><p id="6325968d-0a8e-4c1c-b23f-4a4e96bebcba" class="">If the value associated with the interface can fit in a single machine word, there&#x27;s no need to introduce the indirection or heap allocation. If we define Binary32 to be like Binary but implemented as a uint32, it could be stored in an interface value by keeping the actual value in the second word.</p><figure id="d9c7ee28-3794-4626-b70a-3310fdfcf89f" class="image"><a href="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled%204.png"><img style="width:336px" src="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled%204.png"/></a></figure><p id="e946747e-eeb3-4ad0-ac7e-97c2fb891a58" class="">If the receiver type fits in a word, it is used directly; if not it is dereferenced.  Here the type is dereferenced since the data is not stored in the interface struct.</p><h3 id="29a4fab5-4a3a-4670-bdb3-28681e9c16e2" class="">Optimization 3</h3><figure id="3008ac7a-396c-43ca-943c-f7b46ba4d84d" class="image" style="text-align:left"><a href="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled%205.png"><img style="width:299px" src="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled%205.png"/></a></figure><p id="52f68201-d3b7-471e-ab66-a20604439f73" class="">Empty interfaces which can hold the data in a word can take advantage of both optimizations. </p><p id="534a2e2c-870e-4744-b055-19deca9d6999" class="">
+</p><hr id="f0ec52b7-9fa3-4e36-a04d-dbc50fe1d340"/><figure id="206c66fb-1c1f-4ccd-8647-2a29e04936b9"><a href="https://www.youtube.com/watch?v=AXCIEiebVfI&amp;list=PLoILbKo9rG3skRCj37Kn5Zj803hhiuRK6&amp;index=21" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Go Class: 20 Interfaces &amp; Methods in Detail</div><div class="bookmark-description">This segment gets into several details about OOP in Go:
+    (a) nil interfaces (vs nil pointers in an interface);
+    (b) pointer vs value semantics as applied to methods;
+    (c) method values; and
+    (d) some thoughts about using interfaces.
+
+Slides at: https://github.com/matt4biz/go-class-slides/blob/trunk/xmas-2020/README.md</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/78ebd189/img/favicon_144x144.png" class="icon bookmark-icon"/>https://www.youtube.com/watch?v=AXCIEiebVfI&amp;list=PLoILbKo9rG3skRCj37Kn5Zj803hhiuRK6&amp;index=21</div></div><img src="https://i.ytimg.com/vi/AXCIEiebVfI/maxresdefault.jpg" class="bookmark-image"/></a></figure><p id="30557d6f-fce9-453c-ba79-7929f3195d1f" class="">
+</p><p id="2b1330d1-141c-468f-a9b0-0c806aabdab6" class="">An interface variable is <code>nil</code> until initialized.</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="c26854d3-94ad-4b9e-a0e5-7ef7b06147a2" class="code"><code class="language-Go">var r io.Reader // nil until initialized
+var b *bytes.Buffer // nil until initialized
+
+r = b // r is no longer nil, but it has a nil pointer to a Buffer</code></pre><p id="4b9a5432-c369-4dca-a895-358c97e1a5e4" class="">Interface variable is nil only if both parts are nil.</p><figure id="c79ce5c1-d8a0-482c-b10b-b13b3b2e9c9d" class="image"><a href="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled%206.png"><img style="width:615px" src="Interface%20639028a32b39412c835f0b03a9d26f63/Untitled%206.png"/></a></figure><p id="d15caaa9-5e40-4c9e-8cff-2fd90f8a2561" class="">b is nil that&#x27;s why the value part of r’ is nil. Therefore r’ is not nil.</p><p id="8c5681df-7e8f-48ff-8daa-eb12b341942b" class="">For example, error type is an interface</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="266e8d2f-53ba-4cc6-ab8b-7e5978478255" class="code"><code class="language-Go">type error interface {
+	func Error() string
+}</code></pre><figure id="dc22be22-718e-4d25-bf8e-9d8757d13972"><a href="http://npat-efault.github.io/programming/2016/10/10/escape-analysis-and-interfaces.html" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">golang: Escape analysis and interfaces</div><div class="bookmark-description">Random musings about the life, the internet, and everything. Usually incredibly boring, nerdy stuff. Consume at you own risk (or don&#x27;t).</div></div><div class="bookmark-href"><img src="http://npat-efault.github.io/favicon.ico" class="icon bookmark-icon"/>http://npat-efault.github.io/programming/2016/10/10/escape-analysis-and-interfaces.html</div></div></a></figure><figure id="553b64c7-5a7c-49f1-9d6a-eb643279e97c"><a href="https://landontclipp.github.io/blog/2023/07/15/analyzing-go-heap-escapes" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Analyzing Go Heap Escapes - Landon&#x27;s Blog</div><div class="bookmark-description">Analyzing how Go decides what escapes to the heap, and how to visualize it in VSCode.</div></div><div class="bookmark-href"><img src="https://landontclipp.github.io/assets/images/favicon.png" class="icon bookmark-icon"/>https://landontclipp.github.io/blog/2023/07/15/analyzing-go-heap-escapes</div></div><img src="https://landontclipp.github.io/assets/images/social/blog/2023/07/15/analyzing-go-heap-escapes.png" class="bookmark-image"/></a></figure><p id="1d4602c1-cabc-4556-b874-7d4a42f4dc51" class="">Interfaces cause escapes <em>only if we send reference types</em> to one of its methods</p><figure id="38c4ea9a-765f-4ec0-9a5e-ff01060d1eda"><a href="https://github.com/akutz/go-interface-values/blob/main/docs/03-escape-analysis/03-escape.md" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title"></div></div><div class="bookmark-href">https://github.com/akutz/go-interface-values/blob/main/docs/03-escape-analysis/03-escape.md</div></div></a></figure><p id="1b74e754-01cf-4796-8c03-e50ce9a040c0" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

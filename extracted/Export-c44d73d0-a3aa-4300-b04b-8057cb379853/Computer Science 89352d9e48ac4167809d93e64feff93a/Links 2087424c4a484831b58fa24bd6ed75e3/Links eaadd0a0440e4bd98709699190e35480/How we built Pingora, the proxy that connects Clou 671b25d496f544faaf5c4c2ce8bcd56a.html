@@ -1,0 +1,676 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>How we built Pingora, the proxy that connects Cloudflare to the Internet</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="671b25d4-96f5-44fa-af5c-4c2ce8bcd56a" class="page sans"><header><h1 class="page-title">How we built Pingora, the proxy that connects Cloudflare to the Internet</h1><p class="page-description"></p><table class="properties"><tbody><tr class="property-row property-row-url"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesUrl"><path d="M7.69922 10.8945L8.73828 9.84863C7.91797 9.77344 7.34375 9.51367 6.91992 9.08984C5.76465 7.93457 5.76465 6.29395 6.91309 5.14551L9.18262 2.87598C10.3379 1.7207 11.9717 1.7207 13.127 2.87598C14.2891 4.04492 14.2822 5.67188 13.1338 6.82031L11.958 7.99609C12.1768 8.49512 12.2451 9.10352 12.1289 9.62988L14.0908 7.6748C15.7725 6 15.7793 3.62109 14.084 1.92578C12.3887 0.223633 10.0098 0.237305 8.33496 1.91211L5.95605 4.29785C4.28125 5.97266 4.26758 8.35156 5.96289 10.0469C6.36621 10.4434 6.90625 10.7441 7.69922 10.8945ZM8.30078 5.13184L7.26855 6.17773C8.08203 6.25293 8.66309 6.51953 9.08008 6.93652C10.2422 8.09863 10.2422 9.73242 9.08691 10.8809L6.81738 13.1504C5.66211 14.3057 4.03516 14.3057 2.87305 13.1504C1.71094 11.9883 1.71777 10.3545 2.87305 9.20605L4.04199 8.03027C3.83008 7.53125 3.75488 6.92969 3.87109 6.39648L1.91602 8.35156C0.234375 10.0264 0.227539 12.4121 1.92285 14.1074C3.61816 15.8027 5.99707 15.7891 7.67188 14.1143L10.0439 11.7354C11.7256 10.0537 11.7324 7.6748 10.0371 5.98633C9.64062 5.58301 9.10059 5.28223 8.30078 5.13184Z"></path></svg></span>URL</th><td><a href="https://blog.cloudflare.com/how-we-built-pingora-the-proxy-that-connects-cloudflare-to-the-internet/" class="url-value">https://blog.cloudflare.com/how-we-built-pingora-the-proxy-that-connects-cloudflare-to-the-internet/</a></td></tr><tr class="property-row property-row-multi_select"><th><span class="icon property-icon"><svg role="graphics-symbol" viewBox="0 0 16 16" style="width:14px;height:14px;display:block;fill:rgba(55, 53, 47, 0.45);flex-shrink:0" class="typesMultipleSelect"><path d="M1.91602 4.83789C2.44238 4.83789 2.87305 4.40723 2.87305 3.87402C2.87305 3.34766 2.44238 2.91699 1.91602 2.91699C1.38281 2.91699 0.952148 3.34766 0.952148 3.87402C0.952148 4.40723 1.38281 4.83789 1.91602 4.83789ZM5.1084 4.52344H14.3984C14.7607 4.52344 15.0479 4.23633 15.0479 3.87402C15.0479 3.51172 14.7607 3.22461 14.3984 3.22461H5.1084C4.74609 3.22461 4.45898 3.51172 4.45898 3.87402C4.45898 4.23633 4.74609 4.52344 5.1084 4.52344ZM1.91602 9.03516C2.44238 9.03516 2.87305 8.60449 2.87305 8.07129C2.87305 7.54492 2.44238 7.11426 1.91602 7.11426C1.38281 7.11426 0.952148 7.54492 0.952148 8.07129C0.952148 8.60449 1.38281 9.03516 1.91602 9.03516ZM5.1084 8.7207H14.3984C14.7607 8.7207 15.0479 8.43359 15.0479 8.07129C15.0479 7.70898 14.7607 7.42188 14.3984 7.42188H5.1084C4.74609 7.42188 4.45898 7.70898 4.45898 8.07129C4.45898 8.43359 4.74609 8.7207 5.1084 8.7207ZM1.91602 13.2324C2.44238 13.2324 2.87305 12.8018 2.87305 12.2686C2.87305 11.7422 2.44238 11.3115 1.91602 11.3115C1.38281 11.3115 0.952148 11.7422 0.952148 12.2686C0.952148 12.8018 1.38281 13.2324 1.91602 13.2324ZM5.1084 12.918H14.3984C14.7607 12.918 15.0479 12.6309 15.0479 12.2686C15.0479 11.9062 14.7607 11.6191 14.3984 11.6191H5.1084C4.74609 11.6191 4.45898 11.9062 4.45898 12.2686C4.45898 12.6309 4.74609 12.918 5.1084 12.918Z"></path></svg></span>Category</th><td></td></tr></tbody></table></header><div class="page-body"><hr id="425547f5-99fc-461f-b7df-a852f53fdd79"/><p id="86a0bce9-f897-4a49-a443-cc33f93336c0" class=""><em>This post is also available in </em><a href="https://blog.cloudflare.com/zh-cn/how-we-built-pingora-the-proxy-that-connects-cloudflare-to-the-internet-zh-cn/"><em>简体中文</em></a><em> and </em><a href="https://blog.cloudflare.com/zh-tw/how-we-built-pingora-the-proxy-that-connects-cloudflare-to-the-internet-zh-tw/"><em>繁體中文</em></a><em>.</em></p><figure id="e0d17693-e27c-4bad-b9a9-6d4869c40d0f" class="image"><a href="How%20we%20built%20Pingora,%20the%20proxy%20that%20connects%20Clou%20671b25d496f544faaf5c4c2ce8bcd56a/image1-4.png"><img style="width:700px" src="How%20we%20built%20Pingora,%20the%20proxy%20that%20connects%20Clou%20671b25d496f544faaf5c4c2ce8bcd56a/image1-4.png"/></a></figure><h2 id="e7ff8b13-7bb5-4f6e-89b3-b07d8f5615d5" class="">Introduction</h2><p id="4a9005d7-dc3b-4b98-b5d8-70f90149fa26" class="">Today we are excited to talk about Pingora, a new HTTP proxy we’ve built in-house using <a href="https://www.rust-lang.org/">Rust</a> that serves over 1 trillion requests a day, boosts our performance, and enables many new features for Cloudflare customers, all while requiring only a third of the CPU and memory resources of our previous proxy infrastructure.</p><p id="23481a5b-54e3-482a-bd21-9d97d281d9da" class="">As Cloudflare has scaled we’ve outgrown NGINX. It was great for many years, but over time its limitations at our scale meant building something new made sense. We could no longer get the performance we needed nor did NGINX have the features we needed for our very complex environment.</p><p id="a96b98db-782c-4fd8-89e8-ab85c693b553" class="">Many Cloudflare customers and users use the Cloudflare global network as a proxy between HTTP clients (such as web browsers, apps, IoT devices and more) and servers. In the past, we’ve talked a lot about how browsers and other user agents connect to our network, and we’ve developed a lot of technology and implemented new protocols (see <a href="https://blog.cloudflare.com/the-road-to-quic/">QUIC</a> and <a href="https://blog.cloudflare.com/delivering-http-2-upload-speed-improvements/">optimizations for http2</a>) to make this leg of the connection more efficient.</p><p id="eb8ffbe0-5bfb-4d7f-8e6f-97775946b673" class="">Today, we’re focusing on a different part of the equation: the service that proxies traffic between our network and servers on the Internet. This proxy service powers our CDN, Workers fetch, Tunnel, Stream, R2 and many, many other features and products.</p><p id="3d5998e9-11e4-492f-a678-8c0f6d2e4aa6" class="">Let’s dig in on why we chose to replace our legacy service and how we developed Pingora, our new system designed specifically for Cloudflare’s customer use cases and scale.</p><h2 id="6438a984-a8de-4a98-858e-da05ba016782" class="">Why build yet another proxy</h2><p id="7fb66f29-8f20-4517-b95d-315633f14bb3" class="">Over the years, our usage of NGINX has run up against limitations. For some limitations, we optimized or worked around them. But others were much harder to overcome.</p><h3 id="235c1048-8ea8-434f-916a-bbc02cc82a41" class="">Architecture limitations hurt performance</h3><p id="7c07305f-dc2e-44e8-b32e-b801859203f3" class="">The NGINX <a href="https://www.nginx.com/blog/inside-nginx-how-we-designed-for-performance-scale/">worker (process) architecture</a> has operational drawbacks for our use cases that hurt our performance and efficiency.</p><p id="15566c6f-1a16-47af-9029-543d8b4a9be8" class="">First, in NGINX each request can only be served by a single worker. This results in <a href="https://blog.cloudflare.com/the-sad-state-of-linux-socket-balancing/">unbalanced load across all CPU cores</a>, which <a href="https://blog.cloudflare.com/keepalives-considered-harmful/">leads to slowness</a>.</p><p id="8464336a-d7f6-4848-b0a1-a649a1298a26" class="">Because of this request-process pinning effect, requests that do <a href="https://blog.cloudflare.com/the-problem-with-event-loops/">CPU heavy</a> or <a href="https://blog.cloudflare.com/how-we-scaled-nginx-and-saved-the-world-54-years-every-day/">blocking IO tasks</a> can slow down other requests. As those blog posts attest we’ve spent a lot of time working around these problems.</p><p id="5d2bf880-9bc2-46fb-921d-a6f6d1f900d4" class="">The most critical problem for our use cases is poor connection reuse. Our machines establish TCP connections to origin servers to proxy HTTP requests. Connection reuse speeds up TTFB (time-to-first-byte) of requests by reusing previously established connections from a connection pool, skipping TCP and TLS handshakes required on a new connection.</p><p id="a0270a32-430d-40df-9544-bf253dcd5fd2" class="">However, the <a href="https://www.nginx.com/blog/load-balancing-with-nginx-plus-part-2/">NGINX connection pool</a> is per worker. When a request lands on a certain worker, it can only reuse the connections within that worker. When we add more NGINX workers to scale up, our connection reuse ratio gets worse because the connections are scattered across more isolated pools of all the processes. This results in slower TTFB and more connections to maintain, which consumes resources (and money) for both us and our customers.</p><figure id="47696960-fc10-40ab-876d-8a1b7dc767e2" class="image"><a href="How%20we%20built%20Pingora,%20the%20proxy%20that%20connects%20Clou%20671b25d496f544faaf5c4c2ce8bcd56a/image2-4.png"><img style="width:700px" src="How%20we%20built%20Pingora,%20the%20proxy%20that%20connects%20Clou%20671b25d496f544faaf5c4c2ce8bcd56a/image2-4.png"/></a></figure><p id="d0eeb602-3241-4467-a01d-9dece609a8f6" class="">As mentioned in past blog posts, we have workarounds for some of these issues. But if we can address the fundamental issue: the worker/process model, we will resolve all these problems naturally.</p><h3 id="df99f8de-876e-4256-a58d-cde8a943c849" class="">Some types of functionality are difficult to add</h3><p id="0ec3cfd3-9058-453a-be0c-a6180ffff961" class="">NGINX is a very good web server, load balancer or a simple gateway. But Cloudflare does way more than that. We used to build all the functionality we needed around NGINX, which is not easy to do while trying not to diverge too much from NGINX upstream codebase.</p><p id="ec98eaf5-6248-4de2-b83d-579a75e69745" class="">For example, when <a href="https://blog.cloudflare.com/new-tools-to-monitor-your-server-and-avoid-downtime/">retrying/failing over</a> a request, sometimes we want to send a request to a different origin server with a different set of request headers. But that is not something NGINX allows us to do. In cases like this, we spend time and effort on working around the NGINX constraints.</p><p id="4b5dbe06-0d52-47b0-a722-642f52e50aff" class="">Meanwhile, the programming languages we had to work with didn’t provide help alleviating the difficulties. NGINX is purely in C, which is not memory safe by design. It is very error-prone to work with such a 3rd party code base. It is quite easy to get into <a href="https://blog.cloudflare.com/incident-report-on-memory-leak-caused-by-cloudflare-parser-bug/">memory safety issues</a>, even for experienced engineers, and we wanted to avoid these as much as possible.</p><p id="a49ae6c4-7f8a-4063-8de8-d3c7000bfbbe" class="">The other language we used to complement C is Lua. It is less risky but also less performant. In addition, we often found ourselves missing <a href="https://en.wikipedia.org/wiki/Type_system#Static_type_checking">static typing</a> when working with complicated Lua code and business logic.</p><p id="342652b4-c4bd-473a-8bd6-27f586793386" class="">And the NGINX community is not very active, and development tends to be <a href="https://dropbox.tech/infrastructure/how-we-migrated-dropbox-from-nginx-to-envoy">“behind closed doors”</a>.</p><h3 id="9b97525a-697f-4356-8948-37bf01e78a5f" class="">Choosing to build our own</h3><p id="21af5e47-a63f-4834-8b2c-072f66abe07a" class="">Over the past few years, as we’ve continued to grow our customer base and feature set, we continually evaluated three choices:</p><ol type="1" id="36691766-c7ec-4025-9e80-a179d2498f5b" class="numbered-list" start="1"><li>Continue to invest in NGINX and possibly fork it to tailor it 100% to our needs. We had the expertise needed, but given the architecture limitations mentioned above, significant effort would be required to rebuild it in a way that fully supported our needs.</li></ol><ol type="1" id="12bbd39a-1244-4cfb-a23d-d18647a09e83" class="numbered-list" start="2"><li>Migrate to another 3rd party proxy codebase. There are definitely good projects, like <a href="https://dropbox.tech/infrastructure/how-we-migrated-dropbox-from-nginx-to-envoy">envoy</a> and <a href="https://linkerd.io/2020/12/03/why-linkerd-doesnt-use-envoy/">others</a>. But this path means the same cycle may repeat in a few years.</li></ol><ol type="1" id="b96bf6eb-13e2-4ad5-8b07-f061f934dade" class="numbered-list" start="3"><li>Start with a clean slate, building an in-house platform and framework. This choice requires the most upfront investment in terms of engineering effort.</li></ol><p id="fc464e51-4202-4620-91e7-7dfacd23d10b" class="">We evaluated each of these options every quarter for the past few years. There is no obvious formula to tell which choice is the best. For several years, we continued with the path of the least resistance, continuing to augment NGINX. However, at some point, building our own proxy’s return on investment seemed worth it. We made a call to build a proxy from scratch, and began designing the proxy application of our dreams.</p><h2 id="157d1ae8-96c0-4d81-86ef-151bbfe51d56" class="">The Pingora Project</h2><h3 id="9dd1dca1-51d2-4997-a8ca-ab6b96ae8952" class="">Design decisions</h3><p id="f7248645-dcf3-4683-a4e6-af9d23f5aa0b" class="">To make a proxy that serves millions of requests per second fast, efficient and secure, we have to make a few important design decisions first.</p><p id="560f5472-3caa-4023-8a6e-7a219019e856" class="">We chose <a href="https://www.rust-lang.org/">Rust</a> as the language of the project because it can do what C can do in a memory safe way without compromising performance.</p><p id="2b61fd92-98c0-4989-aad0-97c6180c8aa0" class="">Although there are some great off-the-shelf 3rd party HTTP libraries, such as <a href="https://github.com/hyperium/hyper">hyper</a>, we chose to build our own because we want to maximize the flexibility in how we handle HTTP traffic and to make sure we can innovate at our own pace.</p><p id="4011a244-c331-4443-8b89-f7c574b115b8" class="">At Cloudflare, we handle traffic across the entire Internet. We have many cases of bizarre and non-RFC compliant HTTP traffic that we have to support. This is a common dilemma across the HTTP community and web, where there is tension between strictly following HTTP specifications and accommodating the nuances of a wide ecosystem of potentially legacy clients or servers. Picking one side can be a tough job.</p><p id="a6eb277d-d121-4926-ba04-b51178a36295" class="">HTTP status codes are defined in <a href="https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes">RFC 9110 as a three digit integer</a>, and generally expected to be in the range 100 through 599. Hyper was one such implementation. However, many servers support the use of status codes between 599 and 999. <a href="https://github.com/hyperium/http/issues/144">An issue</a> had been created for this feature, which explored various sides of the debate. While the hyper team did ultimately accept that change, there would have been valid reasons for them to reject such an ask, and this was only one of many cases of noncompliant behavior we needed to support.</p><p id="29018303-4553-4735-97e2-c269743c02ef" class="">In order to satisfy the requirements of Cloudflare&#x27;s position in the HTTP ecosystem, we needed a robust, permissive, customizable HTTP library that can survive the wilds of the Internet and support a variety of noncompliant use cases. The best way to guarantee that is to implement our own.</p><p id="d9400a96-6e38-41f9-95b0-2dbe1dcec81e" class="">The next design decision was around our workload scheduling system. We chose multithreading over <a href="https://www.nginx.com/blog/inside-nginx-how-we-designed-for-performance-scale/#Inside-the-NGINX-Worker-Process">multiprocessing</a> in order to share resources, especially connection pools, easily. We also decided that <a href="https://en.wikipedia.org/wiki/Work_stealing">work stealing</a> was required to avoid some classes of performance problems mentioned above. The Tokio async runtime turned out to be <a href="https://tokio.rs/blog/2019-10-scheduler">a great fit</a> for our needs.</p><p id="23ed600e-9751-4f64-8707-134718da4883" class="">Finally, we wanted our project to be intuitive and developer friendly. What we build is not the final product, and should be extensible as a platform as more features are built on top of it. We decided to implement a “life of a request” event based programmable interface <a href="https://openresty-reference.readthedocs.io/en/latest/Directives/">similar to NGINX/OpenResty</a>. For example, the “request filter” phase allows developers to run code to modify or reject the request when a request header is received. With this design, we can separate our business logic and generic proxy logic cleanly. Developers who previously worked on NGINX can easily switch to Pingora and quickly become productive.</p><h2 id="ada9ae73-ea3c-48cb-b49d-88e14d0809a5" class="">Pingora is faster in production</h2><p id="8e508616-f637-4b04-aa7e-d92c1ac39fcb" class="">Let’s fast-forward to the present. Pingora handles almost every HTTP request that needs to interact with an origin server (for a cache miss, for example), and we’ve collected a lot of performance data in the process.</p><p id="d00dd874-6c95-4931-aa08-02996ea7f5d9" class="">First, let’s see how Pingora speeds up our customer’s traffic. Overall traffic on Pingora shows 5ms reduction on median TTFB and 80ms reduction on the 95th percentile. This is not because we run code faster. Even our old service could handle requests in the sub-millisecond range.</p><p id="a5dee292-cc5b-4c53-a1c3-cbdaf27c25c5" class="">The savings come from our new architecture which can share connections across all threads. This means a better connection reuse ratio, which spends less time on TCP and TLS handshakes.</p><p id="620efcdb-5138-4351-8db8-ffe3fe427efe" class="">Across all customers, Pingora makes only a third as many new connections per second compared to the old service. For one major customer, it increased the connection reuse ratio from 87.1% to 99.92%, which reduced new connections to their origins by 160x. To present the number more intuitively, by switching to Pingora, we save our customers and users 434 years of handshake time every day.</p><h3 id="7c14d49b-b564-473a-b3ee-e30568fd49a4" class="">More features</h3><p id="322456e4-4fe5-4ef8-8f30-9d4f122459af" class="">Having a developer friendly interface engineers are familiar with while eliminating the previous constraints allows us to develop more features, more quickly. Core functionality like new protocols act as building blocks to more products we can offer to customers.</p><p id="f372c474-4930-4e0c-8b38-6dc737cba214" class="">As an example, we were able to add HTTP/2 upstream support to Pingora without major hurdles. This allowed us to offer <a href="https://blog.cloudflare.com/road-to-grpc/">gRPC</a> to our customers shortly afterwards. Adding this same functionality to NGINX would have required <a href="https://mailman.nginx.org/pipermail/nginx-devel/2017-July/010357.html">significantly more engineering effort and might not have materialized</a>.</p><p id="4092e827-6443-40aa-9397-44cff098dcfb" class="">More recently we&#x27;ve announced <a href="https://blog.cloudflare.com/introducing-cache-reserve/">Cache Reserve</a> where Pingora uses R2 storage as a caching layer. As we add more functionality to Pingora, we’re able to offer new products that weren’t feasible before.</p><h3 id="3f8e7339-802a-4461-a310-4889c66c4b11" class="">More efficient</h3><p id="e8909b6d-4688-4270-aa83-8337581aa447" class="">In production, Pingora consumes about 70% less CPU and 67% less memory compared to our old service with the same traffic load. The savings come from a few factors.</p><p id="8e92568b-42b0-4801-bd99-6cd79be40ffe" class="">Our Rust code runs <a href="https://benchmarksgame-team.pages.debian.net/benchmarksgame/fastest/rust.html">more efficiently</a> compared to our old <a href="https://benchmarksgame-team.pages.debian.net/benchmarksgame/fastest/lua.html">Lua code</a>. On top of that, there are also efficiency differences from their architectures. For example, in NGINX/OpenResty, when the Lua code wants to access an HTTP header, it has to read it from the NGINX C struct, allocate a Lua string and then copy it to the Lua string. Afterwards, Lua has to garbage-collect its new string as well. In Pingora, it would just be a direct string access.</p><p id="861482cb-846d-4347-8d8a-73ce98286cb5" class="">The multithreading model also makes sharing data across requests more efficient. NGINX also has shared memory but due to implementation limitations, every shared memory access has to use a mutex lock and only strings and numbers can be put into shared memory. In Pingora, most shared items can be accessed directly via shared references behind <a href="https://doc.rust-lang.org/std/sync/struct.Arc.html">atomic reference counters</a>.</p><p id="1d4e6a3b-aafc-4754-9bea-0617e2c86560" class="">Another significant portion of CPU saving, as mentioned above, is from making fewer new connections. TLS handshakes are expensive compared to just sending and receiving data via established connections.</p><h3 id="0271651d-10da-4c79-9b29-8c1f98934182" class="">Safer</h3><p id="a261e807-c8d7-4d5f-95c8-b972db82a228" class="">Shipping features quickly and safely is difficult, especially at our scale. It&#x27;s hard to predict every edge case that can occur in a distributed environment processing millions of requests a second. Fuzzing and static analysis can only mitigate so much. Rust&#x27;s memory-safe semantics guard us from undefined behavior and give us confidence our service will run correctly.</p><p id="f45b4b9e-5c82-45e0-b542-8b518b290663" class="">With those assurances we can focus more on how a change to our service will interact with other services or a customer&#x27;s origin. We can develop features at a higher cadence and not be burdened by memory safety and hard to diagnose crashes.</p><p id="f01a41a0-6057-4a39-866b-37a4599d776c" class="">When crashes do occur an engineer needs to spend time to diagnose how it happened and what caused it. Since Pingora&#x27;s inception we’ve served a few hundred trillion requests and have yet to crash due to our service code.</p><p id="bc2ddd63-2ebc-4dfb-8388-8d4b4c56fb67" class="">In fact, Pingora crashes are so rare we usually find unrelated issues when we do encounter one. Recently we discovered <a href="https://lkml.org/lkml/2022/3/15/6">a kernel bug</a> soon after our service started crashing. We&#x27;ve also discovered hardware issues on a few machines, in the past ruling out rare memory bugs caused by our software even after significant debugging was nearly impossible.</p><h2 id="bcf29c90-4e89-468a-bb5d-6e6956abe7bd" class="">Conclusion</h2><p id="cd259202-0694-4c71-a8c4-517d3d999be2" class="">To summarize, we have built an in-house proxy that is faster, more efficient and versatile as the platform for our current and future products.</p><p id="6604c3b6-dd43-4655-a8a0-3b0046bab7c2" class="">We will be back with more technical details regarding the problems we faced, the optimizations we applied and the lessons we learned from building Pingora and rolling it out to power a significant portion of the Internet. We will also be back with our plan to open source it.</p><p id="ce935df7-4be6-4d12-991e-84b0936f90d9" class="">Pingora is our latest attempt at rewriting our system, but it won’t be our last. It is also only one of the building blocks in the re-architecting of our systems.</p><p id="c9d72339-0b2c-46aa-9863-32caa9101375" class="">Interested in joining us to help build a better Internet? <a href="https://www.cloudflare.com/en-gb/careers/jobs/?department=Engineering">Our engineering teams are hiring</a>.</p><p id="56d467be-373f-4a28-ae6a-cd60fc59644d" class="">We protect <a href="https://www.cloudflare.com/network-services/">entire corporate networks</a>, help customers build <a href="https://workers.cloudflare.com/">Internet-scale applications efficiently</a>, accelerate any <a href="https://www.cloudflare.com/performance/accelerate-internet-applications/">website or Internet application</a>, <a href="https://www.cloudflare.com/ddos/">ward off DDoS attacks</a>, keep <a href="https://www.cloudflare.com/application-security/">hackers at bay</a>, and can help you on <a href="https://www.cloudflare.com/products/zero-trust/">your journey to Zero Trust</a>.</p><p id="f6747c2e-1a6c-4623-961f-e0f323443f50" class="">Visit <a href="https://1.1.1.1/">1.1.1.1</a> from any device to get started with our free app that makes your Internet faster and safer.</p><p id="e9722722-bd57-459a-8109-1dfc97d94dbd" class="">To learn more about our mission to help build a better Internet, <a href="https://www.cloudflare.com/learning/what-is-cloudflare/">start here</a>. If you&#x27;re looking for a new career direction, check out <a href="https://cloudflare.com/careers">our open positions</a>.</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

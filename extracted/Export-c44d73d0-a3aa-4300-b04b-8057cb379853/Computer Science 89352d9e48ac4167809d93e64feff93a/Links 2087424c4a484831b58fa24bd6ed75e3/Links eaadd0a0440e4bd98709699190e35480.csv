@@ -1,0 +1,39 @@
+﻿Name,URL,Category
+DSA,https://medium.com/@vaidehijoshi,"DSA, General"
+Boldly Go,https://www.youtube.com/@boldlygo/videos,Golang
+The Linux kernel: Handling of asynchronous events,https://www.win.tue.nl/~aeb/linux/lk/lk-12.html,"Linux, Optimisation"
+Consistent Hashing,https://medium.com/@animeshblog/consistent-hashing-d23379273ade,"Database, General, Optimisation"
+Consistent Hashing,https://vishalrana9915.medium.com/consistent-hashing-36fa25892b4f,"Database, General, Optimisation"
+"SQL Indexing and Tuning e-Book for developers: Use The Index, Luke covers Oracle, MySQL, PostgreSQL, SQL Server, ...",https://use-the-index-luke.com/,"Database, Postgres"
+"Make resilient Go net/http servers using timeouts, deadlines and context cancellation",https://ieftimov.com/posts/make-resilient-golang-net-http-servers-using-timeouts-deadlines-context-cancellation/,"Golang, Network"
+golang netpoll Explained,https://www.sobyte.net/post/2021-09/golang-netpoll/,"Golang, Network"
+"Build Your Own Database From Scratch | Build
+Your Own Database From Scratch",https://build-your-own.org/database/,"Database, Design, General, System Design"
+"Build Your Own Redis with C/C++ | Build
+Your Own Redis with C/C++",https://build-your-own.org/redis/,"C, Design, General, Redis, System Design"
+codecrafters-io/build-your-own-x: Master programming by recreating your favorite technologies from scratch.,https://github.com/codecrafters-io/build-your-own-x,"Design, General, Golang, System Design"
+leoantony72/twitter-backend: backend clone of Twitter with golang,https://github.com/leoantony72/twitter-backend,"Design, General, Golang, System Design"
+Golang struct tags gotchas,https://suraj.io/post/golang-struct-tags-space/,Golang
+An Introduction to the io_uring Asynchronous I/O Framework,https://medium.com/oracledevs/an-introduction-to-the-io-uring-asynchronous-i-o-framework-fad002d7dfc1,"Linux, Optimisation"
+A Deep-dive into the Linux Filesystem | Part 1,https://emmanuelbashorun.medium.com/a-deep-dive-into-the-linux-filesystem-part-1-d06d365d42bb,"Linux, Optimisation"
+arpitbbhayani/system-design-questions: Problem statements on System Design and Software Architecture as part of Arpit's System Design Masterclass,https://github.com/arpitbbhayani/system-design-questions/tree/master,"Design, System Design"
+"(4) System Design Fight Club - YouTube - ",https://www.youtube.com/@SDFC,"Design, System Design"
+A Look at Conflict-Free Replicated Data Types (CRDT),https://medium.com/@istanbul_techie/a-look-at-conflict-free-replicated-data-types-crdt-221a5f629e7e,"Design, System Design"
+system-design-and-architecture/en at master · puncsky/system-design-and-architecture,https://github.com/puncsky/system-design-and-architecture/tree/master/en,"Design, General, System Design"
+Distributed Transactions & Two-Phase Commit,https://medium.com/geekculture/distributed-transactions-two-phase-commit-c82752d69324,"Database, Design, System Design"
+How We Scaled to 100 Million Active Users Using Kafka and Golang — Eventual Consistency,https://itnext.io/how-we-scaled-to-100-million-active-users-using-kafka-and-golang-eventual-consistency-6241cfeba7e8,"Design, Golang, System Design"
+A TCP Flow and HTTP Flow Guide: Changing HTTP Messages | HackerNoon,https://hackernoon.com/a-tcp-flow-and-http-flow-guide-changing-http-messages,"General, Network"
+Processing 2 Trillion messages with self-hosted Kafka,https://medium.com/@vaibhav-vg/processing-2-trillion-messages-with-self-hosted-kafka-b9b005aa421a,"Distributed Systems, Message Queues"
+Outbox Pattern for Microservices Architectures,https://medium.com/design-microservices-architecture-with-patterns/outbox-pattern-for-microservices-architectures-1b8648dfaa27,Microservices
+The Dark Side of Sharding: Mistakes You Can’t Afford to Make,"https://levelup.gitconnected.com/the-dark-side-of-sharding-mistakes-you-cant-afford-to-make-7905a6c45499#:~:text=Choosing%20the%20Wrong%20Sharding%20Key&text=A%20poorly%20chosen%20key%20can,US%20data%20might%20get%20overwhelmed.","Database, Design, System Design"
+"Be an Engineer, not a Frameworker",https://johndanielraines.medium.com/be-an-engineer-not-a-frameworker-c58fe28d0c88,General
+Mutex and Lock Internals in Golang,https://blog.stackademic.com/mutex-internals-in-golang-1624749f35a6,Golang
+"Be an Engineer, not a Frameworker",https://johndanielraines.medium.com/be-an-engineer-not-a-frameworker-c58fe28d0c88,General
+"Be an Engineer, not a Frameworker",https://johndanielraines.medium.com/be-an-engineer-not-a-frameworker-c58fe28d0c88,General
+Lock on Linux - A Deep Dive,https://medium.com/@vikas.singh_67409/lock-on-linux-a-deep-dive-8269305d15dd,Linux
+9 Golang Name Conventions Gophers should follow!,https://blog.devgenius.io/golang-name-convention-gophers-should-follow-e4397fba5dce,Golang
+"How we built Pingora, the proxy that connects Cloudflare to the Internet",https://blog.cloudflare.com/how-we-built-pingora-the-proxy-that-connects-cloudflare-to-the-internet/,
+Inside NGINX: Designed for Performance & Scalability,https://www.nginx.com/blog/inside-nginx-how-we-designed-for-performance-scale/,
+NGINX Architecture,https://medium.com/@hnasr/the-architecture-of-nginx-2b32fc0b7877,Proxy
+The Architecture of Open Source Applications (Volume 2)nginx,https://aosabook.org/en/v2/nginx.html,Proxy
+Iterators and Iterables in Python: Run Efficient Iterations – Real Python,https://realpython.com/python-iterators-iterables/,Python

@@ -1,0 +1,744 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Data Management: Choosing the right database</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-uiBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="398ab043-f051-4e32-a924-150a3e2a808f" class="page mono"><header><h1 class="page-title">Data Management: Choosing the right database</h1><p class="page-description"></p></header><div class="page-body"><h2 id="d39267f9-5c45-477b-9021-609b141bb236" class="">Polyglot Persistence Principle in Microservices</h2><figure id="48dda617-f0a5-4059-9394-4c0324f76847"><a href="https://www.kennybastani.com/2015/08/polyglot-persistence-spring-cloud-docker.html" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Building Microservices with Polyglot Persistence Using Spring Cloud and Docker</div><div class="bookmark-description">This blog post demonstrates how to build microservice architectures with polyglot persistence. An example project is provided that uses Docker Compose to run multiple microservices locally to simulate a polyglot persistence setup.</div></div><div class="bookmark-href"><img src="https://www.kennybastani.com/favicon.ico" class="icon bookmark-icon"/>https://www.kennybastani.com/2015/08/polyglot-persistence-spring-cloud-docker.html</div></div><img src="http://i.imgur.com/StpflHf.png" class="bookmark-image"/></a></figure><ul id="cb8f2442-0109-4cb8-93e6-ba9d7ca81d18" class="bulleted-list"><li style="list-style-type:disc">Every microservice has its data, and the data integrity and data consistency be considered very carefully</li></ul><ul id="a2361b11-d6cf-4231-bfc9-a2249738750c" class="bulleted-list"><li style="list-style-type:disc">Microservices should not share databases </li></ul><figure id="ed3c2303-1763-4bba-a6df-98547b9f6dc6"><a href="https://microservices.io/patterns/data/database-per-service.html" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Microservices Pattern: Database per service</div><div class="bookmark-description">A service&#x27;s database is private to that service</div></div><div class="bookmark-href">https://microservices.io/patterns/data/database-per-service.html</div></div><img src="https://microservices.io/i/databaseperservice.png" class="bookmark-image"/></a></figure><figure id="13a2ea66-e094-41bf-91f7-60483ef17e21" class="image"><a href="Data%20Management%20Choosing%20the%20right%20database%20398ab043f0514e32a924150a3e2a808f/Untitled.png"><img style="width:288px" src="Data%20Management%20Choosing%20the%20right%20database%20398ab043f0514e32a924150a3e2a808f/Untitled.png"/></a></figure><ul id="d9e279cd-f51e-40a4-9e14-7cac3f32a0c9" class="bulleted-list"><li style="list-style-type:disc">Microservice share data over the application microservices using REST  API.</li></ul><ul id="9385e020-1dbe-4047-8012-583dc94ceee4" class="bulleted-list"><li style="list-style-type:disc">We can pick different databases for different services as per the usecase.</li></ul><ul id="603bcbaa-abe8-461d-871f-901bfc8be925" class="bulleted-list"><li style="list-style-type:disc">When you are sharing the data between multiple microservices you loose your acid properties. </li></ul><ul id="458d1a7e-672d-4e54-9ffe-525df51df0d2" class="bulleted-list"><li style="list-style-type:disc">Challenging to implement queries and transactions that visits serveral microservices.</li></ul><hr id="5595182b-076b-4b47-9a46-d17c5027357f"/><p id="64785902-8a2f-4a6b-b07d-2a770203d648" class="">
+</p><h2 id="588104f6-e942-4246-ab51-e5517b35215b" class="">Database-per-Service pattern</h2><ul id="87a56116-793a-4009-be41-0cb307613b8c" class="bulleted-list"><li style="list-style-type:disc">Microservices should be loosely coupled, scalable and independent.</li></ul><ul id="6ed5784b-24fb-4c53-a60f-719b93c96446" class="bulleted-list"><li style="list-style-type:disc">Use distributed data model with many smaller databases for particular microservice.</li></ul><figure id="c722c269-edbb-43e4-9abe-eb71dd8fce4c" class="image"><a href="Data%20Management%20Choosing%20the%20right%20database%20398ab043f0514e32a924150a3e2a808f/Untitled%201.png"><img style="width:336px" src="Data%20Management%20Choosing%20the%20right%20database%20398ab043f0514e32a924150a3e2a808f/Untitled%201.png"/></a></figure><ul id="433a25b9-5bba-4a1f-b2ff-e21629449591" class="bulleted-list"><li style="list-style-type:disc">Changes to an individual database schema won’t affect the other services running.</li></ul><ul id="e9f77e90-8173-4c95-8e18-d4cf4592bda2" class="bulleted-list"><li style="list-style-type:disc">Individual databases are easier to scale. </li></ul><ul id="b6e064cf-8028-456c-a7cd-3ca99ea88869" class="bulleted-list"><li style="list-style-type:disc">We can use polyglot persistence. (use different technologies per service)</li></ul><ul id="c8e94f89-af9d-484f-851d-b0e2c85b4a3e" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-red">Services will need to communicate with other services to access their data, this will need inter-service communication, which can cause a bottleneck.</mark></li></ul><ul id="8abd1b76-5aae-408f-9c15-727fddbdcc1b" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-red">Distributed transactions across microservices can negatively impact consistency and atomicity. </mark></li></ul><ul id="7b820f1e-8148-49b3-b5f0-2c61e377576e" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-red">No simple way to execute join queries on multiple data stores.</mark></li></ul><h2 id="fe30c7ac-8dfe-4f31-80bc-0a58f5c62af0" class="">The Shared Database: An Anti-Pattern</h2><figure id="d06d14b6-5ec9-4bb1-a79d-5d58a19f77e0" class="image"><a href="Data%20Management%20Choosing%20the%20right%20database%20398ab043f0514e32a924150a3e2a808f/Untitled%202.png"><img style="width:336px" src="Data%20Management%20Choosing%20the%20right%20database%20398ab043f0514e32a924150a3e2a808f/Untitled%202.png"/></a></figure><ul id="778669b7-e8cb-4211-94c5-1f7c017946a2" class="bulleted-list"><li style="list-style-type:disc">Follows ACID property</li></ul><ul id="b4e5653c-673b-40d8-9f0e-4266bf8e4e19" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-red">hard to scale</mark></li></ul><ul id="f2fef133-7ee8-4163-a2d1-462ce0b77e12" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-red">When we use a shared database, the microservice lose their core properties: scalability, resilience and independence.</mark></li></ul><ul id="85be3f54-0cf8-4834-a8ae-3ce10cc2e253" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-red">It can block microservices due to single-point-of-failure.</mark></li></ul><hr id="5d4c7253-69b7-4414-ad90-bf540b7a18d0"/><p id="707eae27-abf7-41de-bbf8-527c36b65920" class="">
+</p><figure id="3f922c5c-0ebd-40d3-9aba-a361ea91cccb" class="image"><a href="Data%20Management%20Choosing%20the%20right%20database%20398ab043f0514e32a924150a3e2a808f/Untitled%203.png"><img style="width:256px" src="Data%20Management%20Choosing%20the%20right%20database%20398ab043f0514e32a924150a3e2a808f/Untitled%203.png"/></a></figure><h2 id="83aa47d6-b9c3-4d88-91e1-f8dfe0e2d1ac" class="">When to use relational databases?</h2><ul id="aca51027-f21c-48a7-b640-fbb4555702c8" class="bulleted-list"><li style="list-style-type:disc">ACID compliance, Data consistency</li></ul><ul id="1fa47d7d-334f-4f6e-bcd1-ff90c8990afe" class="bulleted-list"><li style="list-style-type:disc">If the application data is predictable, using the structure of data, the size and the frequency of access</li></ul><ul id="bad2aa13-ab45-4c7f-b85a-60bdcedf6e03" class="bulleted-list"><li style="list-style-type:disc">When data is highly structured.</li></ul><ul id="fe0c28f8-1547-49aa-9e00-c4357b3c5c33" class="bulleted-list"><li style="list-style-type:disc">Relational databases are scaled vertically.</li></ul><h2 id="c91b92b7-695f-4319-a205-c8c4843ad457" class="">When NoSQL databases</h2><ul id="aa27be10-b13e-47c2-8ffb-4e3d993e5656" class="bulleted-list"><li style="list-style-type:disc">flexible schema and dynamic data</li></ul><ul id="09415d42-451f-461c-a70b-4e2960f723dc" class="bulleted-list"><li style="list-style-type:disc">Use case of an IOT platform that stores data from different sensors with frequently changing attributes.</li></ul><ul id="121bf572-18b5-47a8-87a7-567605b9cf5d" class="bulleted-list"><li style="list-style-type:disc">When you have a high-volume workload and need to scale horizontally with low latency.</li></ul><ul id="897237c1-2caf-40b9-89b2-1e989d99c2f4" class="bulleted-list"><li style="list-style-type:disc">NoSQL databases are designed for the cloud</li></ul><ul id="fba07b74-fbd5-405f-8878-efb1bfb8e40a" class="bulleted-list"><li style="list-style-type:disc">NoSQL can handle data coming in high volume.</li></ul><ul id="5a642177-72a3-4190-987d-44a0354b17a6" class="bulleted-list"><li style="list-style-type:disc">NoSQL database is eventually consistent and doesn’t support transactions</li></ul><ul id="e77edfad-7802-42c1-82cf-7075236bb7b4" class="bulleted-list"><li style="list-style-type:disc">NoSQL focuses on high-volume data and horizontal scaling.</li></ul><ul id="e5e91cb5-49a3-4754-ad00-9d07f7e9713f" class="bulleted-list"><li style="list-style-type:disc">Writes are much faster compared to SQL because they are eventually consistent. Eventually, consistency is leveraged to attain fast writes.</li></ul><ul id="265b06b4-decf-4f2c-b8ba-516f760c50fb" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red">Not good for complex join queries</mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></mark></li></ul><p id="44655e05-00b0-480f-8c4e-d129d75bc530" class="">
+</p><h2 id="aa933aed-7a26-4e2a-88d0-77e0513252a8" class="">Best practices when choosing databases</h2><ul id="27dc6631-6057-4e83-b53c-4991a1edafc2" class="bulleted-list"><li style="list-style-type:disc">Don’t use relational databases everywhere.</li></ul><ul id="b33ddd64-de50-405f-8e26-67a5d59fb10c" class="bulleted-list"><li style="list-style-type:disc">Don’t use single database technology</li></ul><ul id="5a3868f0-bf92-46cb-9743-46a52916858b" class="bulleted-list"><li style="list-style-type:disc">Use polyglot persistence.</li></ul><ul id="c65caed0-5321-4902-9f4b-b1a253bea6ac" class="bulleted-list"><li style="list-style-type:disc">Focus on the data type that you need to store<ul id="bd327403-da97-4cf6-a268-d75c84063d4d" class="bulleted-list"><li style="list-style-type:circle">Store JSON documents in NoSQL DB</li></ul><ul id="cec42ece-890f-48e4-97f5-8c52047841c2" class="bulleted-list"><li style="list-style-type:circle">transactional data into relational DB</li></ul><ul id="076b9b83-04a9-45eb-bc86-15fc615091bf" class="bulleted-list"><li style="list-style-type:circle">time series data into telemetry databases</li></ul><ul id="905c9e32-b370-46db-87dc-77b42f761785" class="bulleted-list"><li style="list-style-type:circle">blob data into blob storage</li></ul><ul id="947391ab-dfdf-4364-9bc0-b3d3aaf885c4" class="bulleted-list"><li style="list-style-type:circle">application logs into elastic search dbs</li></ul></li></ul><p id="4466d5cd-e493-4b38-81ec-5f4c588dbc30" class="">
+</p><h2 id="820841f0-98b1-4cb6-9b6f-328550f989f7" class="">How to choose the best database for your micro-service</h2><ul id="6ac952f6-68d5-458c-b05f-c911c0d01b5d" class="bulleted-list"><li style="list-style-type:disc">Do we need strict-string consistency or eventual consistency?<ul id="e409338b-a8c7-4f8c-a069-c33767bc1ac6" class="bulleted-list"><li style="list-style-type:circle">strong consistency: in banks, you can use SQL DBS here.</li></ul></li></ul><ul id="1a1c6c5c-c597-4776-811e-9ce39005c681" class="bulleted-list"><li style="list-style-type:disc">Do we need ACID compliance? It’s preferable to follow eventual consistency in micro-services to gain high scalability and availability.</li></ul><ul id="52014401-a58a-4c9d-8037-cde6cda54326" class="bulleted-list"><li style="list-style-type:disc">Fixed or Flexible Schema ???</li></ul><ul id="c1f6ed47-f3fb-4fdf-9e54-f8efcd6bed39" class="bulleted-list"><li style="list-style-type:disc">High or low data volume, Predictable or unpredictable data?<ul id="dffa7683-37bd-452e-be7c-882bbc7a4361" class="bulleted-list"><li style="list-style-type:circle">High volume, unpredictable: NoSQL, because it’s designed for the cloud</li></ul></li></ul><ul id="8144d32f-3b94-4177-93f8-2bbd085d1de8" class="bulleted-list"><li style="list-style-type:disc">Relational or non-relational data?? Are there complex join queries?</li></ul><ul id="7a3c9912-9224-440c-8cc1-bcfb806ebc4b" class="bulleted-list"><li style="list-style-type:disc">Deployments, Centralized or de-centralized structures?</li></ul><ul id="0d7ebe0f-f99a-41c7-9608-de0e97361179" class="bulleted-list"><li style="list-style-type:disc">Do we need to achieve fast read-write performance?</li></ul><ul id="aab89fb3-822e-425c-b43d-db259fb1a354" class="bulleted-list"><li style="list-style-type:disc">Do we need high scalability??<ul id="707caebf-b777-480d-aa1c-d54ef76c4f68" class="bulleted-list"><li style="list-style-type:circle">You will need to give up strong consistency here. </li></ul></li></ul><p id="9b86489e-3b9e-4b6a-bb92-9f3346139ab0" class="">
+</p><h2 id="0e6d5feb-e5d0-4dc4-84de-e32b9a27912e" class="">CAP theorem</h2><figure id="08acc648-98ed-4b25-ba54-de5279b1a241" class="image"><a href="Data%20Management%20Choosing%20the%20right%20database%20398ab043f0514e32a924150a3e2a808f/Untitled%204.png"><img style="width:288px" src="Data%20Management%20Choosing%20the%20right%20database%20398ab043f0514e32a924150a3e2a808f/Untitled%204.png"/></a></figure><p id="c806e2bc-6a4a-4d11-a269-73b9ea708e83" class="">In a distributed system, consistency, availability and partitioning cannot  be achieved at the same time.</p><p id="8165c3dc-9858-4418-b863-b46051c2587d" class=""><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red"><mark class="highlight-red">Don’t confuse database partitioning with partition in CAP theorem.</mark></mark></mark></mark></p><p id="2527343a-dc5d-4c37-ac45-6d219575f9a5" class="">Partitioning: In distributed system, when you have multiple services which cannot talk to each other, then there is a partition between them.</p><p id="3e10652b-d06c-4a54-9cdf-15f90d675025" class="">So partition tolerance means it can support partition tolerence.</p><p id="54984927-75f1-448c-ab57-93531734f82d" class="">No partition tolerence means there is only one machine.</p><p id="b70c7fe5-88d5-4915-bfb2-358e579a6285" class="">Distributed systems should sacrifice between consistency, availability and partition tolerance.</p><p id="b38b99c6-ab5f-441c-b414-19a6f121ade9" class="">Any database can only guarantee two of these. </p><p id="730a4a2c-d19c-4f71-a92d-4a6c691a912b" class="">In distribued architecture, Partition Tolerence is a must-have feature, it’s necessary to choose between consistency or availability.</p><p id="d35fa994-c959-4953-89e6-44e5775313fa" class="">If a system needs to be fully consistent, it must sacrifise high availability.</p><p id="73c2f359-dc1b-4875-a5c3-30386e147e4c" class="">Microservices choose partition tolerance with high availability and eventual consistency.</p><figure id="c81d67ab-6b7f-435d-8091-d25ace845e9c"><a href="https://youtu.be/KmGy3sU6Xw8?t=418" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">My thoughts on the CAP theorem</div><div class="bookmark-description">CAP stands for Consistency, Availability, and Partition tolerance. Understanding the CAP theorem can help engineers make better design choices when building distributed systems. In this show, I will explain the CAP theorem and how you can use it to make tradeoffs in your backend design. You probably already are using the CAP theorem without even knowing. 
+
+Resources
+https://www.infoq.com/articles/cap-twelve-years-later-how-the-rules-have-changed/#:~:text=The%20CAP%20theorem%20states%20that,to%20network%20partitions%20(P).
+
+Support my work on PayPal
+https://bit.ly/33ENps4
+ 
+Become a Member on YouTube
+https://www.youtube.com/channel/UC_ML5xP23TOWKUcc-oAE_Eg/join
+
+🧑‍🏫 Courses I Teach
+https://husseinnasser.com/courses 
+
+🏭 Backend Engineering Videos in Order
+https://backend.husseinnasser.com
+
+💾 Database Engineering Videos
+https://www.youtube.com/playlist?list=PLQnljOFTspQXjD0HOzN7P2tgzu7scWpl2
+
+🎙️Listen to the Backend Engineering Podcast
+https://husseinnasser.com/podcast 
+
+Gears and tools used on the Channel (affiliates)
+
+🖼️ Slides and Thumbnail Design 
+Canva
+https://partner.canva.com/c/2766475/647168/10068
+
+🎙️ Mic Gear
+Shure SM7B Cardioid Dynamic Microphone  
+https://amzn.to/3o1NiBi
+
+Cloudlifter
+https://amzn.to/2RAeyLo
+
+XLR cables
+https://amzn.to/3tvMJRu
+
+Focusrite Audio Interface
+https://amzn.to/3f2vjGY
+
+
+📷 Camera Gear
+Canon M50 Mark II
+https://amzn.to/3o2ed0c
+
+Micro HDMI to HDMI 
+https://amzn.to/3uwCxK3
+
+Video capture card
+https://amzn.to/3f34pyD
+
+AC Wall for constant power
+https://amzn.to/3eueoxP
+
+
+Stay Awesome,
+Hussein</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/6ca9d352/img/favicon_144x144.png" class="icon bookmark-icon"/>https://youtu.be/KmGy3sU6Xw8?t=418</div></div><img src="https://i.ytimg.com/vi/KmGy3sU6Xw8/sddefault.jpg" class="bookmark-image"/></a></figure><figure id="b6d9072c-822d-45b1-95f6-1c848fe230a0"><a href="https://mwhittaker.github.io/blog/an_illustrated_proof_of_the_cap_theorem/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">An Illustrated Proof of the CAP Theorem</div><div class="bookmark-description">The CAP Theorem is a
+    fundamental theorem in distributed systems that states any distributed
+    system can have at most two of the following three properties.</div></div><div class="bookmark-href">https://mwhittaker.github.io/blog/an_illustrated_proof_of_the_cap_theorem/</div></div></a></figure><p id="07ec5107-b6b2-4078-8ac5-67c785e18f7e" class="">The system uses networks, so it’s partitioned application. So the architecture is partition tolerant. </p><figure id="7ac7f74b-0c28-46bc-a05d-819c3aca0cf8" class="image"><a href="Data%20Management%20Choosing%20the%20right%20database%20398ab043f0514e32a924150a3e2a808f/cap_theorem.drawio.png"><img style="width:336px" src="Data%20Management%20Choosing%20the%20right%20database%20398ab043f0514e32a924150a3e2a808f/cap_theorem.drawio.png"/></a></figure><p id="ee7d1765-3beb-40be-b7a4-959b9a13de55" class="">When a write comes to the master node, we get two choices.</p><ol type="1" id="02ce4fa6-994b-4e6f-9528-b73ab55a0a1d" class="numbered-list" start="1"><li>Immediately acidify and completely commit to the master and return to the client with an acknowledgement(Asynchronous). Hence my system as a whole is available.<p id="165c957f-99cb-4dd7-8e51-0135886719f6" class="">Is it consistent though??? The new updates haven’t been propogated to the read replicas yet. So any read requests to the read replicas will return stale data. So it’s not consistent</p><p id="f1088142-f378-46f4-aa52-0ad42c340f9e" class="">This <strong><strong><strong>AP </strong></strong></strong>part of CAP.</p></li></ol><ol type="1" id="75e09b2d-ef75-4b3b-83d2-5baf4447bc55" class="numbered-list" start="2"><li>You block the client till, the data is written in the replica set. You wait till all the writes are written in all the replica set. (Synchronous).<br/>Is it available though??? Since the system supports partition tolerence, the request to one the read replica can fail. So the master nodes keep trying, the read replica is already down. Since the write is not commited to the replica, the client is still waiting for the acknowledgement. <br/>Therefore the system is not available. <br/></li></ol><p id="5f9be28e-0eca-49cf-8e8a-65eb41bc3dc9" class="">
+</p><p id="1cf3aef1-6f3d-4bf6-bab5-07f231a05491" class="">If there is partition tolerence, you get consistency and availability.</p><figure id="7e027e52-1e2f-45c5-9954-25410bbf65b9" class="link-to-page"><a href="../Fundamentals%20of%20database%20engineering%203567e651e39c4f51a931697292608bc8/Database%20Partitioning%207e027e521e2f45c5995425410bbf65b9.html">Database Partitioning</a></figure><figure id="edf58b69-ee4e-429a-81e1-c5f7d7098ede" class="link-to-page"><a href="../Fundamentals%20of%20database%20engineering%203567e651e39c4f51a931697292608bc8/Database%20Sharding%20edf58b69ee4e429a81e1c5f7d7098ede.html">Database Sharding</a></figure><hr id="0414c792-8acb-411a-9213-4788ce2b278b"/><p id="2f3459e3-7856-4a28-84cf-ea227c98b7bc" class="">
+</p><p id="19773909-32e1-4f78-9700-49e7de68f2d7" class="">
+</p></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
