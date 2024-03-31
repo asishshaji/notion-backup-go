@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	"net/http"
@@ -11,11 +10,8 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
+	godotenv.Load()
 
-	if err != nil {
-		log.Fatalf("error loading .env file %s", err)
-	}
 	client := &http.Client{Transport: &http.Transport{
 		MaxIdleConns:       10,
 		DisableCompression: true,
