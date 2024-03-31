@@ -20,6 +20,9 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '1.21.6'
+        cache-dependency-path: |
+            go.sum
+           
     - name: Run
       run: ./notion-backup-go
       env:
